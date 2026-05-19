@@ -29,6 +29,10 @@ type SavedCameraViewConfig = {
   default?: CameraViewPreset;
   byScope?: Partial<Record<MapScope, CameraViewPreset>>;
 };
+type DrillStackItem = {
+  state: MapState;
+  cameraView?: CameraViewPreset;
+};
 
 const host = ref<HTMLElement>();
 let renderer: THREE.WebGLRenderer | undefined;
@@ -62,7 +66,7 @@ let isDrilling = false;
 let currentState: MapState = initialMapState;
 let geoData = currentState.geoData;
 let currentLabels: MapLabel[] = [];
-let drillStack: MapState[] = [];
+let drillStack: DrillStackItem[] = [];
 let drillControlEl: HTMLDivElement | undefined;
 const mapWidth = 860;
 const mapHeight = 530;
@@ -181,12 +185,15 @@ function writeSavedCameraViewConfig(config: SavedCameraViewConfig) {
   window.localStorage.setItem(cameraViewStorageKey, JSON.stringify(config));
 }
 
-function resolveCameraView(scope: MapScope) {
+function resolveBuiltInCameraView(scope: MapScope) {
+  return cameraViewConfig.byScope?.[scope] ?? cameraViewConfig.default;
+}
+
+function resolveInitialCameraView(scope: MapScope) {
   const saved = readSavedCameraViewConfig();
   return saved.byScope?.[scope]
     ?? saved.default
-    ?? cameraViewConfig.byScope?.[scope]
-    ?? cameraViewConfig.default;
+    ?? resolveBuiltInCameraView(scope);
 }
 
 function getCurrentCameraView() {
@@ -203,7 +210,7 @@ function saveCurrentCameraView(mode: 'default' | 'scope') {
   if (!view) return;
   const saved = readSavedCameraViewConfig();
   if (mode === 'default') {
-    writeSavedCameraViewConfig({ ...saved, default: view });
+    writeSavedCameraViewConfig({ default: view });
     return;
   }
   writeSavedCameraViewConfig({
@@ -218,13 +225,17 @@ function saveCurrentCameraView(mode: 'default' | 'scope') {
 function resetCameraView(mode: 'scope' | 'all') {
   if (mode === 'all') {
     window.localStorage.removeItem(cameraViewStorageKey);
-    applyCameraView(cameraViewConfig.default);
+    applyCameraView(resolveBuiltInCameraView(currentState.scope));
     return;
   }
 
   const saved = readSavedCameraViewConfig();
   const byScope = { ...(saved.byScope ?? {}) };
-  delete byScope[currentState.scope];
+  if (saved.default) {
+    byScope[currentState.scope] = resolveBuiltInCameraView(currentState.scope);
+  } else {
+    delete byScope[currentState.scope];
+  }
   const nextSaved = {
     ...saved,
     byScope,
@@ -235,11 +246,11 @@ function resetCameraView(mode: 'scope' | 'all') {
   } else {
     writeSavedCameraViewConfig(nextSaved);
   }
-  applyCameraView(resolveCameraView(currentState.scope));
+  applyCameraView(resolveBuiltInCameraView(currentState.scope));
 }
 
-function applyCameraViewForCurrentScope() {
-  applyCameraView(resolveCameraView(currentState.scope));
+function applyInitialCameraViewForCurrentScope() {
+  applyCameraView(resolveInitialCameraView(currentState.scope));
 }
 
 function flashButtonText(button: HTMLButtonElement, text: string, fallbackText: string) {
@@ -1952,14 +1963,16 @@ function refreshDrillControl() {
     city: '市级',
     district: '区县',
   }[currentState.scope];
+  const backDisabled = !drillStack.length || isDrilling ? 'disabled' : '';
+  const actionDisabled = isDrilling ? 'disabled' : '';
 
   drillControlEl.innerHTML = `
-    <button type="button" data-map-action="back" ${drillStack.length ? '' : 'disabled'}>返回上级</button>
+    <button type="button" data-map-action="back" ${backDisabled}>返回上级</button>
     <span>${scopeLabel} / ${currentState.regionName}</span>
-    <button type="button" data-map-action="save-view-default">保存统一</button>
-    <button type="button" data-map-action="save-view-scope">保存本层</button>
-    <button type="button" data-map-action="reset-view-scope">恢复本层</button>
-    <button type="button" data-map-action="reset-view-all">恢复全部</button>
+    <button type="button" data-map-action="save-view-default" ${actionDisabled}>保存统一</button>
+    <button type="button" data-map-action="save-view-scope" ${actionDisabled}>保存本层</button>
+    <button type="button" data-map-action="reset-view-scope" ${actionDisabled}>恢复本层</button>
+    <button type="button" data-map-action="reset-view-all" ${actionDisabled}>恢复全部</button>
   `;
   drillControlEl.querySelectorAll('button').forEach((button) => {
     button.addEventListener('click', () => {
@@ -2016,32 +2029,53 @@ async function drillToFeature(featureName: string) {
   if (!target) return;
 
   isDrilling = true;
+  refreshDrillControl();
   try {
     const nextGeoJson = await loadMapLevel(target.scope, target.code);
-    drillStack = [...drillStack, currentState];
+    drillStack = [...drillStack, {
+      state: currentState,
+      cameraView: getCurrentCameraView(),
+    }];
     currentState = {
       scope: target.scope,
       regionName: target.regionName,
       code: target.code,
       geoData: nextGeoJson,
     };
-    applyCameraViewForCurrentScope();
     await waitForNextFrame();
     await rebuildMapForCurrentState();
   } catch (error) {
     console.warn('Map drilldown failed', error);
   } finally {
     isDrilling = false;
+    refreshDrillControl();
   }
 }
 
 async function drillBack() {
-  const previous = drillStack[drillStack.length - 1];
-  if (!previous) return;
-  drillStack = drillStack.slice(0, -1);
-  currentState = previous;
-  applyCameraViewForCurrentScope();
-  void rebuildMapForCurrentState();
+  if (isDrilling) return;
+  const previousItem = drillStack[drillStack.length - 1];
+  if (!previousItem) return;
+  const nextStack = drillStack.slice(0, -1);
+  const currentBeforeBack = currentState;
+  const stackBeforeBack = drillStack;
+  isDrilling = true;
+  drillStack = nextStack;
+  currentState = previousItem.state;
+  refreshDrillControl();
+  try {
+    await waitForNextFrame();
+    await rebuildMapForCurrentState();
+    if (previousItem.cameraView) applyCameraView(previousItem.cameraView);
+  } catch (error) {
+    console.warn('Map drillback failed', error);
+    drillStack = stackBeforeBack;
+    currentState = currentBeforeBack;
+    await rebuildMapForCurrentState();
+  } finally {
+    isDrilling = false;
+    refreshDrillControl();
+  }
 }
 
 function onPointerDown(event: PointerEvent) {
@@ -2097,7 +2131,7 @@ function setup() {
   controls.minDistance = 520;
   controls.maxDistance = 1050;
   controls.target.set(...cameraViewConfig.default.target);
-  applyCameraViewForCurrentScope();
+  applyInitialCameraViewForCurrentScope();
 
   labelRenderer = new CSS2DRenderer();
   labelRenderer.setSize(width, height);

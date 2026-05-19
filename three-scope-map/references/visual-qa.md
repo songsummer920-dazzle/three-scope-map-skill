@@ -35,6 +35,8 @@ Capture these when possible:
 - Chase light is one segment on the outer contour only.
 - Labels remain inside their exported/background frames.
 - Drilldown click swaps to the correct next scope and back navigation restores the exact previous scope.
+- While drilling or returning, navigation/camera buttons are temporarily disabled so repeated clicks cannot desync the drill stack and rendered scene.
+- Camera controls behave as specified: `保存统一` applies one default to all scopes, `保存本层` only affects the current scope, `恢复本层` restores the current scope to the skill built-in camera even when a unified default exists, and `恢复全部` clears every saved camera view.
 - After drilldown, no parent-scope labels, scatter points, fly lines, ripples, or chase-light paths remain.
 
 ## Chart Checks
