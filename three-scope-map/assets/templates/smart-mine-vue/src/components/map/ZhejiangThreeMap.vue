@@ -37,6 +37,7 @@ let scene: THREE.Scene | undefined;
 let camera: THREE.PerspectiveCamera | undefined;
 let controls: OrbitControls | undefined;
 let raf = 0;
+let resizeObserver: ResizeObserver | undefined;
 let mapGroup: THREE.Group | undefined;
 let ringDecorGroup: THREE.Group | undefined;
 let provinceChaseLine: THREE.Mesh | undefined;
@@ -2068,13 +2069,13 @@ function onPointerDown(event: PointerEvent) {
 function setup() {
   if (!host.value) return;
   cancelAnimationFrame(raf);
+  resizeObserver?.disconnect();
   controls?.dispose();
   renderer?.dispose();
   host.value.replaceChildren();
   cityLabelElements.clear();
 
-  const width = host.value.clientWidth;
-  const height = host.value.clientHeight;
+  const { width, height } = getHostSize();
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(cameraViewConfig.default.fov, width / height, 1, 2400);
@@ -2154,22 +2155,34 @@ function animate() {
 
 function resize() {
   if (!host.value || !camera || !renderer || !labelRenderer) return;
-  const width = host.value.clientWidth;
-  const height = host.value.clientHeight;
+  const { width, height } = getHostSize();
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
   renderer.setSize(width, height);
   labelRenderer.setSize(width, height);
 }
 
+function getHostSize() {
+  const rect = host.value?.getBoundingClientRect();
+  const width = Math.max(1, Math.round(rect?.width || host.value?.clientWidth || 1920));
+  const height = Math.max(1, Math.round(rect?.height || host.value?.clientHeight || 1080));
+  return { width, height };
+}
+
 onMounted(() => {
   setup();
   window.addEventListener('resize', resize);
+  if (host.value && 'ResizeObserver' in window) {
+    resizeObserver = new ResizeObserver(() => resize());
+    resizeObserver.observe(host.value);
+  }
 });
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(raf);
   window.removeEventListener('resize', resize);
+  resizeObserver?.disconnect();
+  resizeObserver = undefined;
   host.value?.removeEventListener('pointermove', onPointerMove);
   host.value?.removeEventListener('pointerdown', onPointerDown);
   host.value?.removeEventListener('pointerleave', onPointerLeave);
@@ -2183,11 +2196,13 @@ onBeforeUnmount(() => {
 <style scoped>
 .map-host {
   position: absolute;
-  left: 0;
-  top: 0;
+  inset: 0;
   z-index: 6;
-  width: 1920px;
-  height: 1080px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
   pointer-events: auto;
   filter: drop-shadow(0 0 18px rgba(199, 255, 61, 0.34));
   animation: mapStageIn 920ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;

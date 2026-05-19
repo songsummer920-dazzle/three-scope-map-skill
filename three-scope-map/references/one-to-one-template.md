@@ -42,7 +42,7 @@ npm install three
 npm install -D @types/three
 ```
 
-4. Mount `ZhejiangThreeMap.vue` in the target page or app shell.
+4. Mount `ZhejiangThreeMap.vue` in the target page or app shell. The component fills its parent container; do not hardcode the map host to `1920px x 1080px`.
 5. Preserve relative asset paths unless the target project has a different alias convention.
 6. Keep the camera, materials, terrain config, label CSS, chase light, fly lines, and hover logic intact for the first pass.
 7. Add drilldown data for every non-terminal visible scope before delivery:
@@ -83,6 +83,7 @@ Do not rewrite these unless the user asks for a variant:
 ## Validation Checklist
 
 - The map is real Three.js geometry, not a screenshot.
+- `.map-host` fills the parent container and renderer size follows `ResizeObserver`; 16:9 scaling belongs to the outer dashboard shell, not the map component itself.
 - Top surface is dark, not bright green.
 - Side thickness uses the validated green gradient.
 - Top and bottom outer contours align with the side thickness start/end.

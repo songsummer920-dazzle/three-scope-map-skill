@@ -65,36 +65,52 @@ Or install it from this GitHub repository with the skill installer if your Codex
 
 ## Example Prompts
 
-### First Use Prompt
+### No Existing Project Prompt
 
-Use this when starting from an empty folder or an unknown project:
+Use this when the current folder is empty or is not yet a frontend project:
 
 ```txt
-Use three-scope-map skill to create or integrate a reusable Three.js 3D map from the bundled one-to-one smart-mine Vue template.
+这是我要使用的 skill：
+https://github.com/songsummer920-dazzle/three-scope-map-skill
 
-First inspect the current folder:
-- If it is not a frontend project, scaffold a Vue 3 + Vite + TypeScript project.
-- If it is already a frontend project, adapt to its existing structure.
-- Install missing dependencies such as three.
-- Use real GeoJSON data.
-- Preserve the template style one-to-one: dark top surface, extrusion, side gradient, terrain texture, outer contour, internal boundaries, labels, ripple, hover lift, fly lines, chase light, base ring, and camera save/reset controls.
-- Support drilldown for every non-terminal scope: world -> country, country -> province, province -> city, city -> district/county. District/county is terminal unless lower-level data is explicitly supplied.
-- Run the project and provide the local URL.
+请你自动完成全部操作，我不懂开发。
+
+要求：
+1. 先从这个 GitHub 链接安装或读取 three-scope-map skill。
+2. 检查当前工作目录。
+3. 如果当前目录不是前端项目，请自动初始化 Vue 3 + Vite + TypeScript 项目。
+4. 安装需要的依赖，包括 three。
+5. 使用真实 GeoJSON 数据创建一个 3D 地图。
+6. 默认做浙江省地图。
+7. 地图风格必须优先使用 skill 内置 one-to-one smart-mine Vue 模板，不要自由重画样式。
+8. 地图风格使用暗色 HUD 风格，主色 #E8FF4F。
+9. 需要包含地图挤出厚度、侧边渐变、地形纹理、外轮廓描边、内部边界、城市标签、hover 高亮凸起、飞线、追光、HUD 底座环、视角保存和恢复。
+10. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果需要 16:9，由外层大屏容器控制。
+11. 除区县级外，每个层级都要支持下钻；浙江省级的涟漪和飞线从省会杭州市出发。
+12. 完成后启动项目，并告诉我本地访问地址。
+13. 如果中途需要我确认，只问我必须确认的问题；能自动决定的请直接完成。
 ```
 
-Chinese version:
+### Existing Project Prompt
+
+Use this when the current folder is already an app or website:
 
 ```txt
-使用 three-scope-map skill，基于内置的一比一 smart-mine Vue 模板，帮我创建或接入一个可复用的 Three.js 3D 地图。
+这是我要使用的 skill：
+https://github.com/songsummer920-dazzle/three-scope-map-skill
 
-请先检查当前目录：
-- 如果当前目录还不是前端项目，请先初始化 Vue 3 + Vite + TypeScript 项目。
-- 如果已经是前端项目，请先检查项目结构后再接入。
-- 如果缺少 three 等依赖，请安装。
-- 使用真实 GeoJSON 数据。
-- 保持模板样式一比一：暗色地图表面、挤出厚度、侧边渐变、地形纹理、外轮廓描边、内部边界、标签、涟漪、hover 凸起、飞线、追光、HUD 底座环、视角保存和恢复。
-- 除区县级外，每个层级都要支持下钻：世界到国家、国家到省、省到市、市到区县；区县级默认作为终点，除非我额外提供更细的数据。
-- 完成后运行项目并告诉我本地访问地址。
+请你自动安装或读取这个 three-scope-map skill，并把 3D 地图能力接入当前项目。
+
+我不懂开发，请你自动完成：
+1. 检查当前项目技术栈和目录结构。
+2. 如果缺少 three 或相关依赖，请安装。
+3. 如果当前项目不是 Vue 项目，请根据现有技术栈给出最小适配实现。
+4. 使用真实 GeoJSON 数据。
+5. 地图风格必须优先使用 skill 内置 one-to-one smart-mine Vue 模板，不要自由重画样式。
+6. 创建暗色 HUD 风格 3D 地图，主色 #E8FF4F，包含 3D 挤出、侧边渐变、地形纹理、外轮廓描边、内部边界、标签、hover 高亮、飞线、追光、HUD 底座环、视角保存和恢复。
+7. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果项目是 16:9 大屏，由外层容器负责缩放。
+8. 除区县级外，每个层级都要支持下钻；浙江省级的涟漪和飞线从省会杭州市出发。
+9. 完成后运行项目，并告诉我本地访问地址。
 ```
 
 ### Specific Task Prompts
