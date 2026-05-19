@@ -53,7 +53,6 @@ Read only what the task needs:
 - `scripts/generate_map_theme.py <hex>`: Generate a full map theme from one main color.
 - `scripts/apply_map_theme.py <hex> <target-file>`: Replace a standard `mapTheme` export in a TypeScript file after creating a backup.
 - `scripts/preprocess_map_data.py`: Create render-ready GeoJSON with simplified rings, bbox, center, and point-count metadata.
-- Project template script `scripts/preprocess-map-data.mjs`: Create render-ready GeoJSON with simplified rings, bbox, center, and point-count metadata.
 - `assets/templates/mapDataAdapter.ts`: Reusable cache/prefetch/network fallback adapter template.
 - `assets/templates/frameChunkedRebuild.ts`: Reusable chunked map rebuild and resource-disposal helper template.
 - `assets/templates/cameraPresetController.ts`: Reusable camera angle preset, localStorage persistence, and OrbitControls save/apply helper.
