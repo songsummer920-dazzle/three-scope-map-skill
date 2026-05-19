@@ -18,6 +18,7 @@ Capture these when possible:
 - Body background is dark, never default white.
 - No page scrollbar appears.
 - Whole stage remains 16:9 and uniformly scaled.
+- Map host fills its parent container instead of using fixed `1920px x 1080px`; the outer shell owns any 16:9 scaling.
 - Title HUD, panel frames, and bottom navigation still align with Figma assets.
 - Frosted glass and translucent fills stay below `panel-frame.png`.
 - No panel content overlaps exported frame corners or header bars.
