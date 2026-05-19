@@ -92,6 +92,7 @@ type ProvinceMapTheme = {
   labelText: string;
   labelBorder: string;
   labelGlow: string;
+  labelPointer: string;
   scatter: string;
   ripple: string;
   flyLine: string;
@@ -105,6 +106,7 @@ When applying a new theme:
 
 - Replace hardcoded `#E8FF4F`, `#D4F56A`, green `rgba(...)`, and glow colors with `mapTheme` values.
 - Update canvas-generated textures, sprite materials, line materials, shader uniforms, CSS custom properties, and label SVG/CSS colors.
+- Recolor the bundled label pointer triangle in `map-label-bg.svg` with `mapTheme.labelPointer`; the original asset has this triangle hardcoded as `#E8FF4F`.
 - Keep unrelated panel colors unchanged unless the user asks for the whole dashboard theme to change.
 - After applying, verify top surface remains dark, outer thickness still has visible gradient, internal boundaries remain thin, and labels stay readable.
 
@@ -149,7 +151,7 @@ Use `diffuseMap`, `normalMap`, `roughnessMap`, and `displacementMap` where suppo
 - Default labels: 0.5 scale, 10px text.
 - Hovered/selected labels: 0.7 scale unless the user gives another size, 14px text.
 - Keep text inside the label frame.
-- Only intentional points should have ripple effects. If one city gets a ripple, verify no stray inactive point remains elsewhere.
+- Only intentional points should have ripple effects. By default, country scope uses 北京市, province scope uses the province capital as the ripple/fly-line source, and city scope uses the same stable random district/county source as fly lines. If one region gets a ripple, verify no stray inactive point remains elsewhere.
 
 ## Effects
 

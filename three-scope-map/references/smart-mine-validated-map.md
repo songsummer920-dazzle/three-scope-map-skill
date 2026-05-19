@@ -67,10 +67,13 @@ Validated label rules:
 - Only intentional data points should render.
 - If the user requests a single ripple, only that point should ripple.
 
-Project-specific ripple:
+Validated ripple source rules:
 
-- Keep the 金华市 ripple if requested.
-- Align the ripple center to the bottom arrow/point under 金华市, not to the label center.
+- Country scope: ripple follows 北京市, matching the China-level fly-line source.
+- Province scope: ripple follows the province capital, so Zhejiang defaults to 杭州市.
+- City scope: ripple follows the same stable random district/county source used by fly lines.
+- District scope: no default ripple unless the user provides explicit point data.
+- Align the ripple center to the bottom arrow/point under the source label, not to the label center.
 - Do not leave inactive green dots at other city coordinates.
 - If stray dots appear, disable scatter/ripple/label anchor layers separately to find the real source before deleting the wrong layer.
 
@@ -156,10 +159,6 @@ Default drilldown fly-line source rules:
 - City scope: a stable configurable district/county -> other districts/counties.
 - District scope: no default fly lines unless the user provides data.
 
-Project-specific override:
-
-- If the user asks for this exact smart-mine Zhejiang dashboard behavior, support 金华市 -> 绍兴市 / 温州市 / 衢州市 / 台州市.
-
 Fly-line rules:
 
 - Use named coordinates from the current map level.
@@ -206,7 +205,7 @@ This reduces click jank but does not guarantee zero stutter on low-end devices. 
 
 ## Common Bugs From This Project
 
-- Stray green dot: usually an inactive scatter/ripple/label-anchor visual still being rendered. Remove the unintended object, not the intended 金华市 ripple.
+- Stray green dot: usually an inactive scatter/ripple/label-anchor visual still being rendered. Remove the unintended object, not the intended source ripple.
 - Hover gap: top geometry lifted but side-wall gradient stayed at base height. Animate both together.
 - Texture bleed: terrain/canvas texture not clipped or alpha-tested to GeoJSON boundaries.
 - Jagged chase light: path assembled from unsorted edges or too few samples.

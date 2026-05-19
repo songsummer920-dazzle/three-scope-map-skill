@@ -71,6 +71,7 @@ def generate_theme(hex_color: str) -> dict[str, object]:
         "labelText": label_text,
         "labelBorder": rgba(label_text, 0.72),
         "labelGlow": rgba(primary, 0.34),
+        "labelPointer": primary,
         "scatter": primary,
         "ripple": rgba(primary, 0.42),
         "flyLine": rgba(hot, 0.86),
