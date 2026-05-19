@@ -175,14 +175,26 @@ python3 <skill>/scripts/generate_map_theme.py '#2AF7FF'
 python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' src/components/map/mapTheme.ts
 ```
 
-3. Search for hardcoded old colors in map files:
+3. If the bundled label SVG is used, recolor it in the same pass:
+
+```bash
+python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' src/components/map/mapTheme.ts --label-svg src/assets/figma/map-label-bg.svg
+```
+
+Or recolor only the label pointer:
+
+```bash
+python3 <skill>/scripts/recolor_label_asset.py '#2AF7FF' src/assets/figma/map-label-bg.svg
+```
+
+4. Search for hardcoded old colors in map files:
 
 ```bash
 rg '#E8FF4F|#D4F56A|232,255,79|212,245,106' src/components/map src/assets
 ```
 
-4. Replace only map-related hardcoded colors. Do not change ECharts or panel assets unless requested.
-5. Verify dark top surface, side gradient, labels, scatter/ripple, fly lines, HUD ring, and chase light.
+5. Replace only map-related hardcoded colors. Do not change ECharts or panel assets unless requested.
+6. Verify dark top surface, side gradient, labels, scatter/ripple, fly lines, HUD ring, and chase light.
 
 ## Texture Only
 

@@ -4,6 +4,8 @@ Use this when the user wants hierarchical map navigation, such as clicking China
 
 ## Drilldown Levels
 
+Default rule: every level except `district` must be drillable. Before delivery, resolve or generate the next-level GeoJSON tree needed for `world`, `country`, `province`, and `city` scopes. Never ship a generated map where `country`, `province`, or `city` is a dead end; if the required public data source truly cannot provide the next level, report that as a blocker instead of pretending the level is supported.
+
 ```ts
 type MapScope = 'world' | 'country' | 'province' | 'city' | 'district';
 
@@ -28,6 +30,8 @@ type DrillStackItem = DrillTarget & {
 | `province` | city | `city` | district/county subdivisions |
 | `city` | district/county | `district` | terminal district boundary or lower-level source if available |
 | `district` | boundary | `district` | terminal; show selected state, do not recurse unless data is explicitly available |
+
+For a one-to-one smart-mine style map, keep the same visual preset at every level. Drilldown changes the GeoJSON, labels, scatter/ripple source, fly-line endpoints, chase-light outer contour, terrain texture scope, and camera preset; it does not change the map's validated style.
 
 ## Data Resolution
 
@@ -65,6 +69,8 @@ Use the script report:
 - Back navigation pops the stack and restores the previous scope, data, camera, labels, points, and effects.
 - Clear stale labels, scatter points, fly lines, ripples, and hover state before rendering the next level.
 - Disable or debounce clicks while the next GeoJSON is loading.
+- Animate the transition between levels: fade/lift out the current geometry, swap data, then fade/lift in the next geometry with labels and effects restored after the first render frame.
+- Regenerate source effects by level: China country scope uses 北京市, province scope uses the province capital, city scope uses one stable random district/county, and district scope has no default outgoing source.
 
 ## Target Resolver
 
@@ -107,6 +113,8 @@ function resolveDrillTarget(currentScope: MapScope, feature: GeoJSON.Feature): D
 
 For world maps, maintain a manual registry for countries whose national subdivision datasets are available. Do not pretend every country can be downloaded from the China administrative source.
 
+For one-to-one generation requests targeting a specific place, the registry must include that requested place before delivery. Examples: China needs province data; a selected province needs city data; a selected city needs district/county data.
+
 ## Visual Continuity
 
 - Keep theme color derived from the same map theme unless the user asks for a scope-specific color.
@@ -122,6 +130,7 @@ For world maps, maintain a manual registry for countries whose national subdivis
 - Click a province on China enters that province with city boundaries.
 - Click a city on a province enters district/county boundaries.
 - Click a district/county either enters a valid terminal boundary or stays selected without breaking.
+- Confirm `world`, `country`, `province`, and `city` scopes are not terminal.
 - Back returns the exact previous scope and camera.
 - Hover highlight lifts top and side geometry together without a gap after every drilldown.
 - No labels, fly lines, scatter points, or chase lights from the previous scope remain.

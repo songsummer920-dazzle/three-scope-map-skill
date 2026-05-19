@@ -1,4 +1,4 @@
 interface:
   display_name: "Three Scope Map"
-  short_description: "Build, migrate, theme, drill down, and optimize reusable Three.js geographic 3D maps"
-  default_prompt: "Use this skill to build or migrate a Three.js 3D map, including world/country/province/city/district GeoJSON scope, drilldown, terrain textures, theme colors, labels, scatter points, fly lines, hover states, chase-light effects, and the validated smart-mine performance/style preset."
+  short_description: "Build one-to-one dark HUD Three.js maps with drilldown and reusable geographic style"
+  default_prompt: "Use this skill to build or migrate a Three.js 3D map from the bundled one-to-one smart-mine Vue template first. Preserve the validated dark HUD renderer, side-wall gradient, terrain textures, labels, scatter/ripple, fly lines, hover states, chase-light effects, camera controls, and drilldown behavior across world/country/province/city/district GeoJSON scopes."
