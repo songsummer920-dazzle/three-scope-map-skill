@@ -44,6 +44,38 @@ Or install it from this GitHub repository with the skill installer if your Codex
 
 ## Example Prompts
 
+### First Use Prompt
+
+Use this when starting from an empty folder or an unknown project:
+
+```txt
+Use three-scope-map skill to create or integrate a reusable Three.js 3D map.
+
+First inspect the current folder:
+- If it is not a frontend project, scaffold a Vue 3 + Vite + TypeScript project.
+- If it is already a frontend project, adapt to its existing structure.
+- Install missing dependencies such as three.
+- Use real GeoJSON data.
+- Build a dark HUD-style 3D map with extrusion, side gradient, terrain texture, outer contour, internal boundaries, labels, hover lift, fly lines, chase light, and camera save/reset controls.
+- Run the project and provide the local URL.
+```
+
+Chinese version:
+
+```txt
+使用 three-scope-map skill，帮我创建或接入一个可复用的 Three.js 3D 地图。
+
+请先检查当前目录：
+- 如果当前目录还不是前端项目，请先初始化 Vue 3 + Vite + TypeScript 项目。
+- 如果已经是前端项目，请先检查项目结构后再接入。
+- 如果缺少 three 等依赖，请安装。
+- 使用真实 GeoJSON 数据。
+- 创建暗色 HUD 风格 3D 地图，包含地图挤出厚度、侧边渐变、地形纹理、外轮廓描边、内部边界、标签、hover 凸起、飞线、追光、视角保存和恢复。
+- 完成后运行项目并告诉我本地访问地址。
+```
+
+### Specific Task Prompts
+
 ```txt
 Use three-scope-map to build a dark HUD-style Three.js Zhejiang province map with city boundaries, labels, fly lines, hover lift, and chase light.
 ```
