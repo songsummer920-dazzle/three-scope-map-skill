@@ -139,16 +139,16 @@ const view =
 Rules:
 
 - Let users rotate/zoom the map with `OrbitControls`.
-- Use one unified default view by default; add per-scope overrides only when a specific level needs a different angle.
-- Add `保存统一` and `保存本层` buttons outside the WebGL canvas interaction path.
-- Add matching `恢复本层` and `恢复全部` actions.
-- On save, persist `camera.fov`, `camera.position`, and `controls.target`.
-- On page setup, apply the saved camera view after creating `OrbitControls`.
-- On scope changes, resolve the current view from the order above and apply it.
-- On reset, remove only the camera-view storage key or current scope override; do not clear drilldown data, theme, or user business data.
+- `保存统一`: persist the current `camera.fov`, `camera.position`, and `controls.target` as the default for all scopes, and clear existing per-scope overrides so the unified view truly applies everywhere.
+- `保存本层`: persist only the current scope's `camera.fov`, `camera.position`, and `controls.target`.
+- `恢复本层`: restore the current scope to the skill's built-in default camera, regardless of any saved unified default. If a unified default exists, persist the built-in camera as this scope's override so later visits to this scope still use the built-in view.
+- `恢复全部`: remove all saved camera views and restore the current scope to the skill's built-in default camera.
+- Initial page setup resolves `saved byScope -> saved unified default -> built-in byScope -> built-in default`.
+- Drilldown inherits the current camera view unless the user explicitly changes it. Do not force the child scope to its saved/default camera during drilldown.
+- `返回上级`: restore the exact parent-scope camera view that was active before entering the child scope.
 - Store by a stable key, such as `three-scope-map:<project-or-map-id>:camera-view:v1`.
 - If the saved payload is invalid, fall back to the curated default.
-- Do not save transient map hover state, drill stack, highlighted feature, fly-line animation time, or label scale.
+- Do not save transient map hover state, highlighted feature, fly-line animation time, or label scale.
 
 ## Fly Lines
 
