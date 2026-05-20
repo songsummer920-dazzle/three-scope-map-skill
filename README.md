@@ -83,12 +83,16 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 5. 使用真实 GeoJSON 数据创建一个 3D 地图。
 6. 默认做浙江省地图。
 7. 地图风格必须优先使用 skill 内置 one-to-one smart-mine Vue 模板，不要自由重画样式。
-8. 地图风格使用暗色 HUD 风格，主色 #E8FF4F。
-9. 需要包含地图挤出厚度、侧边渐变、地形纹理、外轮廓描边、内部边界、城市标签、hover 高亮凸起、飞线、追光、HUD 底座环、视角保存和恢复。
-10. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果需要 16:9，由外层大屏容器控制。
-11. 除区县级外，每个层级都要支持下钻；浙江省级的涟漪和飞线从省会杭州市出发。
-12. 完成后启动项目，并告诉我本地访问地址。
-13. 如果中途需要我确认，只问我必须确认的问题；能自动决定的请直接完成。
+8. 必须先复制 skill 内置 assets/templates/smart-mine-vue/src 模板到当前项目并挂载组件，不要从零重写地图组件。
+9. 地图风格使用暗色 HUD 风格，主色 #E8FF4F。
+10. 需要包含地图挤出厚度、侧边渐变、地形纹理、外轮廓描边、内部边界、城市标签、hover 高亮凸起、飞线、追光、HUD 底座环、视角保存和恢复。
+11. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果需要 16:9，由外层大屏容器控制。
+12. 除区县级外，每个层级都要支持下钻；浙江省级的涟漪和飞线从省会杭州市出发。
+13. 完成后运行 skill 里的 scripts/check_three_map_project.py 对当前项目做严格自检，并修复所有非环境限制类 blocker。
+14. 完成后必须通过 Vite dev server 打开页面做视觉检查；如果看不到真实 Three.js 地图，请自动检查依赖、挂载点、容器尺寸、GeoJSON、纹理路径、WebGL/控制台报错并修复到地图可见后再结束，不要只告诉我构建成功。
+15. 不要用截图、SVG、CSS 或 2D 平面 GeoJSON 替代 Three.js 地图；如果 WebGL 真不可用，请明确告诉我具体原因和解决建议。
+16. 完成后启动项目，并告诉我本地访问地址。
+17. 如果中途需要我确认，只问我必须确认的问题；能自动决定的请直接完成。
 ```
 
 ### Existing Project Prompt
@@ -107,10 +111,14 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 3. 如果当前项目不是 Vue 项目，请根据现有技术栈给出最小适配实现。
 4. 使用真实 GeoJSON 数据。
 5. 地图风格必须优先使用 skill 内置 one-to-one smart-mine Vue 模板，不要自由重画样式。
-6. 创建暗色 HUD 风格 3D 地图，主色 #E8FF4F，包含 3D 挤出、侧边渐变、地形纹理、外轮廓描边、内部边界、标签、hover 高亮、飞线、追光、HUD 底座环、视角保存和恢复。
-7. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果项目是 16:9 大屏，由外层容器负责缩放。
-8. 除区县级外，每个层级都要支持下钻；浙江省级的涟漪和飞线从省会杭州市出发。
-9. 完成后运行项目，并告诉我本地访问地址。
+6. 必须先复制 skill 内置 assets/templates/smart-mine-vue/src 模板到当前项目并挂载组件，不要从零重写地图组件。
+7. 创建暗色 HUD 风格 3D 地图，主色 #E8FF4F，包含 3D 挤出、侧边渐变、地形纹理、外轮廓描边、内部边界、标签、hover 高亮、飞线、追光、HUD 底座环、视角保存和恢复。
+8. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果项目是 16:9 大屏，由外层容器负责缩放。
+9. 除区县级外，每个层级都要支持下钻；浙江省级的涟漪和飞线从省会杭州市出发。
+10. 完成后运行 skill 里的 scripts/check_three_map_project.py 对当前项目做严格自检，并修复所有非环境限制类 blocker。
+11. 完成后必须通过 Vite dev server 打开页面做视觉检查；如果看不到真实 Three.js 地图，请自动检查依赖、挂载点、容器尺寸、GeoJSON、纹理路径、WebGL/控制台报错并修复到地图可见后再结束，不要只告诉我构建成功。
+12. 不要用截图、SVG、CSS 或 2D 平面 GeoJSON 替代 Three.js 地图；如果 WebGL 真不可用，请明确告诉我具体原因和解决建议。
+13. 完成后运行项目，并告诉我本地访问地址。
 ```
 
 ### Specific Task Prompts
@@ -145,6 +153,7 @@ The skill includes helper scripts under `three-scope-map/scripts/`:
 - `apply_map_theme.py`: apply a generated theme to a standard map theme file and optionally recolor the bundled label SVG pointer.
 - `recolor_label_asset.py`: recolor only the `map-label-bg.svg` pointer triangle.
 - `preprocess_map_data.py`: simplify GeoJSON and add render metadata.
+- `check_three_map_project.py`: check a target project for required Vue/Vite/Three setup, copied map template files, map assets, one-to-one Three.js effects, fixed-size host mistakes, and SVG/image substitutes.
 
 ## Notes
 

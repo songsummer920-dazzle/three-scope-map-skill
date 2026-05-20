@@ -53,6 +53,11 @@ npm install -D @types/three
    - `district` is terminal unless lower-level data is explicitly supplied.
    If public data cannot provide the required next level, report the blocker instead of shipping a fake or non-drillable level.
 8. Run the project and visually verify the map before making optional changes.
+9. Run the project readiness check before delivery:
+
+```bash
+python3 <skill>/scripts/check_three_map_project.py <target-project> --strict
+```
 
 ## What Can Be Changed After First Render
 
@@ -80,10 +85,27 @@ Do not rewrite these unless the user asks for a variant:
 - chunked map rebuild pattern
 - drilldown stack and transition pattern
 
+## Unacceptable One-To-One Results
+
+Reject and keep fixing these outcomes:
+
+- screenshot, exported image, SVG fallback, or CSS-only imitation instead of real Three.js
+- flat 2D GeoJSON fill without extrusion thickness
+- bright solid-green top surface instead of the dark translucent terrain surface
+- missing side-wall gradient, terrain texture, outer contour, internal boundaries, labels, fly lines, ripple, hover lift, or chase light
+- `.map-host` fixed to `1920px x 1080px` inside a responsive container
+- build success without browser visual verification
+- canvas blank with no diagnosis
+
+If WebGL creation fails, do not replace the map with SVG. Check browser WebGL support, GPU/driver blocking, `new THREE.WebGLRenderer` errors, container size, Vite asset paths, GeoJSON parsing, texture imports, and console runtime errors. Only report failure when WebGL is genuinely unavailable on the user's browser/device.
+
 ## Validation Checklist
 
 - The map is real Three.js geometry, not a screenshot.
 - `.map-host` fills the parent container and renderer size follows `ResizeObserver`; 16:9 scaling belongs to the outer dashboard shell, not the map component itself.
+- Run the project through the Vite dev server and visually verify the map. Do not validate a Vite app by opening `index.html` with `file://`.
+- The delivered map must be the Three.js canvas version. Do not accept an SVG/image fallback as a successful one-to-one delivery; if the canvas is blank, debug until the Three.js renderer is visible.
+- `scripts/check_three_map_project.py <target-project> --strict` reports no blockers, or any blocker is explicitly tied to a true environment limitation.
 - Top surface is dark, not bright green.
 - Side thickness uses the validated green gradient.
 - Top and bottom outer contours align with the side thickness start/end.
