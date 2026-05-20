@@ -163,6 +163,13 @@ def main() -> int:
             )
         else:
             passes.append("No full-map transparent texture plane detected")
+
+        if file_contains(source_files, r"provinceChaseLine\s*=\s*new\s+THREE\.Mesh|attribute\s+float\s+alpha"):
+            problems.append(
+                "Chase light ribbon mesh detected; use short Line segments instead of transparent triangle strips."
+            )
+        else:
+            passes.append("No chase-light ribbon mesh detected")
     else:
         problems.append("No source files found under src/.")
 
