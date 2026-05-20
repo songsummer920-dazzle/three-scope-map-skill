@@ -51,6 +51,10 @@ const mapTheme = {
 
 For province, city, and district maps, apply terrain textures through the actual region `ShapeGeometry` material. Do not place an extra transparent `PlaneGeometry(mapWidth, mapHeight)` texture mesh over the whole projected map. That full rectangle is split into triangles by WebGL and can flash white/gray triangular artifacts during drilldown, camera movement, or transparent-depth sorting.
 
+## Chase Light Geometry
+
+Render the outer-contour chase light with short animated `THREE.Line` segments sampled along the province/city outer loop. Do not use a transparent filled ribbon mesh, indexed triangle strip, or wide alpha shader mesh for the chase light. Filled chase geometry can self-intersect or sort incorrectly and produce large white triangular flashes.
+
 ## Theme Color Switching
 
 When the user provides a main color, update the entire map color system, not just one material. Use `scripts/generate_map_theme.py <hex>` from this skill to generate a starting palette, then apply the resulting constants to the map module.
