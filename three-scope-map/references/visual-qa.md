@@ -60,7 +60,13 @@ When the user comments on one area:
 
 ## Browser/Build Checks
 
+- Run `python3 <skill>/scripts/check_three_map_project.py <target-project> --strict` before final delivery and fix all blockers that are not true environment limitations.
 - Run the project build command.
+- Open the app through the Vite dev server URL, not `file://`.
+- Visually verify rendering in the browser; build success alone is not enough.
+- Verify the visible map is the Three.js canvas version. If the canvas is blank, keep debugging renderer creation, asset paths, container size, GeoJSON loading, and console errors until the Three.js map is visible.
+- Do not accept screenshot, SVG, CSS, or 2D GeoJSON substitutes as a successful map render.
+- If WebGL is unavailable, capture the concrete failure reason and suggested fix instead of substituting a fake map.
 - Confirm the dev server URL and port match the user's browser.
 - If the port belongs to another project, start this project on a different explicit port and report it.
 - Prefer browser screenshots for visual claims; use command-line checks only for build/server status.

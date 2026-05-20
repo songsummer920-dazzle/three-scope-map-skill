@@ -2116,7 +2116,12 @@ function setup() {
   camera.position.set(...cameraViewConfig.default.position);
   camera.lookAt(...cameraViewConfig.default.target);
 
-  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true,
+    failIfMajorPerformanceCaveat: false,
+    powerPreference: 'high-performance',
+  });
   renderer.setSize(width, height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   host.value.appendChild(renderer.domElement);
