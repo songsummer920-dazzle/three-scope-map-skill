@@ -1261,78 +1261,6 @@ function createSideGradientMaterial(alpha = 0.86, topZ = 44, bottomZ = 24) {
   });
 }
 
-function createMapTextureMesh() {
-  const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 640;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return undefined;
-
-  const scaleX = canvas.width / mapWidth;
-  const scaleY = canvas.height / mapHeight;
-  const drawRing = (ring: Position[]) => {
-    ring.forEach((coord, index) => {
-      const point = projectCoord(coord);
-      const x = point[0] * scaleX;
-      const y = point[1] * scaleY;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-    ctx.closePath();
-  };
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  getRenderableFeatures().forEach((feature) => {
-    toRenderablePolygons(feature).forEach((polygon) => {
-      ctx.beginPath();
-      polygon.forEach(drawRing);
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(8, 18, 8, 0.98)';
-      ctx.fill('evenodd');
-      ctx.save();
-      ctx.clip('evenodd');
-      ctx.globalAlpha = 0.08;
-      for (let i = -canvas.height; i < canvas.width; i += 34) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i + canvas.height, canvas.height);
-        ctx.strokeStyle = i % 68 === 0 ? 'rgba(104, 140, 54, 0.18)' : 'rgba(64, 91, 40, 0.12)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-      ctx.restore();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(232, 255, 79, 0.42)';
-      ctx.stroke();
-    });
-  });
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.generateMipmaps = false;
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.wrapS = THREE.ClampToEdgeWrapping;
-  texture.wrapT = THREE.ClampToEdgeWrapping;
-  texture.needsUpdate = true;
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(mapWidth, mapHeight),
-    new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      opacity: 0.34,
-      blending: THREE.NormalBlending,
-      side: THREE.DoubleSide,
-      alphaTest: 0.035,
-      depthWrite: false,
-      depthTest: true,
-    }),
-  );
-  mesh.position.z = 42;
-  mesh.renderOrder = 0;
-  return mesh;
-}
-
 function createWorldTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 1400;
@@ -1752,9 +1680,6 @@ async function createMap() {
   }
   await waitForNextFrame();
   group.add(createFlyLines());
-
-  const textureMap = createMapTextureMesh();
-  if (textureMap) group.add(textureMap);
 
   group.add(createRotatingRingDecor());
 

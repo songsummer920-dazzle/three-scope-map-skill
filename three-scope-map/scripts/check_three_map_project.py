@@ -156,6 +156,13 @@ def main() -> int:
             problems.append("SVG/image fallback map detected; one-to-one delivery must render real Three.js.")
         else:
             passes.append("No SVG fallback map detected")
+
+        if file_contains(source_files, r"createMapTextureMesh|const\s+textureMap\s*=\s*createMapTextureMesh"):
+            problems.append(
+                "Full-map transparent texture plane detected; terrain texture must stay on real ShapeGeometry regions."
+            )
+        else:
+            passes.append("No full-map transparent texture plane detected")
     else:
         problems.append("No source files found under src/.")
 
