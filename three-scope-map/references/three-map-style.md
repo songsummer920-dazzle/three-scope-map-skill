@@ -47,6 +47,10 @@ const mapTheme = {
 };
 ```
 
+## Terrain Texture Binding
+
+For province, city, and district maps, apply terrain textures through the actual region `ShapeGeometry` material. Do not place an extra transparent `PlaneGeometry(mapWidth, mapHeight)` texture mesh over the whole projected map. That full rectangle is split into triangles by WebGL and can flash white/gray triangular artifacts during drilldown, camera movement, or transparent-depth sorting.
+
 ## Theme Color Switching
 
 When the user provides a main color, update the entire map color system, not just one material. Use `scripts/generate_map_theme.py <hex>` from this skill to generate a starting palette, then apply the resulting constants to the map module.

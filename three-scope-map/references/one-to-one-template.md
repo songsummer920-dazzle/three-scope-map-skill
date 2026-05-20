@@ -84,6 +84,7 @@ Do not rewrite these unless the user asks for a variant:
 - ripple/scatter cleanup logic
 - chunked map rebuild pattern
 - drilldown stack and transition pattern
+- region-bound terrain material binding; do not reintroduce a full `mapWidth x mapHeight` transparent `PlaneGeometry` texture overlay for non-world maps
 
 ## Unacceptable One-To-One Results
 
@@ -103,6 +104,7 @@ If WebGL creation fails, do not replace the map with SVG. Check browser WebGL su
 
 - The map is real Three.js geometry, not a screenshot.
 - `.map-host` fills the parent container and renderer size follows `ResizeObserver`; 16:9 scaling belongs to the outer dashboard shell, not the map component itself.
+- Terrain texture is applied through the real region `ShapeGeometry` material. Non-world maps must not add a full-map transparent `PlaneGeometry(mapWidth, mapHeight)` texture layer because it can flash triangular artifacts during drilldown and transparent-depth sorting.
 - Run the project through the Vite dev server and visually verify the map. Do not validate a Vite app by opening `index.html` with `file://`.
 - The delivered map must be the Three.js canvas version. Do not accept an SVG/image fallback as a successful one-to-one delivery; if the canvas is blank, debug until the Three.js renderer is visible.
 - `scripts/check_three_map_project.py <target-project> --strict` reports no blockers, or any blocker is explicitly tied to a true environment limitation.
