@@ -1,6 +1,6 @@
-# One-To-One Smart Mine Map Template
+# Songsummer 3D Map Template
 
-Use this reference when the user asks for the 3D map to match the validated smart-mine map as closely as possible, or says "一比一", "same as the reference", "do not freestyle", "use the existing map style", or "copy the current 3D map effect".
+Use this reference when the user asks for the 3D map to match the validated map as closely as possible, or says "一比一", "same as the reference", "do not freestyle", "use the existing map style", or "copy the current 3D map effect".
 
 ## Required Behavior
 

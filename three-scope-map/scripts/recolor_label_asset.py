@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2026 宋夏天Dazzle
-"""Recolor the bundled smart-mine map label SVG pointer.
+"""Recolor the bundled map label SVG pointer.
 
 Attribution: 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 """

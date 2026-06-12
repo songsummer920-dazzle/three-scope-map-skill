@@ -22,7 +22,7 @@ Use this when the user asks to reuse the current 3D map style for another provin
    - texture assets
    - map theme constants
    - label/scatter/fly-line data
-4. Do not edit ECharts/panel assets unless the user asks for a whole-screen theme/layout change.
+4. Do not edit unrelated app modules or static assets unless the user asks for a whole-screen theme/layout change.
 
 ## Province To Province
 
@@ -193,7 +193,7 @@ python3 <skill>/scripts/recolor_label_asset.py '#2AF7FF' src/assets/figma/map-la
 rg '#E8FF4F|#D4F56A|232,255,79|212,245,106' src/components/map src/assets
 ```
 
-5. Replace only map-related hardcoded colors. Do not change ECharts or panel assets unless requested.
+5. Replace only map-related hardcoded colors. Do not change unrelated app modules or static assets unless requested.
 6. Verify dark top surface, side gradient, labels, scatter/ripple, fly lines, HUD ring, and chase light.
 
 ## Texture Only

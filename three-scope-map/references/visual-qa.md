@@ -1,27 +1,24 @@
-# Visual QA For Figma Dashboard Restoration
+# Visual QA For Three Scope Map
 
-Use this checklist before final delivery and after any user-reported visual fix. The goal is to catch regressions early, especially unintended changes to the 3D map, Figma assets, chart legends, or animation bounds.
+Use this checklist before final delivery and after any user-reported visual fix. The goal is to catch regressions early, especially unintended changes to the 3D map, map assets, labels, camera behavior, or animation bounds.
 
 ## Required Screenshots
 
 Capture these when possible:
 
-1. `1920x1080` full dashboard initial state.
-2. Current user viewport, especially if the user is reviewing in the in-app browser.
-3. Center 3D map initial state.
-4. One map hover state, showing lifted block, label, side thickness, and no geometry gap.
-5. One chart hover state for every changed chart type.
-6. One animation/scrolling state when changing carousels, table scrolls, fly lines, ripples, or chase lights.
+1. Initial 3D map state in the target container.
+2. Current user viewport if the map is embedded in a larger page.
+3. One map hover state, showing lifted block, label, side thickness, and no geometry gap.
+4. One drilldown state and one return-to-parent state.
+5. One animation state for fly lines, ripples, HUD base ring, or chase light.
 
 ## Layout Checks
 
 - Body background is dark, never default white.
 - No page scrollbar appears.
-- Whole stage remains 16:9 and uniformly scaled.
-- Map host fills its parent container instead of using fixed `1920px x 1080px`; the outer shell owns any 16:9 scaling.
-- Title HUD, panel frames, and bottom navigation still align with Figma assets.
-- Frosted glass and translucent fills stay below `panel-frame.png`.
-- No panel content overlaps exported frame corners or header bars.
+- Map host fills its parent container instead of using fixed `1920px x 1080px`.
+- If the map is placed inside a 16:9 dashboard, the outer shell owns the scaling.
+- Map controls, labels, and HUD decoration do not overlap awkwardly.
 
 ## 3D Map Checks
 
@@ -39,24 +36,16 @@ Capture these when possible:
 - Camera controls behave as specified: `保存统一` applies one default to all scopes, `保存本层` only affects the current scope, `恢复本层` restores the current scope to the skill built-in camera even when a unified default exists, and `恢复全部` clears every saved camera view.
 - After drilldown, no parent-scope labels, scatter points, fly lines, ripples, or chase-light paths remain.
 
-## Chart Checks
-
-- ECharts legend colors match visible series.
-- Axis labels and ticks stay inside the panel.
-- Bar, bubble, line, funnel, gauge/ring, and table animations do not create blank gaps or duplicated labels.
-- If animation is removed, remove custom overlay layers too; do not leave invisible ECharts bars under SVG bars.
-- Table scroll content is clipped below the header and never overlaps column titles.
-
 ## Regression Guardrail
 
 When the user comments on one area:
 
-1. Identify the exact component and selector if possible.
+1. Identify the exact map layer, helper, asset, or component if possible.
 2. Read only the files needed for that component plus direct shared helpers.
 3. Patch only that component unless the defect is caused by shared code.
 4. Run build.
-5. Re-check the changed area and one nearby unaffected area.
-6. Tell the user if a requested change required touching map textures, labels, Figma assets, or shared chart code.
+5. Re-check the changed map layer and one nearby unaffected map behavior.
+6. State whether the change touched map textures, labels, GeoJSON, camera presets, or shared rendering helpers.
 
 ## Browser/Build Checks
 
@@ -67,6 +56,4 @@ When the user comments on one area:
 - Verify the visible map is the Three.js canvas version. If the canvas is blank, keep debugging renderer creation, asset paths, container size, GeoJSON loading, and console errors until the Three.js map is visible.
 - Do not accept screenshot, SVG, CSS, or 2D GeoJSON substitutes as a successful map render.
 - If WebGL is unavailable, capture the concrete failure reason and suggested fix instead of substituting a fake map.
-- Confirm the dev server URL and port match the user's browser.
-- If the port belongs to another project, start this project on a different explicit port and report it.
 - Prefer browser screenshots for visual claims; use command-line checks only for build/server status.
