@@ -256,36 +256,6 @@ Original repository: https://github.com/songsummer920-dazzle/three-scope-map-ski
 原始仓库：https://github.com/songsummer920-dazzle/three-scope-map-skill
 ```
 
-## Public Proof and Release Records / 公开首发与版本留痕
-
-For traceability, keep public release records for important versions:
-
-- Publish GitHub Releases for stable versions such as `v1.0.0`.
-- Keep release notes that mention the original author and repository.
-- When posting tutorials, demos, screenshots, videos, or social media content,
-  include the original repository link and author attribution.
-- Keep timestamps from GitHub commits, releases, articles, videos, and public
-  posts as evidence of original publication.
-
-建议为重要版本保留公开首发记录：
-
-- 为稳定版本发布 GitHub Release，例如 `v1.0.0`。
-- 在 Release notes 中写明原作者和原始仓库。
-- 发布教程、演示、截图、视频或社交平台内容时，附上原始仓库链接和作者署名。
-- 保留 GitHub commit、Release、文章、视频和公开动态的时间戳，作为原创发布时间证据。
-
-Suggested GitHub repository About text:
-
-```txt
-Original Three.js 3D geographic map Codex skill by 宋夏天Dazzle. Derivative works must retain attribution.
-```
-
-建议 GitHub 仓库 About 简介：
-
-```txt
-宋夏天Dazzle 原创 Three.js 3D 地图 Codex Skill。二创和分发必须保留署名。
-```
-
 ## Citation
 
 GitHub can read `CITATION.cff` and show citation metadata for this repository.
