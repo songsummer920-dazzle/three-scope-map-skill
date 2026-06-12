@@ -31,7 +31,7 @@ type DrillStackItem = DrillTarget & {
 | `city` | district/county | `district` | terminal district boundary or lower-level source if available |
 | `district` | boundary | `district` | terminal; show selected state, do not recurse unless data is explicitly available |
 
-For a one-to-one smart-mine style map, keep the same visual preset at every level. Drilldown changes the GeoJSON, labels, scatter/ripple source, fly-line endpoints, chase-light outer contour, terrain texture scope, and camera preset; it does not change the map's validated style.
+For a one-to-one validated style map, keep the same visual preset at every level. Drilldown changes the GeoJSON, labels, scatter/ripple source, fly-line endpoints, chase-light outer contour, terrain texture scope, and camera preset; it does not change the map's validated style.
 
 ## Data Resolution
 

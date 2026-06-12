@@ -7,7 +7,7 @@ description: Build, migrate, theme, drill down, and validate reusable Three.js 3
 
 ## Core Workflow
 
-1. Default to the bundled one-to-one smart-mine map style for every generated 3D map. Do not freestyle a new renderer, color system, label style, side-wall effect, chase light, ripple, fly line, terrain material, or camera behavior when the template can be copied and adapted.
+1. Default to the bundled validated one-to-one map style for every generated 3D map. Do not freestyle a new renderer, color system, label style, side-wall effect, chase light, ripple, fly line, terrain material, or camera behavior when the template can be copied and adapted.
 2. Identify map scope first: `world`, `country`, `province`, `city`, or `district`. Do not treat world/country/province/city data as the same geometry scaled up or down.
 3. Resolve and validate GeoJSON before styling. Use real geographic data with the correct subdivision level.
 4. Every non-terminal scope must support drilldown by default: `world -> country`, `country -> province`, `province -> city`, and `city -> district/county`. `district` is terminal unless the user supplies lower-level data.
@@ -59,8 +59,8 @@ Read only what the task needs:
 - `references/map-drilldown.md`: Hierarchical drilldown workflow from world -> country -> province -> city -> district/county, including data commands and Vue runtime API.
 - `references/map-migration-playbook.md`: Step-by-step playbook for province-to-province, province-to-China, China-to-province, theme-only, texture-only, and combined migrations.
 - `references/performance-pipeline.md`: Data adapter, offline preprocessing, caching, prefetching, and drilldown performance rules that preserve the visual style.
-- `references/one-to-one-template.md`: Mandatory template-first workflow for one-to-one smart-mine map replication.
-- `references/smart-mine-validated-map.md`: Project-validated smart-mine 3D map preset, including the exact visual/interaction/performance fixes from the Zhejiang dashboard restoration.
+- `references/one-to-one-template.md`: Mandatory template-first workflow for one-to-one validated map replication.
+- `references/smart-mine-validated-map.md`: Project-validated 3D map preset, including the exact visual/interaction/performance fixes from the Zhejiang map restoration.
 - `references/three-scope-map-template.md`: Vue + Three.js component structure for a scope-aware map component.
 - `references/visual-qa.md`: Required visual checks and screenshots after map edits.
 - `references/regression-guard.md`: Guardrails to avoid unrelated regressions.
@@ -77,7 +77,7 @@ Read only what the task needs:
 - `assets/templates/mapDataAdapter.ts`: Reusable cache/prefetch/network fallback adapter template.
 - `assets/templates/frameChunkedRebuild.ts`: Reusable chunked map rebuild and resource-disposal helper template.
 - `assets/templates/cameraPresetController.ts`: Reusable camera angle preset, localStorage persistence, and OrbitControls save/apply helper.
-- `assets/templates/smart-mine-vue/src/`: One-to-one Vue 3 template component, map data, terrain textures, and label asset from the validated smart-mine 3D map.
+- `assets/templates/smart-mine-vue/src/`: One-to-one Vue 3 template component, map data, terrain textures, and label asset from the validated 3D map.
 
 ## Common Commands
 
@@ -120,7 +120,7 @@ python3 <skill>/scripts/check_three_map_project.py <target-project> --strict
 - State texture directory and texture dimensions.
 - State theme color if changed.
 - Confirm hover lift, outer contour, labels, scatter/ripple, fly lines, and chase light were checked.
-- Confirm unrelated charts and Figma/static assets were not changed unless requested.
+- Confirm unrelated app modules and static assets were not changed unless requested.
 - Confirm the app was opened through the Vite dev server URL, not `file://`.
 - Confirm visual rendering, not only `npm run build`.
 - Confirm the visible map is the Three.js canvas version, not an SVG/image fallback or screenshot.

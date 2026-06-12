@@ -4,12 +4,11 @@ Use this before making iterative fixes, especially when the user says a specific
 
 ## Do Not Cross These Boundaries
 
-- Chart-only request: do not edit map components, map data, map textures, scatter points, labels, or fly lines.
-- Map-only request: do not edit ECharts chart components unless the user asks for whole-page theme/layout changes.
+- App-only request: do not edit map components, map data, map textures, scatter points, labels, or fly lines.
+- Map-only request: do not edit unrelated app modules unless the user asks for whole-page theme/layout changes.
 - Theme-color request: change theme constants/materials, not GeoJSON, point data, or chart data.
 - Texture request: change terrain material/texture files, not labels, hover logic, or scatter data.
-- Animation rollback: remove the animation and custom overlay that caused it; do not delete static styles or business data.
-- Panel frame request: keep `panel-frame.png` and related Figma assets above glass fills; do not redraw the frame in CSS.
+- Animation rollback: remove the animation or custom overlay that caused it; do not delete static styles or map data.
 
 ## Patch Discipline
 
@@ -23,9 +22,8 @@ Use this before making iterative fixes, especially when the user says a specific
 
 ## Red Flags
 
-- A chart legend changes after fixing axis/animation.
 - A map point disappears after fixing texture or hover.
-- A Figma asset becomes blurred, filtered, or hidden under glass.
+- A label asset becomes blurred, filtered, or hidden under a map overlay.
 - A map scope switch keeps old labels or old fly lines.
-- A carousel or table scroll overlaps headers.
+- A camera reset restores the wrong scope or wrong default.
 - A screenshot or static image replaces a required Three.js map.

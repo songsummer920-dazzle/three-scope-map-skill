@@ -1,6 +1,6 @@
-# Smart Mine Validated Map Preset
+# Validated 3D Map Preset
 
-Use this reference when recreating or migrating the validated smart-mine 3D Zhejiang map style from this project. It captures the map-specific fixes and decisions from the iterative restoration work.
+Use this reference when recreating or migrating the validated 3D Zhejiang map style from this project. It captures the map-specific fixes and decisions from the iterative restoration work.
 
 ## Style Identity
 

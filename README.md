@@ -28,7 +28,7 @@ This repository intentionally contains only the standalone 3D map skill, not the
 - GeoJSON preprocessing for smoother runtime rendering.
 - Chunked map rebuild and Three.js resource disposal for reduced click jank.
 - User camera angle save/reset with unified defaults and optional per-scope overrides.
-- A one-to-one Vue 3 smart-mine map template with component code, GeoJSON, terrain textures, and label asset.
+- A validated one-to-one Vue 3 map template with component code, GeoJSON, terrain textures, and label asset.
 
 ## Repository Layout
 
@@ -44,18 +44,18 @@ three-scope-map-skill/
     assets/templates/
 ```
 
-## One-To-One Smart Mine Template
+## Songsummer 3D Map Template
 
-If you want the generated map to match the validated smart-mine 3D map as closely as possible, tell Codex to use the bundled template first instead of rebuilding from scratch:
+If you want the generated map to match the validated 3D map style as closely as possible, tell Codex to use the bundled template first instead of rebuilding from scratch:
 
 ```txt
-Use three-scope-map skill and use the bundled one-to-one smart-mine Vue template first. Do not recreate the 3D map from scratch. Copy and adapt assets/templates/smart-mine-vue/src, then run the project and verify the map.
+Use three-scope-map skill and use the bundled Songsummer 3D Map Vue template first. Do not recreate the 3D map from scratch. Copy and adapt assets/templates/smart-mine-vue/src, then run the project and verify the map.
 ```
 
 For one-to-one output on any requested region, keep this sentence in your prompt:
 
 ```txt
-No matter which region I ask for, preserve the bundled smart-mine 3D map style one-to-one; only replace GeoJSON, labels, texture scope, fly-line source/targets, drilldown registry, and camera config.
+No matter which region I ask for, preserve the bundled Songsummer 3D Map style one-to-one; only replace GeoJSON, labels, texture scope, fly-line source/targets, drilldown registry, and camera config.
 ```
 
 The template includes the validated Vue component, map data, terrain textures, and label asset under:
@@ -93,7 +93,7 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 4. 安装需要的依赖，包括 three。
 5. 使用真实 GeoJSON 数据创建一个 3D 地图。
 6. 默认做浙江省地图。
-7. 地图风格必须优先使用 skill 内置 one-to-one smart-mine Vue 模板，不要自由重画样式。
+7. 地图风格必须优先使用 skill 内置 validated 3D map Vue 模板，不要自由重画样式。
 8. 必须先复制 skill 内置 assets/templates/smart-mine-vue/src 模板到当前项目并挂载组件，不要从零重写地图组件。
 9. 地图风格使用暗色 HUD 风格，主色 #E8FF4F。
 10. 需要包含地图挤出厚度、侧边渐变、地形纹理、外轮廓描边、内部边界、城市标签、hover 高亮凸起、飞线、追光、HUD 底座环、视角保存和恢复。
@@ -121,7 +121,7 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 2. 如果缺少 three 或相关依赖，请安装。
 3. 如果当前项目不是 Vue 项目，请根据现有技术栈给出最小适配实现。
 4. 使用真实 GeoJSON 数据。
-5. 地图风格必须优先使用 skill 内置 one-to-one smart-mine Vue 模板，不要自由重画样式。
+5. 地图风格必须优先使用 skill 内置 validated 3D map Vue 模板，不要自由重画样式。
 6. 必须先复制 skill 内置 assets/templates/smart-mine-vue/src 模板到当前项目并挂载组件，不要从零重写地图组件。
 7. 创建暗色 HUD 风格 3D 地图，主色 #E8FF4F，包含 3D 挤出、侧边渐变、地形纹理、外轮廓描边、内部边界、标签、hover 高亮、飞线、追光、HUD 底座环、视角保存和恢复。
 8. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果项目是 16:9 大屏，由外层容器负责缩放。
@@ -185,10 +185,6 @@ Required files and notices to preserve:
 - `CITATION.cff`
 - Source-code attribution comments and SPDX headers
 - Third-party GeoJSON or texture metadata and license notices
-
-GPL protects redistribution of this code, but it cannot stop every kind of
-copying on its own. If you need stricter commercial restrictions, use a custom
-source-available license instead of publishing as open source.
 
 ## Attribution / 二创署名
 
