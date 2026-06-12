@@ -2,6 +2,17 @@
 
 A Codex skill for building, migrating, theming, drilling down, and optimizing reusable Three.js 3D geographic maps for Vue/web dashboards.
 
+> **Original project notice:** This repository is the original public source of
+> `three-scope-map-skill` by **宋夏天Dazzle**. Forks, derivative works,
+> tutorials, public showcases, and redistributed versions must retain the
+> original attribution and must not imply that modified versions are original
+> or official releases by the original author.
+>
+> **原始项目声明：** 本仓库是 **宋夏天Dazzle** 发布的
+> `three-scope-map-skill` 原始公开来源。任何 fork、二创、教程、
+> 公开展示或再分发版本都必须保留原作者署名，不得暗示修改版是完全原创
+> 或原作者官方发布。
+
 This repository intentionally contains only the standalone 3D map skill, not the full dashboard project.
 
 ## What It Supports
@@ -161,12 +172,122 @@ The skill includes helper scripts under `three-scope-map/scripts/`:
 - Generated fallback textures are useful for development, but replace them with approved terrain assets when final accuracy matters.
 - Performance improvements reduce main-thread jank but cannot guarantee zero stutter on every device.
 
-## Attribution
+## License
 
-Code-only attribution embedded in the skill:
+This project is licensed under **GPL-3.0-or-later**. If you copy, modify, fork,
+redistribute, publish a derivative skill, or package this code into another
+project, keep the license and source attribution with your distribution.
+
+Required files and notices to preserve:
+
+- `LICENSE`
+- `NOTICE`
+- `CITATION.cff`
+- Source-code attribution comments and SPDX headers
+- Third-party GeoJSON or texture metadata and license notices
+
+GPL protects redistribution of this code, but it cannot stop every kind of
+copying on its own. If you need stricter commercial restrictions, use a custom
+source-available license instead of publishing as open source.
+
+## Attribution / 二创署名
+
+When using, modifying, redistributing, forking, publishing tutorials based on,
+or creating derivative skills from this project, credit the original source:
 
 ```txt
-作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+Based on three-scope-map-skill by 宋夏天Dazzle.
+作者全平台ID：宋夏天Dazzle
+公众号：送你整个夏天
+Original repository: https://github.com/songsummer920-dazzle/three-scope-map-skill
 ```
 
-The attribution is intended for comments/metadata only and is not rendered in generated UI unless explicitly requested.
+Do not remove `LICENSE`, `NOTICE`, `CITATION.cff`, code attribution comments, or
+documentation attribution sections from modified versions. Do not imply that
+forks, tutorials, packaged distributions, or derivative skills are official
+releases by the original author unless you have explicit permission.
+
+The attribution is intended for comments, metadata, README, documentation,
+release notes, tutorial pages, or marketplace descriptions. It is not rendered
+in generated UI unless explicitly requested.
+
+## Attribution and Misrepresentation Notice / 署名与禁止误导声明
+
+If you modify, fork, redistribute, publish tutorials based on, publicly
+showcase, or create derivative skills/projects from this repository, you must
+preserve the original author attribution and clearly mark your version as
+modified from this project.
+
+You must not remove `LICENSE`, `NOTICE`, `CITATION.cff`, README attribution
+sections, SPDX headers, or source-code attribution comments.
+
+You must not misrepresent the origin of this project, imply that a modified
+version is your original work, or imply that a fork, derivative, tutorial,
+packaged distribution, or derivative skill is an official release by the
+original author without explicit permission.
+
+Required attribution:
+
+```txt
+Based on three-scope-map-skill by 宋夏天Dazzle
+作者全平台ID：宋夏天Dazzle
+公众号：送你整个夏天
+Original repository: https://github.com/songsummer920-dazzle/three-scope-map-skill
+```
+
+中文说明：
+
+如果你基于本项目进行修改、二创、fork、分发、教程录制、公开展示、
+插件/skill 发布或衍生项目发布，必须保留原作者署名，并明确标注
+你的版本是基于本项目修改而来。
+
+不得删除 `LICENSE`、`NOTICE`、`CITATION.cff`、README 署名说明、SPDX 头信息
+或源码中的作者署名注释。
+
+不得误导他人认为该项目或其二创版本是你的完全原创作品；未经明确许可，
+不得暗示二创版本、教程、分发包或衍生 skill 是原作者官方发布。
+
+必须保留署名：
+
+```txt
+基于 three-scope-map-skill 修改
+作者全平台ID：宋夏天Dazzle
+公众号：送你整个夏天
+原始仓库：https://github.com/songsummer920-dazzle/three-scope-map-skill
+```
+
+## Public Proof and Release Records / 公开首发与版本留痕
+
+For traceability, keep public release records for important versions:
+
+- Publish GitHub Releases for stable versions such as `v1.0.0`.
+- Keep release notes that mention the original author and repository.
+- When posting tutorials, demos, screenshots, videos, or social media content,
+  include the original repository link and author attribution.
+- Keep timestamps from GitHub commits, releases, articles, videos, and public
+  posts as evidence of original publication.
+
+建议为重要版本保留公开首发记录：
+
+- 为稳定版本发布 GitHub Release，例如 `v1.0.0`。
+- 在 Release notes 中写明原作者和原始仓库。
+- 发布教程、演示、截图、视频或社交平台内容时，附上原始仓库链接和作者署名。
+- 保留 GitHub commit、Release、文章、视频和公开动态的时间戳，作为原创发布时间证据。
+
+Suggested GitHub repository About text:
+
+```txt
+Original Three.js 3D geographic map Codex skill by 宋夏天Dazzle. Derivative works must retain attribution.
+```
+
+建议 GitHub 仓库 About 简介：
+
+```txt
+宋夏天Dazzle 原创 Three.js 3D 地图 Codex Skill。二创和分发必须保留署名。
+```
+
+## Citation
+
+GitHub can read `CITATION.cff` and show citation metadata for this repository.
+For papers, articles, tutorials, courseware, or public demos, cite the original
+repository and author information above.

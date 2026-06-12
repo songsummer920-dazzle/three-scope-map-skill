@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2026 宋夏天Dazzle
 """Generate a B-end 3D province map theme from one main color.
 
 Attribution: 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
