@@ -4,6 +4,7 @@
 // Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
 
 import * as THREE from 'three';
+import { mapTheme, themeRgb } from './mapTheme';
 
 export type MapTerrainMaterialConfig = {
   elevationScale: number;
@@ -53,6 +54,8 @@ function createTerrainCanvas(kind: 'diffuse' | 'height' | 'normal' | 'roughness'
   if (!ctx) return canvas;
 
   const image = ctx.createImageData(size, size);
+  const terrainDark = themeRgb('#081208');
+  const terrainLight = themeRgb('#1a3414');
   for (let y = 0; y < size; y += 1) {
     for (let x = 0; x < size; x += 1) {
       const u = x / size;
@@ -63,9 +66,9 @@ function createTerrainCanvas(kind: 'diffuse' | 'height' | 'normal' | 'roughness'
       const i = (y * size + x) * 4;
 
       if (kind === 'diffuse') {
-        image.data[i] = 8 + terrain * 18;
-        image.data[i + 1] = 18 + terrain * 34;
-        image.data[i + 2] = 8 + terrain * 12;
+        image.data[i] = terrainDark[0] + terrain * (terrainLight[0] - terrainDark[0]);
+        image.data[i + 1] = terrainDark[1] + terrain * (terrainLight[1] - terrainDark[1]);
+        image.data[i + 2] = terrainDark[2] + terrain * (terrainLight[2] - terrainDark[2]);
       } else if (kind === 'height') {
         const h = 58 + terrain * 150;
         image.data[i] = h;
@@ -125,13 +128,17 @@ export function getTerrainTextures() {
   return terrainTextures;
 }
 
+export async function waitForTerrainTexturesReady() {
+  return getTerrainTextures();
+}
+
 export function createMapTerrainMaterial(
   config: MapTerrainMaterialConfig = mapTerrainMaterialConfig,
 ) {
   const textures = getTerrainTextures();
   const material = new THREE.MeshStandardMaterial({
-    color: '#0a1607',
-    emissive: '#101d08',
+    color: mapTheme.terrainColor,
+    emissive: mapTheme.terrainEmissive,
     emissiveIntensity: 0.12,
     map: textures.diffuseMap,
     displacementMap: textures.displacementMap,

@@ -163,22 +163,10 @@ python3 <skill>/scripts/resolve_map_data.py --adcode 330100 --scope city --out s
 
 ## Theme Color Only
 
-1. Generate theme:
+1. Apply the main color to the shared Earth/3D map theme entry:
 
 ```bash
-python3 <skill>/scripts/generate_map_theme.py '#2AF7FF'
-```
-
-2. Apply to target map theme file when a standard `mapTheme` export exists:
-
-```bash
-python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' src/components/map/mapTheme.ts
-```
-
-3. If the bundled label SVG is used, recolor it in the same pass:
-
-```bash
-python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' src/components/map/mapTheme.ts
+python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' <target-project> --no-backup
 ```
 
 For older local projects that still use an SVG label pointer, recolor only the label pointer:
@@ -187,7 +175,9 @@ For older local projects that still use an SVG label pointer, recolor only the l
 python3 <skill>/scripts/recolor_label_asset.py '#2AF7FF' src/assets/figma/map-label-bg.svg
 ```
 
-4. Search for hardcoded old colors in map files:
+2. Confirm Earth and `ZhejiangThreeMap.vue` both import the bundled `mapTheme.ts`; do not add per-component theme constants.
+
+3. Search for hardcoded old colors in map files:
 
 ```bash
 rg '#E8FF4F|#D4F56A|232,255,79|212,245,106' src/components/map src/assets

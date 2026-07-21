@@ -20,6 +20,21 @@ REQUIRED_ASSETS = (
     "src/assets/textures/map",
 )
 
+REQUIRED_EARTH_FILES = (
+    "src/components/map/EarthView.vue",
+    "src/components/map/EarthChinaMap.vue",
+    "src/components/map/ChinaMap.vue",
+    "src/components/map/mapTheme.ts",
+    "src/assets/maps/china.json",
+    "src/assets/maps/world.json",
+    "src/assets/textures/map/china/china-height-legacy.png",
+    "src/assets/textures/map/china/china-normal-legacy.png",
+    "src/assets/textures/map/world/earth-day.jpg",
+    "src/assets/textures/map/world/earth-lights.png",
+    "src/assets/textures/map/world/earth-normal.jpg",
+    "src/assets/textures/map/world/earth-specular.jpg",
+)
+
 THREE_EFFECT_PATTERNS = {
     "WebGLRenderer": r"new\s+THREE\.WebGLRenderer",
     "extrusionDepth": r"ExtrudeGeometry|extrudeSettings|depth:|createSideGradientMaterial|createPolygonSideWalls|side-wall|sideWall|thickness",
@@ -28,6 +43,24 @@ THREE_EFFECT_PATTERNS = {
     "flyLines": r"flyLine|flyLines|飞线",
     "hoverLift": r"hover|lift|凸起",
     "cameraControls": r"OrbitControls|cameraView|保存本层|恢复本层",
+}
+
+EARTH_EFFECT_PATTERNS = {
+    "Earth SphereGeometry": r"new\s+THREE\.SphereGeometry",
+    "Earth postprocessing": r"EffectComposer|UnrealBloomPass",
+    "Earth terrain tessellation": r"TessellateModifier",
+    "Earth China extrusion": r"chinaWallVertexShader|chinaExtrusionGroup",
+    "Earth atmosphere": r"outerAtmosphere|atmosphereVertexShader|atmospheric",
+    "Earth grid scan": r"gridDotSweep|uSweep|scan",
+    "Earth international fly lines": r"flyTrackMaterials|createFlyLines|createInternationalFlyLines",
+    "Earth handoff events": r"intro-ready[\s\S]*handoff-start[\s\S]*enter-china",
+}
+
+PRIVATE_OR_DASHBOARD_PATTERNS = {
+    "absolute local path": r"/(Users|home)/[^/\s]+/|/var/folders/",
+    "local preview URL": r"localhost:\d+|127\.0\.0\.1:\d+",
+    "chat temporary path": r"wxid_|xwechat_files|WeChat|com\.tencent\.(xinWeChat|qq)",
+    "dashboard business copy": r"矿山产能实时监控|环境监测数据看板|设备运行状态分析|人员安全管理|生产调度指挥中心",
 }
 
 
@@ -134,6 +167,13 @@ def main() -> int:
     else:
         problems.append("Three map component missing; copy assets/templates/smart-mine-vue/src first.")
 
+    for relative_path in REQUIRED_EARTH_FILES:
+        path = root / relative_path
+        if path.exists():
+            passes.append(f"Earth template file found: {relative_path}")
+        else:
+            problems.append(f"Earth template file missing: {relative_path}")
+
     for asset in REQUIRED_ASSETS:
         if (root / asset).exists():
             passes.append(f"Asset path found: {asset}")
@@ -146,6 +186,34 @@ def main() -> int:
                 passes.append(f"Effect check passed: {label}")
             else:
                 problems.append(f"Effect check missing: {label}")
+
+        earth_view = root / "src/components/map/EarthView.vue"
+        earth_sources = [earth_view] if earth_view.exists() else []
+        for label, pattern in EARTH_EFFECT_PATTERNS.items():
+            if file_contains(earth_sources, pattern):
+                passes.append(f"Earth effect check passed: {label}")
+            else:
+                problems.append(f"Earth effect check missing: {label}")
+
+        theme_path = root / "src/components/map/mapTheme.ts"
+        earth_theme_ok = file_contains(earth_sources, r"import\s*\{\s*MAP_THEME_PRIMARY\s*\}\s*from\s*['\"]\./mapTheme['\"]")
+        map_theme_ok = file_contains(map_components, r"import\s*\{[^}]*mapTheme[^}]*\}\s*from\s*['\"]\./mapTheme['\"]")
+        primary_ok = file_contains([theme_path] if theme_path.exists() else [], r"export\s+const\s+MAP_THEME_PRIMARY\s*=")
+        if earth_theme_ok and map_theme_ok and primary_ok:
+            passes.append("Shared one-color Earth/3D map theme entry found")
+        else:
+            problems.append("Earth and 3D map are not both connected to mapTheme.ts/MAP_THEME_PRIMARY.")
+
+        if file_contains(source_files, r"EarthViewLegacy|earthVersion"):
+            problems.append("Legacy/query-switch Earth fork detected; the bundled exact EarthView must be the only default entrance.")
+        else:
+            passes.append("Single authoritative Earth entrance check passed")
+
+        for label, pattern in PRIVATE_OR_DASHBOARD_PATTERNS.items():
+            if file_contains(source_files, pattern):
+                problems.append(f"Private/full-dashboard content detected: {label}")
+            else:
+                passes.append(f"Privacy/scope check passed: {label}")
 
         fixed_host_pattern = r"\.map-host[\s\S]{0,400}(width\s*:\s*1920px|height\s*:\s*1080px|min-width\s*:\s*1920px|min-height\s*:\s*1080px)"
         if file_contains(source_files, fixed_host_pattern):

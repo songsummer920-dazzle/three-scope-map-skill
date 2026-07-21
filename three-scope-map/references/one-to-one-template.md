@@ -21,13 +21,23 @@ components/map/ZhejiangThreeMap.vue
 components/map/EarthView.vue
 components/map/EarthChinaMap.vue
 components/map/ChinaMap.vue
+components/map/mapTheme.ts
 components/map/mapDataAdapter.ts
 components/map/mapTerrainMaterial.ts
 types/geo.ts
 assets/maps/china.json
 assets/maps/world.json
 assets/maps/zhejiang.json
-components/map/mapTerrainMaterial.ts  # procedural diffuse, height, normal, and roughness textures
+assets/textures/map/china/china-height-legacy.png
+assets/textures/map/china/china-normal-legacy.png
+assets/textures/map/world/earth-day.jpg
+assets/textures/map/world/earth-lights.png
+assets/textures/map/world/earth-normal.jpg
+assets/textures/map/world/earth-specular.jpg
+components/map/mapTerrainMaterial.ts  # procedural regional-map terrain textures
+App.vue                               # mounts EarthChinaMap by default
+main.ts
+style.css
 ```
 
 ## Integration Steps
@@ -42,7 +52,7 @@ npm install gsap
 npm install -D @types/three
 ```
 
-4. Mount `ZhejiangThreeMap.vue` for a direct regional map, or mount `EarthChinaMap.vue` when Earth View should be the entry. Both fill the parent container; do not hardcode the map host to `1920px x 1080px`.
+4. Mount `ZhejiangThreeMap.vue` for a direct regional map, or mount `EarthChinaMap.vue` when Earth View should be the entry. The runnable template already mounts `EarthChinaMap.vue`. Both fill the parent container; do not hardcode the map host to `1920px x 1080px`.
 5. Preserve relative asset paths unless the target project has a different alias convention.
 6. Keep the camera, materials, terrain config, label CSS, chase light, fly lines, and hover logic intact for the first pass.
 7. Add drilldown data for every non-terminal visible scope before delivery:
@@ -58,6 +68,7 @@ npm install -D @types/three
 ```bash
 python3 <skill>/scripts/check_three_map_project.py <target-project> --strict
 ```
+10. For any color request, change only the shared primary through `scripts/apply_map_theme.py`. Never separately recolor Earth and the destination map.
 
 ## What Can Be Changed After First Render
 
@@ -68,6 +79,7 @@ After the template renders successfully, it is safe to adapt:
 - GeoJSON files
 - city labels and fly-line source/targets
 - theme color through the theme workflow
+- only `MAP_THEME_PRIMARY` for theme changes; all material/CSS/shader roles remain derived
 - CSS label pointer color and glow should follow the same derived theme color
 - camera presets through the camera preset controller
 - GeoJSON resolver registry for additional countries/provinces/cities
@@ -79,6 +91,7 @@ Do not rewrite these unless the user asks for a variant:
 - side-wall shader gradient
 - terrain material helper
 - chase-light path rules
+- Earth renderer, camera/orientation, texture stack, China tessellation/extrusion, Taiwan wall, scan/grid, atmospheric rim, international routes, intro timing, and cloud handoff
 - hover lift and side-wall lift coupling
 - label image sizing rules
 - ripple/scatter cleanup logic
@@ -110,6 +123,7 @@ If WebGL creation fails, do not replace the map with SVG. Check browser WebGL su
 - Run the project through the Vite dev server and visually verify the map. Do not validate a Vite app by opening `index.html` with `file://`.
 - The delivered map must be the Three.js canvas version. Do not accept an SVG/image fallback as a successful one-to-one delivery; if the canvas is blank, debug until the Three.js renderer is visible.
 - `scripts/check_three_map_project.py <target-project> --strict` reports no blockers, or any blocker is explicitly tied to a true environment limitation.
+- `scripts/verify_template_integrity.py` passes before copying the bundled template.
 - Top surface is dark, not bright green.
 - Side thickness uses the validated green gradient.
 - Top and bottom outer contours align with the side thickness start/end.

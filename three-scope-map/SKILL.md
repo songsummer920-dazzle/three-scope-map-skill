@@ -7,7 +7,7 @@ description: Build, migrate, theme, drill down, and validate reusable Three.js 3
 
 ## Core Workflow
 
-1. Default to the bundled validated one-to-one map style for every generated 3D map. Do not freestyle a new renderer, color system, label style, side-wall effect, chase light, ripple, fly line, terrain material, or camera behavior when the template can be copied and adapted.
+1. Default to the bundled validated one-to-one map style for every generated 3D map. Copy the template files before editing. Do not freestyle a new renderer, globe, color system, label style, side-wall effect, chase light, ripple, fly line, terrain material, camera behavior, or transition when the template can be copied and adapted.
 2. Identify map scope first: `world`, `country`, `province`, `city`, or `district`. Do not treat world/country/province/city data as the same geometry scaled up or down.
 3. Resolve and validate GeoJSON before styling. Use real geographic data with the correct subdivision level.
 4. Every non-terminal scope must support drilldown by default: `world -> country`, `country -> province`, `province -> city`, and `city -> district/county`. `district` is terminal unless the user supplies lower-level data.
@@ -21,7 +21,9 @@ description: Build, migrate, theme, drill down, and validate reusable Three.js 3
 12. Preserve `SPDX-License-Identifier: GPL-3.0-or-later`, `NOTICE`, original repository URL, and code attribution comments when copying, modifying, or redistributing the template or scripts.
 13. Do not ship a blank or substitute map. The Vue template must render the real Three.js map; if the canvas is blank, the agent must keep debugging the integration, data paths, mount point, dev-server URL, renderer sizing, WebGL availability, and console errors until the Three.js map is visible.
 14. Before delivery, run `scripts/check_three_map_project.py <target-project>` when the target project is local. Treat strict-mode blockers as work items to fix before claiming success.
-15. When the user requests an Earth View entrance, add `EarthView.vue` and an `earth | china` mode controller around the existing China map. Do not rebuild or fork the China renderer. Use the bundled China GeoJSON only for the spherical highlight and keep the existing country-scope component as the destination.
+15. When the user requests an Earth View entrance, copy the bundled `EarthView.vue`, `EarthChinaMap.vue`, `ChinaMap.vue`, `mapTheme.ts`, maps, and Earth/China texture assets as one unit. Do not reconstruct Earth View from prose or keep an alternate/legacy Earth implementation. Keep the existing country-scope component as the destination.
+16. Treat `assets/templates/smart-mine-vue/` as a runnable minimal project. When there is no target app, copy the whole template; it mounts `EarthChinaMap.vue` and displays Earth immediately. When integrating into an existing app, copy only its map components, map data, map textures, and `types/geo.ts`, then mount `EarthChinaMap.vue` in the requested route/container.
+17. For a one-sentence color request, change only `MAP_THEME_PRIMARY` through `scripts/apply_map_theme.py <hex> <target-project> --no-backup`. Both Earth and the flat 3D map must import the shared theme. Do not perform broad search-and-replace on shader, CSS, or material colors.
 
 ## Non-Negotiable One-To-One Rules
 
@@ -35,6 +37,9 @@ description: Build, migrate, theme, drill down, and validate reusable Three.js 3
 - Unacceptable results: an image screenshot, a flat SVG map, a plain 2D GeoJSON fill, a map without extrusion depth, a map without side-wall gradient, missing outer/internal boundaries, missing labels, missing hover lift, missing fly lines, missing chase light, or a build-only report without browser visual verification.
 - If WebGL fails, do not silently substitute SVG or canvas art. Diagnose and report the concrete cause: browser WebGL support, GPU/driver block, renderer creation error, container size `0x0`, missing assets, GeoJSON parse failure, import path error, or console runtime error. Keep fixing the project when the environment supports WebGL; only stop when WebGL is genuinely unavailable on the device/browser.
 - Earth View is an entrance mode, not a replacement `world` scope. It must use `SphereGeometry`, `ShaderMaterial`, a separate spherical China mesh, atmospheric glow, scan/grid motion, hover/click raycasting, and a 2-3 second GSAP camera transition into the existing China map.
+- The authoritative Earth implementation is the bundled `assets/templates/smart-mine-vue/src/components/map/EarthView.vue`. Preserve its texture imports, exact camera/orientation, postprocessing, China tessellation/extrusion, Taiwan wall handling, grid intersections, scan band, atmospheric rim, synchronized international fly lines, persistent node ripples, idle drift, intro sequence, and cloud dive handoff. Do not replace any of these with a shorter approximation.
+- Do not add `EarthViewLegacy.vue`, URL query switches such as `earthVersion`, screenshots, generated stand-in textures, or a second Earth renderer. The bundled Earth file is already the approved visual baseline.
+- Keep the space background neutral black with subtle stars. Theme changes affect Earth/map lighting and effects, not the background hue.
 
 ## Code Attribution
 
@@ -74,10 +79,11 @@ Read only what the task needs:
 - `scripts/resolve_map_data.py`: Validate local GeoJSON or download world/country/province/city/district candidate GeoJSON. Use `--adcode` for drilldown levels.
 - `scripts/resolve_map_textures.py`: Validate or generate fallback `diffuse`, `height`, `normal`, and `roughness` terrain texture sets.
 - `scripts/generate_map_theme.py <hex>`: Generate a full map theme from one main color.
-- `scripts/apply_map_theme.py <hex> <target-file>`: Replace a standard `mapTheme` export. The template label skin is CSS-based so SkillHub uploads do not require SVG assets.
+- `scripts/apply_map_theme.py <hex> <target-project-or-mapTheme.ts>`: Change the single shared `MAP_THEME_PRIMARY`; Earth and the 3D map derive their complete role palettes from it.
 - `scripts/recolor_label_asset.py <hex> <svg>`: Legacy helper for older local projects that still use an SVG label pointer.
 - `scripts/preprocess_map_data.py`: Create render-ready GeoJSON with simplified rings, bbox, center, and point-count metadata.
 - `scripts/check_three_map_project.py`: Check a target project for Vue/Vite/Three dependencies, copied template files, assets, fixed-size host mistakes, SVG substitutes, and required one-to-one Three.js effects.
+- `scripts/verify_template_integrity.py`: Verify every bundled template file and binary texture against `assets/template-manifest.json`. Never claim one-to-one fidelity when this check fails.
 - `assets/templates/mapDataAdapter.ts`: Reusable cache/prefetch/network fallback adapter template.
 - `assets/templates/frameChunkedRebuild.ts`: Reusable chunked map rebuild and resource-disposal helper template.
 - `assets/templates/cameraPresetController.ts`: Reusable camera angle preset, localStorage persistence, and OrbitControls save/apply helper.
@@ -103,6 +109,9 @@ python3 <skill>/scripts/resolve_map_data.py --adcode 330106 --scope district --o
 # Generate a full cyan map theme
 python3 <skill>/scripts/generate_map_theme.py '#2AF7FF'
 
+# Apply one color to both Earth and the 3D map
+python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' <target-project> --no-backup
+
 # Validate texture set
 python3 <skill>/scripts/resolve_map_textures.py --dir src/assets/textures/map/china --scope country --check
 
@@ -115,6 +124,9 @@ npm run map:preprocess -- --input src/assets/maps/zhejiang.json --output src/ass
 
 # Check that a generated target project is ready for one-to-one Three.js delivery
 python3 <skill>/scripts/check_three_map_project.py <target-project> --strict
+
+# Verify the bundled source/asset baseline has not drifted
+python3 <skill>/scripts/verify_template_integrity.py
 ```
 
 ## Delivery Checklist
@@ -129,3 +141,6 @@ python3 <skill>/scripts/check_three_map_project.py <target-project> --strict
 - Confirm visual rendering, not only `npm run build`.
 - Confirm the visible map is the Three.js canvas version, not an SVG/image fallback or screenshot.
 - Confirm `scripts/check_three_map_project.py <target-project> --strict` has no blockers, or explain any true environment-only blocker such as unavailable WebGL.
+- Confirm `scripts/verify_template_integrity.py` passes before copying the authoritative template.
+- Confirm no absolute local path, preview URL, chat temporary path, dashboard panel, chart, or business metric was copied with the map.
+- Confirm the default route visibly starts on Earth and uses the shared `MAP_THEME_PRIMARY` with the destination 3D map.

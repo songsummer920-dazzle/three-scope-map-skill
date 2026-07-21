@@ -1,0 +1,85 @@
+Three Scope Map Skill
+Copyright (c) 2026 宋夏天Dazzle
+
+Original project notice:
+This repository is the original public source of three-scope-map-skill by
+宋夏天Dazzle. Forks, derivative works, tutorials, public showcases, and
+redistributed versions must retain the original attribution and must not imply
+that modified versions are original or official releases by the original author.
+
+原始项目声明：
+本仓库是 宋夏天Dazzle 发布的 three-scope-map-skill 原始公开来源。任何 fork、
+二创、教程、公开展示或再分发版本都必须保留原作者署名，不得暗示修改版
+是完全原创或原作者官方发布。
+
+Original author:
+作者全平台ID：宋夏天Dazzle
+公众号：送你整个夏天
+
+Original repository:
+https://github.com/songsummer920-dazzle/three-scope-map-skill
+
+This project includes the original three-scope-map Codex skill, Vue + Three.js
+map template, visual style rules, scripts, documentation, and code-only
+attribution markers.
+
+If you use, modify, redistribute, fork, publish tutorials based on this project,
+or build derivative skills from it, keep this NOTICE file and credit the
+original source in a visible place such as README, documentation, release notes,
+tutorial pages, or marketplace descriptions:
+
+Based on three-scope-map-skill by 宋夏天Dazzle.
+作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+Original repository: https://github.com/songsummer920-dazzle/three-scope-map-skill
+
+Do not remove LICENSE, NOTICE, source-code attribution comments, or document
+attribution sections when distributing modified versions.
+
+Do not imply that modified versions, forks, tutorials, packaged distributions,
+or derivative skills are official releases by the original author unless you
+have explicit permission.
+
+Attribution and Misrepresentation Notice:
+
+If you modify, fork, redistribute, publish tutorials based on, publicly
+showcase, or create derivative skills/projects from this repository, you must
+preserve the original author attribution and clearly mark your version as
+modified from this project.
+
+You must not remove LICENSE, NOTICE, CITATION.cff, README attribution sections,
+SPDX headers, or source-code attribution comments.
+
+You must not misrepresent the origin of this project, imply that a modified
+version is your original work, or imply that a fork, derivative, tutorial,
+packaged distribution, or derivative skill is an official release by the
+original author without explicit permission.
+
+Required attribution:
+Based on three-scope-map-skill by 宋夏天Dazzle
+作者全平台ID：宋夏天Dazzle
+公众号：送你整个夏天
+Original repository: https://github.com/songsummer920-dazzle/three-scope-map-skill
+
+署名与禁止误导声明：
+
+如果你基于本项目进行修改、二创、fork、分发、教程录制、公开展示、
+插件/skill 发布或衍生项目发布，必须保留原作者署名，并明确标注
+你的版本是基于本项目修改而来。
+
+不得删除 LICENSE、NOTICE、CITATION.cff、README 署名说明、SPDX 头信息
+或源码中的作者署名注释。
+
+不得误导他人认为该项目或其二创版本是你的完全原创作品；未经明确许可，
+不得暗示二创版本、教程、分发包或衍生 skill 是原作者官方发布。
+
+必须保留署名：
+基于 three-scope-map-skill 修改
+作者全平台ID：宋夏天Dazzle
+公众号：送你整个夏天
+原始仓库：https://github.com/songsummer920-dazzle/three-scope-map-skill
+
+Third-party data and assets:
+- Bundled GeoJSON files may include their own metadata and copyright notices,
+  including GeoJSON.CN metadata. Preserve third-party copyright/license metadata
+  when copying, modifying, or redistributing those files.
+- Confirm third-party GeoJSON and terrain texture licenses before commercial use.
