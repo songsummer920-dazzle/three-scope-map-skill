@@ -6,7 +6,29 @@
 -->
 
 <template>
-  <div ref="host" class="map-host" />
+  <div class="map-stage">
+    <div ref="host" class="map-host" />
+    <svg
+      class="south-sea-inset"
+      :class="{ 'is-visible': activeScope === 'country' }"
+      viewBox="0 0 78 126"
+      aria-hidden="true"
+    >
+      <rect class="south-sea-inset__frame" x="1.5" y="1.5" width="75" height="123" rx="2" />
+      <path
+        v-for="(path, index) in southSeaInsetPaths"
+        :key="`south-sea-glow-${index}`"
+        class="south-sea-inset__glow"
+        :d="path"
+      />
+      <path
+        v-for="(path, index) in southSeaInsetPaths"
+        :key="`south-sea-line-${index}`"
+        class="south-sea-inset__line"
+        :d="path"
+      />
+    </svg>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -79,6 +101,7 @@ const flyLineMaterials: THREE.ShaderMaterial[] = [];
 let hoveredFeature = '';
 let isDrilling = false;
 let currentState: MapState = initialMapState;
+const activeScope = ref<MapScope>(initialMapState.scope);
 let geoData = currentState.geoData;
 let currentLabels: MapLabel[] = [];
 let drillStack: DrillStackItem[] = [];
@@ -507,6 +530,50 @@ function getFeatureCode(feature: MapFeature) {
   const code = props.adcode ?? props.code ?? props.id ?? props.ISO_A3 ?? props.ISO_A2 ?? props.ADM0_A3;
   return code === undefined || code === null ? '' : String(code);
 }
+
+function createSouthSeaInsetSvgPaths() {
+  const insetFeature = initialMapState.geoData.features.find(isDecorativeChinaInset);
+  if (!insetFeature) return [];
+  const rings = toPolygons(insetFeature)
+    .map((polygon) => polygon[0])
+    .filter((ring): ring is Position[] => Array.isArray(ring) && ring.length >= 2);
+  if (!rings.length) return [];
+
+  let insetLonMin = Infinity;
+  let insetLonMax = -Infinity;
+  let insetLatMin = Infinity;
+  let insetLatMax = -Infinity;
+  rings.forEach((ring) => {
+    ring.forEach(([lon, lat]) => {
+      insetLonMin = Math.min(insetLonMin, lon);
+      insetLonMax = Math.max(insetLonMax, lon);
+      insetLatMin = Math.min(insetLatMin, lat);
+      insetLatMax = Math.max(insetLatMax, lat);
+    });
+  });
+
+  const frameWidth = 78;
+  const frameHeight = 126;
+  const framePadding = 9;
+  const sourceWidth = Math.max(0.0001, insetLonMax - insetLonMin);
+  const sourceHeight = Math.max(0.0001, insetLatMax - insetLatMin);
+  const insetScale = Math.min(
+    (frameWidth - framePadding * 2) / sourceWidth,
+    (frameHeight - framePadding * 2) / sourceHeight,
+  );
+  const fittedWidth = sourceWidth * insetScale;
+  const fittedHeight = sourceHeight * insetScale;
+  const offsetX = (frameWidth - fittedWidth) / 2;
+  const offsetY = (frameHeight - fittedHeight) / 2;
+
+  return rings.map((ring) => ring.map(([lon, lat], index) => {
+    const x = offsetX + (lon - insetLonMin) * insetScale;
+    const y = offsetY + (insetLatMax - lat) * insetScale;
+    return `${index === 0 ? 'M' : 'L'}${x.toFixed(2)} ${y.toFixed(2)}`;
+  }).join(' ') + ' Z');
+}
+
+const southSeaInsetPaths = createSouthSeaInsetSvgPaths();
 
 function featureCenter(feature: MapFeature): Position {
   const center = feature.properties?.center;
@@ -1937,6 +2004,7 @@ function createDrillControl() {
 
 async function rebuildMapForCurrentState() {
   if (!scene) return;
+  activeScope.value = currentState.scope;
   const buildVersion = ++mapBuildVersion;
   const previousMapGroup = mapGroup;
   geoData = currentState.geoData;
@@ -2174,6 +2242,15 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.map-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 .map-host {
   position: absolute;
   inset: 0;
@@ -2186,6 +2263,59 @@ onBeforeUnmount(() => {
   pointer-events: auto;
   filter: drop-shadow(0 0 18px rgba(199, 255, 61, 0.34));
   animation: mapStageIn 920ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+}
+
+.south-sea-inset {
+  position: absolute;
+  right: 23%;
+  bottom: 7.5%;
+  z-index: 8;
+  width: 110px;
+  height: auto;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.96);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 460ms ease 150ms,
+    transform 560ms cubic-bezier(0.16, 1, 0.3, 1) 150ms;
+}
+
+.south-sea-inset.is-visible {
+  opacity: 0.9;
+  transform: translateY(0) scale(1);
+}
+
+.south-sea-inset__frame,
+.south-sea-inset__glow,
+.south-sea-inset__line {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.south-sea-inset__frame {
+  stroke: #d4f56a;
+  stroke-width: 0.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.4;
+}
+
+.south-sea-inset__glow {
+  stroke: #d4f56a;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.17;
+}
+
+.south-sea-inset__line {
+  stroke: #e8ff4f;
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.88;
 }
 
 .map-host :deep(canvas),
@@ -2248,9 +2378,15 @@ onBeforeUnmount(() => {
   width: 68px;
   height: 41px;
   padding: 0 5px 11px;
-  background-image: url('../../assets/figma/map-label-bg.svg');
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
+  border: 1.5px solid rgba(255, 255, 255, 0.82);
+  border-radius: 5px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 32%),
+    linear-gradient(145deg, rgba(5, 7, 6, 0.92), rgba(2, 3, 2, 0.92) 62%, rgba(19, 27, 18, 0.82));
+  box-shadow:
+    inset 0 0 18px rgba(255, 255, 255, 0.08),
+    inset -12px -8px 16px rgba(255, 255, 255, 0.08),
+    0 0 14px rgba(232, 255, 79, 0.18);
   color: #f2ffd6;
   font-size: 10px;
   line-height: 14px;
@@ -2262,6 +2398,20 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   transition: width 180ms ease, height 180ms ease, padding 180ms ease, font-size 180ms ease, opacity 180ms ease;
   white-space: nowrap;
+}
+
+.map-host :deep(.city-label::after) {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #e8ff4f;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 0 7px rgba(232, 255, 79, 0.55));
 }
 
 .map-host :deep(.city-ripple) {

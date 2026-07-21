@@ -6,7 +6,7 @@ Use this reference when the user asks for the 3D map to match the validated map 
 
 Do not rebuild the map from scratch when this template is available. Start by copying the bundled template files, then adapt paths and project structure.
 
-This template is the default baseline for every generated 3D map, not only Zhejiang. For any requested region, keep the same renderer, material system, side-wall gradient, label asset, ripple/fly-line behavior, chase light, terrain texture stack, camera controls, hover lift, and drilldown architecture. Change the region data and generated configuration, not the visual language.
+This template is the default baseline for every generated 3D map, not only Zhejiang. For any requested region, keep the same renderer, material system, side-wall gradient, CSS label skin, ripple/fly-line behavior, chase light, terrain texture stack, camera controls, hover lift, and drilldown architecture. Change the region data and generated configuration, not the visual language.
 
 Template location:
 
@@ -18,17 +18,16 @@ It includes:
 
 ```txt
 components/map/ZhejiangThreeMap.vue
+components/map/EarthView.vue
+components/map/EarthChinaMap.vue
+components/map/ChinaMap.vue
 components/map/mapDataAdapter.ts
 components/map/mapTerrainMaterial.ts
 types/geo.ts
 assets/maps/china.json
 assets/maps/world.json
 assets/maps/zhejiang.json
-assets/textures/map/terrain-diffuse.jpg
-assets/textures/map/terrain-height.jpg
-assets/textures/map/terrain-normal.jpg
-assets/textures/map/terrain-roughness.jpg
-assets/figma/map-label-bg.svg
+components/map/mapTerrainMaterial.ts  # procedural diffuse, height, normal, and roughness textures
 ```
 
 ## Integration Steps
@@ -39,10 +38,11 @@ assets/figma/map-label-bg.svg
 
 ```bash
 npm install three
+npm install gsap
 npm install -D @types/three
 ```
 
-4. Mount `ZhejiangThreeMap.vue` in the target page or app shell. The component fills its parent container; do not hardcode the map host to `1920px x 1080px`.
+4. Mount `ZhejiangThreeMap.vue` for a direct regional map, or mount `EarthChinaMap.vue` when Earth View should be the entry. Both fill the parent container; do not hardcode the map host to `1920px x 1080px`.
 5. Preserve relative asset paths unless the target project has a different alias convention.
 6. Keep the camera, materials, terrain config, label CSS, chase light, fly lines, and hover logic intact for the first pass.
 7. Add drilldown data for every non-terminal visible scope before delivery:
@@ -68,7 +68,7 @@ After the template renders successfully, it is safe to adapt:
 - GeoJSON files
 - city labels and fly-line source/targets
 - theme color through the theme workflow
-- label pointer color through `recolor_label_asset.py` or `apply_map_theme.py --label-svg`
+- CSS label pointer color and glow should follow the same derived theme color
 - camera presets through the camera preset controller
 - GeoJSON resolver registry for additional countries/provinces/cities
 
@@ -121,6 +121,6 @@ If WebGL creation fails, do not replace the map with SVG. Check browser WebGL su
 - City-scope ripple and fly lines use the same stable random district/county source.
 - All non-district scopes can click into the next level.
 - District/county scope is terminal by default and should not recurse into fake data.
-- Labels use the bundled `map-label-bg.svg`.
-- If the theme color changes, the label pointer triangle is recolored with the same derived theme color instead of staying green.
+- Labels use the bundled CSS HUD skin in `ZhejiangThreeMap.vue`.
+- If the theme color changes, the label pointer triangle and glow should use the same derived theme color instead of staying green.
 - Camera controls support unified and per-scope saved views.

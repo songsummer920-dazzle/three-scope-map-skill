@@ -1,6 +1,6 @@
 ---
 name: three-scope-map
-description: Build, migrate, theme, drill down, and validate reusable Three.js 3D geographic maps for Vue or web dashboards. Use when Codex is asked to create or modify province-level, all-China, or world 3D maps; switch map boundaries between provinces, country scope, world scope, city scope, or district scope; add hierarchical drilldown from world to country, China to province, province to city, city to district/county; replace GeoJSON, labels, scatter points, fly lines, terrain textures, or chase-light paths; derive a whole map color system from one theme color; or preserve an existing dark HUD-style 3D map visual across new regions.
+description: Build, migrate, theme, drill down, and validate reusable Three.js 3D geographic maps and Earth View entrances for Vue or web dashboards. Use when Codex is asked to create or modify a pure Three.js globe, province-level, all-China, or world 3D maps; transition from an Earth View into the existing China map; switch map boundaries between provinces, country scope, world scope, city scope, or district scope; add hierarchical drilldown from world to country, China to province, province to city, city to district/county; replace GeoJSON, labels, scatter points, fly lines, terrain textures, or chase-light paths; derive a whole map color system from one theme color; or preserve an existing dark HUD-style 3D map visual across new regions.
 ---
 
 # Three Scope Map
@@ -21,17 +21,20 @@ description: Build, migrate, theme, drill down, and validate reusable Three.js 3
 12. Preserve `SPDX-License-Identifier: GPL-3.0-or-later`, `NOTICE`, original repository URL, and code attribution comments when copying, modifying, or redistributing the template or scripts.
 13. Do not ship a blank or substitute map. The Vue template must render the real Three.js map; if the canvas is blank, the agent must keep debugging the integration, data paths, mount point, dev-server URL, renderer sizing, WebGL availability, and console errors until the Three.js map is visible.
 14. Before delivery, run `scripts/check_three_map_project.py <target-project>` when the target project is local. Treat strict-mode blockers as work items to fix before claiming success.
+15. When the user requests an Earth View entrance, add `EarthView.vue` and an `earth | china` mode controller around the existing China map. Do not rebuild or fork the China renderer. Use the bundled China GeoJSON only for the spherical highlight and keep the existing country-scope component as the destination.
 
 ## Non-Negotiable One-To-One Rules
 
 - When a user asks for any regional 3D map, start from `assets/templates/smart-mine-vue/src/` and adapt the data, labels, scope, theme, and camera. Do not generate an unrelated Three.js map from memory.
-- Preserve the validated dark translucent top surface, `#E8FF4F` side-wall gradient family, `#D4F56A` outer contour accents, HUD label asset, terrain texture stack, rotating base ring, outer-contour chase light, hover lift coupling, fly lines, and drilldown transition behavior.
+- Preserve the validated dark translucent top surface, `#E8FF4F` side-wall gradient family, `#D4F56A` outer contour accents, HUD CSS label skin, terrain texture stack, rotating base ring, outer-contour chase light, hover lift coupling, fly lines, and drilldown transition behavior.
 - Terrain textures must bind to the real region `ShapeGeometry` surfaces. Do not add a full `mapWidth x mapHeight` transparent `PlaneGeometry` texture overlay for non-world maps; it can expose white/gray triangle artifacts during drilldown and transparent-depth sorting.
 - The outer-contour chase light must be rendered as short animated `THREE.Line` segments. Do not use a transparent filled ribbon mesh or indexed triangle strip for chase light, because self-intersections and alpha sorting can flash large white triangles.
 - Province-level ripple and fly lines start from the province capital, such as 浙江省 -> 杭州市. Country-level China starts from 北京市. City-level source defaults to a stable random district/county unless the user specifies another source.
+- Country-level China maps must preserve the GeoJSON `*_JD` South China Sea line feature as a fixed screen-space inset with a thin solid outer frame and the original segmented internal lines in the lower-right of the map stage. Keep it outside the main projection bounds so the mainland scale does not shrink; it must not rotate, tilt, or zoom with the 3D camera, and it should hide below country scope.
 - If the requested target data is missing, resolve/download/preprocess the required GeoJSON and texture scope first. Do not silently replace the requested region with Zhejiang, China, or an abstract placeholder.
 - Unacceptable results: an image screenshot, a flat SVG map, a plain 2D GeoJSON fill, a map without extrusion depth, a map without side-wall gradient, missing outer/internal boundaries, missing labels, missing hover lift, missing fly lines, missing chase light, or a build-only report without browser visual verification.
 - If WebGL fails, do not silently substitute SVG or canvas art. Diagnose and report the concrete cause: browser WebGL support, GPU/driver block, renderer creation error, container size `0x0`, missing assets, GeoJSON parse failure, import path error, or console runtime error. Keep fixing the project when the environment supports WebGL; only stop when WebGL is genuinely unavailable on the device/browser.
+- Earth View is an entrance mode, not a replacement `world` scope. It must use `SphereGeometry`, `ShaderMaterial`, a separate spherical China mesh, atmospheric glow, scan/grid motion, hover/click raycasting, and a 2-3 second GSAP camera transition into the existing China map.
 
 ## Code Attribution
 
@@ -64,20 +67,21 @@ Read only what the task needs:
 - `references/three-scope-map-template.md`: Vue + Three.js component structure for a scope-aware map component.
 - `references/visual-qa.md`: Required visual checks and screenshots after map edits.
 - `references/regression-guard.md`: Guardrails to avoid unrelated regressions.
+- `references/earth-view.md`: Pure Three.js globe entrance, spherical China GeoJSON highlight, GSAP camera flight, and reuse of the existing China map.
 
 ## Scripts
 
 - `scripts/resolve_map_data.py`: Validate local GeoJSON or download world/country/province/city/district candidate GeoJSON. Use `--adcode` for drilldown levels.
 - `scripts/resolve_map_textures.py`: Validate or generate fallback `diffuse`, `height`, `normal`, and `roughness` terrain texture sets.
 - `scripts/generate_map_theme.py <hex>`: Generate a full map theme from one main color.
-- `scripts/apply_map_theme.py <hex> <target-file> --label-svg <svg>`: Replace a standard `mapTheme` export and optionally recolor the bundled label pointer.
-- `scripts/recolor_label_asset.py <hex> <svg>`: Recolor the bundled `map-label-bg.svg` pointer triangle to match a theme.
+- `scripts/apply_map_theme.py <hex> <target-file>`: Replace a standard `mapTheme` export. The template label skin is CSS-based so SkillHub uploads do not require SVG assets.
+- `scripts/recolor_label_asset.py <hex> <svg>`: Legacy helper for older local projects that still use an SVG label pointer.
 - `scripts/preprocess_map_data.py`: Create render-ready GeoJSON with simplified rings, bbox, center, and point-count metadata.
 - `scripts/check_three_map_project.py`: Check a target project for Vue/Vite/Three dependencies, copied template files, assets, fixed-size host mistakes, SVG substitutes, and required one-to-one Three.js effects.
 - `assets/templates/mapDataAdapter.ts`: Reusable cache/prefetch/network fallback adapter template.
 - `assets/templates/frameChunkedRebuild.ts`: Reusable chunked map rebuild and resource-disposal helper template.
 - `assets/templates/cameraPresetController.ts`: Reusable camera angle preset, localStorage persistence, and OrbitControls save/apply helper.
-- `assets/templates/smart-mine-vue/src/`: One-to-one Vue 3 template component, map data, terrain textures, and label asset from the validated 3D map.
+- `assets/templates/smart-mine-vue/src/`: One-to-one Vue 3 template component, map data, procedural terrain textures, and CSS label skin from the validated 3D map.
 
 ## Common Commands
 

@@ -114,7 +114,7 @@ When applying a new theme:
 
 - Replace hardcoded `#E8FF4F`, `#D4F56A`, green `rgba(...)`, and glow colors with `mapTheme` values.
 - Update canvas-generated textures, sprite materials, line materials, shader uniforms, CSS custom properties, and label SVG/CSS colors.
-- Recolor the bundled label pointer triangle in `map-label-bg.svg` with `mapTheme.labelPointer`; the original asset has this triangle hardcoded as `#E8FF4F`.
+- Recolor the CSS label pointer triangle and glow with `mapTheme.labelPointer`; the validated default uses `#E8FF4F`.
 - Keep unrelated panel colors unchanged unless the user asks for the whole dashboard theme to change.
 - After applying, verify top surface remains dark, outer thickness still has visible gradient, internal boundaries remain thin, and labels stay readable.
 
