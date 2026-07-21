@@ -178,10 +178,10 @@ python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' src/components/map/mapTheme
 3. If the bundled label SVG is used, recolor it in the same pass:
 
 ```bash
-python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' src/components/map/mapTheme.ts --label-svg src/assets/figma/map-label-bg.svg
+python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' src/components/map/mapTheme.ts
 ```
 
-Or recolor only the label pointer:
+For older local projects that still use an SVG label pointer, recolor only the label pointer:
 
 ```bash
 python3 <skill>/scripts/recolor_label_asset.py '#2AF7FF' src/assets/figma/map-label-bg.svg

@@ -18,7 +18,6 @@ from typing import Iterable
 REQUIRED_ASSETS = (
     "src/assets/maps",
     "src/assets/textures/map",
-    "src/assets/figma/map-label-bg.svg",
 )
 
 THREE_EFFECT_PATTERNS = {
