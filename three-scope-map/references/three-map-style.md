@@ -32,20 +32,13 @@ For province-to-country or country-to-province changes, switch the whole map sco
 
 ## Visual Style Constants
 
-Use explicit theme constants so the style can travel:
+Use the bundled shared theme instead of declaring local colors:
 
 ```ts
-const mapTheme = {
-  primary: '#E8FF4F',
-  outline: '#D4F56A',
-  topFill: '#071407',
-  topOpacity: 0.86,
-  internalLine: 'rgba(212,245,106,0.55)',
-  sideTop: '#E8FF4F',
-  sideBottom: 'rgba(232,255,79,0.06)',
-  labelText: '#eaffba',
-};
+import { mapTheme, mapThemeStyle } from './mapTheme';
 ```
+
+`MAP_THEME_PRIMARY` in `mapTheme.ts` is the only editable color entry. Do not create a second theme object inside a component.
 
 ## Terrain Texture Binding
 
@@ -57,12 +50,12 @@ Render the outer-contour chase light with short animated `THREE.Line` segments s
 
 ## Theme Color Switching
 
-When the user provides a main color, update the entire map color system, not just one material. Use `scripts/generate_map_theme.py <hex>` from this skill to generate a starting palette, then apply the resulting constants to the map module.
+When the user provides a main color, apply it to the shared theme entry so Earth and every flat 3D map layer change together.
 
 Example:
 
 ```bash
-python3 <skill>/scripts/generate_map_theme.py '#2AF7FF'
+python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' <target-project> --no-backup
 ```
 
 The generated theme should feed these layers:
@@ -85,7 +78,7 @@ Color derivation rules:
 6. Keep chase light white unless the user explicitly asks for colored chase light.
 7. Preserve readable label text by mixing the main color with near-white.
 
-Recommended map theme shape:
+The bundled `mapTheme.ts` already supplies the required role groups:
 
 ```ts
 type ProvinceMapTheme = {
@@ -112,9 +105,9 @@ type ProvinceMapTheme = {
 
 When applying a new theme:
 
-- Replace hardcoded `#E8FF4F`, `#D4F56A`, green `rgba(...)`, and glow colors with `mapTheme` values.
-- Update canvas-generated textures, sprite materials, line materials, shader uniforms, CSS custom properties, and label SVG/CSS colors.
-- Recolor the CSS label pointer triangle and glow with `mapTheme.labelPointer`; the validated default uses `#E8FF4F`.
+- Change only `MAP_THEME_PRIMARY` through `apply_map_theme.py`; do not manually replace individual shader/CSS/material colors.
+- Confirm canvas-generated textures, sprite materials, line materials, shader uniforms, CSS custom properties, and CSS label colors still consume `mapTheme` roles.
+- Keep the CSS label pointer triangle and glow on the shared accent roles.
 - Keep unrelated panel colors unchanged unless the user asks for the whole dashboard theme to change.
 - After applying, verify top surface remains dark, outer thickness still has visible gradient, internal boundaries remain thin, and labels stay readable.
 

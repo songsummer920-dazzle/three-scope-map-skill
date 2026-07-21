@@ -1,49 +1,75 @@
-# Earth View Entrance
+# Exact Earth View Entrance
 
-Use this reference when the user asks for a 3D globe that enters the existing China map.
+Use this reference only when the user asks for the bundled Earth entrance, its transition, or synchronized theming. The source file is authoritative; this document is not a recipe for recreating it.
 
-## Architecture
+## Copy Contract
 
-- `EarthView.vue` owns only the globe renderer, Earth shaders, spherical China highlight, hover/click raycasting, and camera flight.
-- `ChinaMap.vue` is a thin adapter around the existing country-scope map component. Do not duplicate or rewrite the China renderer.
-- `EarthChinaMap.vue` owns the `earth | china` mode state. Mount the China component only after the Earth transition completes so two heavy WebGL scenes do not run together.
-- Earth View is an entrance mode, not another drilldown scope. Existing `country -> province -> city -> district` behavior remains unchanged after entry.
+Copy these files together without rewriting the renderer:
 
-## Required Visuals
+```text
+src/components/map/EarthView.vue
+src/components/map/EarthChinaMap.vue
+src/components/map/ChinaMap.vue
+src/components/map/mapTheme.ts
+src/assets/maps/china.json
+src/assets/maps/world.json
+src/assets/textures/map/china/china-height-legacy.png
+src/assets/textures/map/china/china-normal-legacy.png
+src/assets/textures/map/world/earth-day.jpg
+src/assets/textures/map/world/earth-lights.png
+src/assets/textures/map/world/earth-normal.jpg
+src/assets/textures/map/world/earth-specular.jpg
+src/types/geo.ts
+```
 
-- Pure Three.js `SphereGeometry`; do not use Cesium or Globe.gl.
-- Shader-driven dark translucent Earth surface with blue-green HUD grid lines.
-- Atmospheric Fresnel glow on a slightly larger back-face sphere.
-- Animated surface scan band and slow rotation.
-- Subtle procedural star field and dark space background.
-- China GeoJSON converted to a separate spherical mesh at a slightly larger radius than Earth.
-- China fill breathes continuously; hover strengthens fill and outline without changing geometry.
+Do not shorten `EarthView.vue`, reconstruct it from these notes, rename it to `EarthViewLegacy.vue`, add an `earthVersion` query switch, or keep a competing globe implementation.
 
-## GeoJSON On A Sphere
+## Preserved Visual Baseline
 
-1. Reuse the bundled China GeoJSON.
-2. Convert each Polygon/MultiPolygon ring into a `THREE.ShapeGeometry` in longitude/latitude space.
-3. Remap every generated vertex to the sphere with a lon/lat-to-vector transform.
-4. Merge polygon geometries into one independent China mesh for raycasting.
-5. Draw province/outer rings as `THREE.LineLoop` geometry slightly above the fill radius to avoid z-fighting.
+The approved Earth source includes all of the following as one composed effect:
 
-## Transition Contract
+- Real Earth day, normal, specular, and city-light textures under a dark green grade.
+- Fine spherical latitude/longitude grid with intersection dots and scan-linked highlights.
+- World land geometry and outlines projected from real GeoJSON.
+- Separate China surface generated from real GeoJSON, textured with China height and normal maps.
+- Tessellated China terrain, inner/outer boundary glow, visible extrusion walls, bottom edge, and explicit Taiwan main-island wall handling.
+- Restrained bloom, directional upper-left lighting, layered atmospheric Fresnel rims, and neutral black star field.
+- Persistent international route tracks, synchronized fly-line heads, stable node ripples, idle drift, breathing, surface scan, and boundary flow.
+- Staged first load: Earth establishes first, China thickness/surface resolves next, then regular motion starts without a dead pause.
+- Click handoff: camera dives toward China through layered atmosphere/clouds while the already-preloaded 3D China map reveals underneath.
 
-- Clicking outside China does nothing.
-- Hover China sets a pointer cursor and increases the China shader intensity.
-- Clicking China disables controls and auto-rotation.
-- Use a 2-3 second GSAP timeline to move the camera along the China surface direction, enlarge the globe, move the camera target toward China, and fade Earth materials near the end.
-- Emit `enter-china` only after the Earth transition finishes.
-- The controller then unmounts Earth View and mounts the existing China map with a short fade/scale entrance.
-- Do not rebuild China geometry inside Earth View and do not keep both render loops alive after the transition.
+Never replace these with screenshots, SVG/canvas globes, flat fills, generic gradients, procedural stand-in Earth textures, or a shorter ShaderMaterial demo.
 
-## Validation
+## Component Responsibilities
 
-- Earth is a real Three.js sphere and remains visible without image textures.
-- China is a separate mesh generated from real GeoJSON and is clickable only at its true spherical location.
-- Hover and breathing effects remain coherent while the globe rotates.
-- Camera movement feels spatially continuous and lasts 2-3 seconds.
-- The destination is the existing China map implementation, not a second China map.
-- Existing China drilldown, labels, fly lines, hover lift, chase light, and camera controls still work after entry.
-- ResizeObserver keeps the Earth renderer matched to its parent container.
-- All Three.js resources, GSAP timelines, event listeners, controls, and animation frames are disposed on unmount.
+- `EarthView.vue`: own the globe renderer, textures, shaders, spherical China geometry, intro, idle effects, hover/click raycasting, and cloud dive. Emit `intro-ready`, `handoff-start`, and `enter-china` at the existing timings.
+- `EarthChinaMap.vue`: own the `earth | china` state, preload the destination after Earth intro, reveal it during handoff, and unexpose Earth only when the transition completes.
+- `ChinaMap.vue`: remain a thin adapter around `ZhejiangThreeMap.vue`. Do not duplicate the China renderer.
+- `mapTheme.ts`: remain the only color entry. `MAP_THEME_PRIMARY` feeds both Earth and the 3D map.
+
+## Theme Contract
+
+Apply user color requests with:
+
+```bash
+python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' <target-project> --no-backup
+```
+
+Do not hand-replace individual hex/RGB values in Earth shaders. The shared theme keeps the approved relative luminance, saturation, dark-surface contrast, scan hierarchy, fly-line hierarchy, wall depth, and label readability. Keep the space background neutral black.
+
+## Integration Contract
+
+- For a new project, copy the complete `assets/templates/smart-mine-vue/` directory. Its `App.vue` mounts `EarthChinaMap.vue`, so Earth is the first visible view.
+- For an existing project, mount `<EarthChinaMap />` in a positioned container with non-zero width and height.
+- Install `vue`, `three`, `gsap`, and `@types/three`; do not introduce Cesium or Globe.gl.
+- Keep the bundled relative asset paths unless the target build system requires a mechanical alias adjustment.
+- Do not copy dashboard panels, charts, business metrics, Figma frames, absolute paths, local URLs, or temporary chat assets.
+
+## Required Validation
+
+1. Run `python3 <skill>/scripts/verify_template_integrity.py` before copying.
+2. Run `python3 <skill>/scripts/check_three_map_project.py <target-project> --strict` after integration.
+3. Run the target build.
+4. Open the Vite URL and capture the initial Earth, steady Earth, click handoff, and destination China map.
+5. Repeat with one non-green `MAP_THEME_PRIMARY`; confirm Earth, 3D map, labels, fly lines, walls, scan, atmosphere, and ripples change together while the background stays neutral.
+6. Treat missing texture relief, missing Taiwan wall, missing grid dots, missing route tracks, abrupt handoff, blank canvas, or any substitute renderer as a blocker.

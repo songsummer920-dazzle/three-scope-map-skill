@@ -6,9 +6,19 @@
 -->
 
 <template>
-  <ZhejiangThreeMap />
+  <ZhejiangThreeMap :active="props.active" @ready="emit('ready')" />
 </template>
 
 <script setup lang="ts">
 import ZhejiangThreeMap from './ZhejiangThreeMap.vue';
+
+const props = withDefaults(defineProps<{
+  active?: boolean;
+}>(), {
+  active: true,
+});
+
+const emit = defineEmits<{
+  ready: [];
+}>();
 </script>

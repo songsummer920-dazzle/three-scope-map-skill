@@ -6,11 +6,11 @@
 -->
 
 <template>
-  <div class="map-stage">
+  <div class="map-stage" :style="mapThemeStyle">
     <div ref="host" class="map-host" />
     <svg
       class="south-sea-inset"
-      :class="{ 'is-visible': activeScope === 'country' }"
+      :class="{ 'is-visible': props.active && activeScope === 'country' }"
       viewBox="0 0 78 126"
       aria-hidden="true"
     >
@@ -32,13 +32,14 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import * as THREE from 'three';
 import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { GeoFeatureCollection, Position } from '../../types/geo';
 import { initialMapState, loadMapLevel, prefetchMapLevel, type MapScope, type MapState } from './mapDataAdapter';
-import { createMapTerrainMaterial } from './mapTerrainMaterial';
+import { createMapTerrainMaterial, waitForTerrainTexturesReady } from './mapTerrainMaterial';
+import { mapTheme, mapThemeStyle } from './mapTheme';
 
 // ThreeScopeMap attribution: 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 // Code-only attribution. Do not render it in the UI.
@@ -64,6 +65,14 @@ type DrillStackItem = {
 };
 
 const host = ref<HTMLElement>();
+const props = withDefaults(defineProps<{
+  active?: boolean;
+}>(), {
+  active: true,
+});
+const emit = defineEmits<{
+  ready: [];
+}>();
 let renderer: THREE.WebGLRenderer | undefined;
 let labelRenderer: CSS2DRenderer | undefined;
 let scene: THREE.Scene | undefined;
@@ -100,6 +109,7 @@ const cityLabelElements = new Map<string, HTMLDivElement>();
 const flyLineMaterials: THREE.ShaderMaterial[] = [];
 let hoveredFeature = '';
 let isDrilling = false;
+let hasEmittedReady = false;
 let currentState: MapState = initialMapState;
 const activeScope = ref<MapScope>(initialMapState.scope);
 let geoData = currentState.geoData;
@@ -1015,7 +1025,7 @@ function createProvinceChaseLight() {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const material = new THREE.LineBasicMaterial({
-      color: '#ffffff',
+      color: mapTheme.chaseLight,
       transparent: true,
       opacity: Math.pow(fade, 1.35) * 0.9,
       blending: THREE.AdditiveBlending,
@@ -1136,7 +1146,7 @@ function createFlyLines() {
   const lineZ = currentState.scope === 'country' ? 72 : currentState.scope === 'province' ? 74 : 70;
   const sourcePoint = projectPoint(sourceLabel.coord, lineZ);
   const baseMaterial = new THREE.LineBasicMaterial({
-    color: '#E8FF4F',
+    color: mapTheme.accent,
     transparent: true,
     opacity: currentState.scope === 'country' ? 0.14 : 0.2,
     blending: THREE.AdditiveBlending,
@@ -1175,7 +1185,7 @@ function createFlyLines() {
         uTime: { value: 0 },
         uDelay: { value: index * 0.047 },
         uSpeed: { value: currentState.scope === 'country' ? 0.22 : 0.3 },
-        uColor: { value: new THREE.Color('#F6FFD9') },
+        uColor: { value: new THREE.Color(mapTheme.flyHead) },
       },
       vertexShader: `
         attribute float progress;
@@ -1312,9 +1322,9 @@ function createSideGradientMaterial(alpha = 0.86, topZ = 44, bottomZ = 24) {
     depthWrite: false,
     blending: THREE.NormalBlending,
     uniforms: {
-      topColor: { value: new THREE.Color('#E8FF4F') },
-      midColor: { value: new THREE.Color('#a8bc38') },
-      bottomColor: { value: new THREE.Color('#101304') },
+      topColor: { value: new THREE.Color(mapTheme.accent) },
+      midColor: { value: new THREE.Color(mapTheme.sideMid) },
+      bottomColor: { value: new THREE.Color(mapTheme.sideBottom) },
       alpha: { value: alpha },
       topZ: { value: topZ },
       bottomZ: { value: bottomZ },
@@ -1365,16 +1375,16 @@ function createWorldTexture() {
   };
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.shadowColor = 'rgba(232, 255, 79, 0.7)';
+  ctx.shadowColor = mapTheme.worldShadow;
   ctx.shadowBlur = 18;
   geoData.features.filter(isWorldDisplayFeature).forEach((feature) => {
     toRenderablePolygons(feature).forEach((polygon) => {
       ctx.beginPath();
       polygon.forEach(drawRing);
-      ctx.fillStyle = isChinaFeature(feature) ? 'rgba(45, 78, 15, 0.92)' : 'rgba(9, 21, 11, 0.84)';
+      ctx.fillStyle = isChinaFeature(feature) ? mapTheme.worldChinaFill : mapTheme.worldLandFill;
       ctx.fill('evenodd');
       ctx.lineWidth = isChinaFeature(feature) ? 3.2 : 1.05;
-      ctx.strokeStyle = isChinaFeature(feature) ? 'rgba(232, 255, 79, 0.96)' : 'rgba(202, 255, 84, 0.42)';
+      ctx.strokeStyle = isChinaFeature(feature) ? mapTheme.worldChinaStroke : mapTheme.worldLandStroke;
       ctx.stroke();
     });
   });
@@ -1420,7 +1430,7 @@ function createWorldMap() {
           map: texture,
           transparent: true,
           opacity: 0.11 - layer * 0.018,
-          color: '#E8FF4F',
+          color: mapTheme.accent,
           side: THREE.DoubleSide,
           blending: THREE.AdditiveBlending,
           depthWrite: false,
@@ -1512,7 +1522,7 @@ function createRotatingRingDecor() {
   const softRing = new THREE.Mesh(
     new THREE.RingGeometry(356, 362, 192),
     new THREE.MeshBasicMaterial({
-      color: '#E8FF4F',
+      color: mapTheme.accent,
       transparent: true,
       opacity: 0.055,
       blending: THREE.AdditiveBlending,
@@ -1527,7 +1537,7 @@ function createRotatingRingDecor() {
   const innerSoftRing = new THREE.Mesh(
     new THREE.RingGeometry(244, 248, 160),
     new THREE.MeshBasicMaterial({
-      color: '#a4b83a',
+      color: mapTheme.ringDim,
       transparent: true,
       opacity: 0.035,
       blending: THREE.AdditiveBlending,
@@ -1540,7 +1550,7 @@ function createRotatingRingDecor() {
   rotor.add(innerSoftRing);
 
   const arcMaterial = new THREE.LineBasicMaterial({
-      color: '#E8FF4F',
+      color: mapTheme.accent,
     transparent: true,
     opacity: 0.24,
     blending: THREE.AdditiveBlending,
@@ -1548,7 +1558,7 @@ function createRotatingRingDecor() {
     depthWrite: false,
   });
   const dimArcMaterial = new THREE.LineBasicMaterial({
-    color: '#b5ca40',
+    color: mapTheme.arcDim,
     transparent: true,
     opacity: 0.15,
     blending: THREE.AdditiveBlending,
@@ -1574,7 +1584,7 @@ function createRotatingRingDecor() {
   });
 
   const tickMaterial = new THREE.LineBasicMaterial({
-    color: '#E8FF4F',
+    color: mapTheme.accent,
     transparent: true,
     opacity: 0.18,
     blending: THREE.AdditiveBlending,
@@ -1621,7 +1631,7 @@ async function createMap() {
   group.userData.baseScale = scopeScale;
 
   const geoBaseMaterial = new THREE.MeshBasicMaterial({
-    color: '#07100b',
+    color: mapTheme.mapBase,
     transparent: true,
     opacity: 0.68,
     side: THREE.DoubleSide,
@@ -1637,7 +1647,7 @@ async function createMap() {
   topMaterial.needsUpdate = true;
   const sideMaterial = createSideGradientMaterial();
   const topGlowMaterial = new THREE.MeshBasicMaterial({
-    color: '#E8FF4F',
+    color: mapTheme.accent,
     transparent: true,
     opacity: 0.045,
     blending: THREE.AdditiveBlending,
@@ -1646,7 +1656,7 @@ async function createMap() {
     depthWrite: false,
   });
   const highlightMaterial = new THREE.MeshBasicMaterial({
-    color: '#E8FF4F',
+    color: mapTheme.accent,
     transparent: true,
     opacity: 0,
     blending: THREE.AdditiveBlending,
@@ -1655,14 +1665,14 @@ async function createMap() {
     depthWrite: false,
   });
   const lineMaterial = new THREE.LineBasicMaterial({
-    color: '#E8FF4F',
+    color: mapTheme.accent,
     transparent: true,
     opacity: currentState.scope === 'world' ? 0.72 : 0.46,
     depthTest: false,
     depthWrite: false,
   });
   const provinceOutlineMaterial = new THREE.LineBasicMaterial({
-    color: '#D4F56A',
+    color: mapTheme.accentSoft,
     transparent: true,
     opacity: 0.82,
     blending: THREE.AdditiveBlending,
@@ -1670,7 +1680,7 @@ async function createMap() {
     depthWrite: false,
   });
   const bottomOutlineMaterial = new THREE.LineBasicMaterial({
-    color: '#D4F56A',
+    color: mapTheme.accentSoft,
     transparent: true,
     opacity: 0.62,
     blending: THREE.AdditiveBlending,
@@ -1678,7 +1688,7 @@ async function createMap() {
     depthWrite: false,
   });
   const geoBaseLineMaterial = new THREE.LineBasicMaterial({
-    color: '#24351d',
+    color: mapTheme.baseLine,
     transparent: true,
     opacity: 0.54,
     depthTest: false,
@@ -1810,9 +1820,9 @@ function setFeatureHighlight(featureName: string) {
       group.userData.targetZ = group.userData.baseZ ?? 0;
     });
     featureSideMaterials.get(hoveredFeature)?.forEach((material) => {
-      material.uniforms.topColor.value.set('#E8FF4F');
-      material.uniforms.midColor.value.set('#a8bc38');
-      material.uniforms.bottomColor.value.set('#101304');
+      material.uniforms.topColor.value.set(mapTheme.accent);
+      material.uniforms.midColor.value.set(mapTheme.sideMid);
+      material.uniforms.bottomColor.value.set(mapTheme.sideBottom);
       material.uniforms.alpha.value = 0;
     });
     featureHighlightMaterials.get(hoveredFeature)?.forEach((material) => {
@@ -1821,8 +1831,8 @@ function setFeatureHighlight(featureName: string) {
     featureMeshes.get(hoveredFeature)?.forEach((mesh) => {
       const material = mesh.material;
       if (material instanceof THREE.MeshStandardMaterial) {
-        material.color.set(material.userData.baseColor ?? '#050b05');
-        material.emissive.set(material.userData.baseEmissive ?? '#0d1708');
+        material.color.set(material.userData.baseColor ?? mapTheme.surfaceBase);
+        material.emissive.set(material.userData.baseEmissive ?? mapTheme.surfaceEmissive);
         material.emissiveIntensity = material.userData.baseEmissiveIntensity ?? 0.03;
         material.opacity = material.userData.baseOpacity ?? 0.86;
       }
@@ -1836,9 +1846,9 @@ function setFeatureHighlight(featureName: string) {
     group.userData.targetZ = 16;
   });
   featureSideMaterials.get(featureName)?.forEach((material) => {
-    material.uniforms.topColor.value.set('#E8FF4F');
-    material.uniforms.midColor.value.set('#b6c53d');
-    material.uniforms.bottomColor.value.set('#1a2105');
+    material.uniforms.topColor.value.set(mapTheme.accent);
+    material.uniforms.midColor.value.set(mapTheme.hoverMid);
+    material.uniforms.bottomColor.value.set(mapTheme.hoverBottom);
     material.uniforms.alpha.value = 0.9;
   });
   featureHighlightMaterials.get(featureName)?.forEach((material) => {
@@ -1851,8 +1861,8 @@ function setFeatureHighlight(featureName: string) {
       material.userData.baseEmissive ??= `#${material.emissive.getHexString()}`;
       material.userData.baseOpacity ??= material.opacity;
       material.userData.baseEmissiveIntensity ??= material.emissiveIntensity;
-      material.color.set('#E8FF4F');
-      material.emissive.set('#E8FF4F');
+      material.color.set(mapTheme.accent);
+      material.emissive.set(mapTheme.accent);
       material.emissiveIntensity = 0.72;
       material.opacity = 0.68;
     }
@@ -1867,9 +1877,9 @@ function resetAllFeatureHighlights() {
   });
   featureSideMaterials.forEach((materials) => {
     materials.forEach((material) => {
-      material.uniforms.topColor.value.set('#E8FF4F');
-      material.uniforms.midColor.value.set('#a8bc38');
-      material.uniforms.bottomColor.value.set('#101304');
+      material.uniforms.topColor.value.set(mapTheme.accent);
+      material.uniforms.midColor.value.set(mapTheme.sideMid);
+      material.uniforms.bottomColor.value.set(mapTheme.sideBottom);
       material.uniforms.alpha.value = 0;
     });
   });
@@ -1882,8 +1892,8 @@ function resetAllFeatureHighlights() {
     meshes.forEach((mesh) => {
       const material = mesh.material;
       if (material instanceof THREE.MeshStandardMaterial) {
-        material.color.set(material.userData.baseColor ?? '#050b05');
-        material.emissive.set(material.userData.baseEmissive ?? '#0d1708');
+        material.color.set(material.userData.baseColor ?? mapTheme.surfaceBase);
+        material.emissive.set(material.userData.baseEmissive ?? mapTheme.surfaceEmissive);
         material.emissiveIntensity = material.userData.baseEmissiveIntensity ?? 0.03;
         material.opacity = material.userData.baseOpacity ?? 0.86;
       }
@@ -2028,7 +2038,28 @@ async function rebuildMapForCurrentState() {
   createCityMarkers(mapGroup);
   resetAllFeatureHighlights();
   refreshDrillControl();
+
+  if (!hasEmittedReady && renderer && camera && scene) {
+    await waitForTerrainTexturesReady();
+    if (buildVersion !== mapBuildVersion || mapGroup !== nextMapGroup) return;
+    try {
+      await renderer.compileAsync(scene, camera);
+    } catch {
+      // A hidden render below remains the compatibility warm-up path.
+    }
+    if (buildVersion !== mapBuildVersion || mapGroup !== nextMapGroup) return;
+    renderer.render(scene, camera);
+    hasEmittedReady = true;
+    requestAnimationFrame(() => emit('ready'));
+  }
 }
+
+watch(() => props.active, (active, wasActive) => {
+  if (!active || wasActive || !mapGroup) return;
+  primeGroupOpacity(mapGroup);
+  mapGroup.userData.transitionStart = performance.now() / 1000;
+  if (labelRenderer?.domElement) labelRenderer.domElement.style.opacity = '0';
+});
 
 async function drillToFeature(featureName: string) {
   if (isDrilling) return;
@@ -2153,8 +2184,8 @@ function setup() {
   host.value.appendChild(labelRenderer.domElement);
   createDrillControl();
 
-  scene.add(new THREE.AmbientLight('#baff78', 1.45));
-  const light = new THREE.DirectionalLight('#f2ffb1', 2.4);
+  scene.add(new THREE.AmbientLight(mapTheme.ambientLight, 1.45));
+  const light = new THREE.DirectionalLight(mapTheme.directionalLight, 2.4);
   light.position.set(120, -240, 420);
   scene.add(light);
 
@@ -2165,6 +2196,7 @@ function setup() {
 
 function animate() {
   raf = requestAnimationFrame(animate);
+  if (!props.active) return;
   const t = performance.now() / 1000;
   if (mapGroup) {
     applyGroupTransition(mapGroup, t);
@@ -2261,7 +2293,7 @@ onBeforeUnmount(() => {
   min-height: 0;
   overflow: visible;
   pointer-events: auto;
-  filter: drop-shadow(0 0 18px rgba(199, 255, 61, 0.34));
+  filter: drop-shadow(0 0 18px var(--map-stage-shadow));
   animation: mapStageIn 920ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
 }
 
@@ -2295,7 +2327,7 @@ onBeforeUnmount(() => {
 }
 
 .south-sea-inset__frame {
-  stroke: #d4f56a;
+  stroke: var(--map-accent-soft);
   stroke-width: 0.85;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -2303,7 +2335,7 @@ onBeforeUnmount(() => {
 }
 
 .south-sea-inset__glow {
-  stroke: #d4f56a;
+  stroke: var(--map-accent-soft);
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -2311,7 +2343,7 @@ onBeforeUnmount(() => {
 }
 
 .south-sea-inset__line {
-  stroke: #e8ff4f;
+  stroke: var(--map-accent);
   stroke-width: 0.9;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -2337,23 +2369,23 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 10px;
   transform: translateX(-50%);
-  color: rgba(232, 255, 202, 0.86);
+  color: var(--map-drill-text-alpha);
   font-size: 14px;
   line-height: 1;
-  text-shadow: 0 0 10px rgba(232, 255, 79, 0.42);
+  text-shadow: 0 0 10px var(--map-drill-glow);
   pointer-events: auto;
 }
 
 .map-host :deep(.map-drill-control button) {
   height: 26px;
-  border: 1px solid rgba(212, 245, 106, 0.5);
+  border: 1px solid var(--map-drill-border);
   border-radius: 2px;
   padding: 0 12px;
-  background: rgba(8, 23, 9, 0.62);
-  color: #e8ffca;
+  background: var(--map-drill-background);
+  color: var(--map-drill-text);
   font: inherit;
   cursor: pointer;
-  box-shadow: inset 0 0 14px rgba(202, 255, 84, 0.18), 0 0 12px rgba(202, 255, 84, 0.14);
+  box-shadow: inset 0 0 14px var(--map-drill-box-inner), 0 0 12px var(--map-drill-box-outer);
 }
 
 .map-host :deep(.map-drill-control button:disabled) {
@@ -2378,21 +2410,21 @@ onBeforeUnmount(() => {
   width: 68px;
   height: 41px;
   padding: 0 5px 11px;
-  border: 1.5px solid rgba(255, 255, 255, 0.82);
+  border: 1.5px solid var(--map-label-border);
   border-radius: 5px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 32%),
-    linear-gradient(145deg, rgba(5, 7, 6, 0.92), rgba(2, 3, 2, 0.92) 62%, rgba(19, 27, 18, 0.82));
+    linear-gradient(135deg, var(--map-label-sheen), transparent 32%),
+    linear-gradient(145deg, var(--map-label-dark-a), var(--map-label-dark-b) 62%, var(--map-label-dark-c));
   box-shadow:
-    inset 0 0 18px rgba(255, 255, 255, 0.08),
-    inset -12px -8px 16px rgba(255, 255, 255, 0.08),
-    0 0 14px rgba(232, 255, 79, 0.18);
-  color: #f2ffd6;
+    inset 0 0 18px var(--map-label-sheen),
+    inset -12px -8px 16px var(--map-label-sheen),
+    0 0 14px var(--map-label-glow);
+  color: var(--map-label-text);
   font-size: 10px;
   line-height: 14px;
   font-weight: 700;
   letter-spacing: 0;
-  text-shadow: 0 0 8px rgba(204, 255, 61, 0.9);
+  text-shadow: 0 0 8px var(--map-label-text-glow);
   opacity: 0.86;
   transform-origin: center bottom;
   transform: translateX(-50%);
@@ -2409,9 +2441,9 @@ onBeforeUnmount(() => {
   height: 0;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-top: 8px solid #e8ff4f;
+  border-top: 8px solid var(--map-accent);
   transform: translateX(-50%);
-  filter: drop-shadow(0 0 7px rgba(232, 255, 79, 0.55));
+  filter: drop-shadow(0 0 7px var(--map-label-pointer-glow));
 }
 
 .map-host :deep(.city-ripple) {
@@ -2420,10 +2452,10 @@ onBeforeUnmount(() => {
   top: 4px;
   width: 63px;
   height: 25px;
-  border: 1px solid rgba(232, 255, 79, 0.54);
+  border: 1px solid var(--map-ripple-border);
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(232, 255, 79, 0.18), rgba(232, 255, 79, 0.04) 55%, transparent 72%);
-  box-shadow: 0 0 12px rgba(232, 255, 79, 0.22);
+  background: radial-gradient(ellipse at center, var(--map-ripple-center), var(--map-ripple-middle) 55%, transparent 72%);
+  box-shadow: 0 0 12px var(--map-ripple-glow);
   transform: translate(-50%, -50%);
   animation: jinhua-ripple 9s ease-out infinite;
   pointer-events: none;
@@ -2465,13 +2497,13 @@ onBeforeUnmount(() => {
   from {
     opacity: 0;
     transform: translateY(28px) scale(0.96);
-    filter: blur(7px) drop-shadow(0 0 0 rgba(199, 255, 61, 0));
+    filter: blur(7px) drop-shadow(0 0 0 transparent);
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0) drop-shadow(0 0 18px rgba(199, 255, 61, 0.34));
+    filter: blur(0) drop-shadow(0 0 18px var(--map-stage-shadow));
   }
 }
 

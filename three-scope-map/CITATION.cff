@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+title: "Three Scope Map Skill"
+message: "If you use, modify, fork, redistribute, publish tutorials based on, or build derivative skills from this project, please cite it as below."
+type: software
+authors:
+  - name: "宋夏天Dazzle"
+url: "https://github.com/songsummer920-dazzle/three-scope-map-skill"
+date-released: 2026-06-12
+license: "GPL-3.0-or-later"
+preferred-citation:
+  type: software
+  title: "Three Scope Map Skill"
+  authors:
+    - name: "宋夏天Dazzle"
+  url: "https://github.com/songsummer920-dazzle/three-scope-map-skill"
+  date-released: 2026-06-12

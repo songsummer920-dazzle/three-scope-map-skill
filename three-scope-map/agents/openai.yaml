@@ -1,4 +1,4 @@
 interface:
   display_name: "Three Scope Map"
-  short_description: "Build one-to-one dark HUD Three.js maps with drilldown and reusable geographic style"
-  default_prompt: "Use this skill to build or migrate a Three.js 3D map from the bundled one-to-one smart-mine Vue template first. Preserve the validated dark HUD renderer, side-wall gradient, terrain textures, labels, scatter/ripple, fly lines, hover states, chase-light effects, camera controls, and drilldown behavior across world/country/province/city/district GeoJSON scopes."
+  short_description: "Build exact Earth-to-China Three.js maps with shared one-color theming"
+  default_prompt: "Use $three-scope-map to copy the bundled exact Earth-to-China Vue template, mount it as the default view, and preserve its renderer, assets, motion, drilldown, and shared one-color theme without redesigning it."
