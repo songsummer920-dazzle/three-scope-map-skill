@@ -18,14 +18,15 @@
     >
       <ChinaMap
         key="china"
-        :active="mode === 'china' || handoffActive"
-        @ready="onChinaReady"
+        :active="mode === 'china'"
+      @ready="onChinaReady"
       />
     </div>
     <EarthView
       v-show="mode === 'earth'"
       key="earth"
-      @intro-ready="preloadChinaMap"
+      :start-intro="chinaReady"
+      @scene-ready="prepareChinaMap"
       @handoff-start="beginChinaHandoff"
       @enter-china="showChinaMap"
     />
@@ -33,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 import ChinaMap from './ChinaMap.vue';
 import EarthView from './EarthView.vue';
 
@@ -49,8 +50,6 @@ const chinaReady = ref(false);
 const handoffActive = ref(false);
 let pendingChinaEntry = false;
 let pendingHandoff = false;
-let preloadHandle: number | undefined;
-let preloadDelayHandle: number | undefined;
 let handoffCleanupHandle: number | undefined;
 function showChinaMap() {
   if (!chinaReady.value) {
@@ -85,30 +84,13 @@ function onChinaReady() {
   showChinaMap();
 }
 
-function preloadChinaMap() {
-  if (chinaMounted.value || preloadHandle !== undefined) return;
-  const mountChina = () => {
-    chinaMounted.value = true;
-  };
-  if ('requestIdleCallback' in window) {
-    preloadHandle = window.requestIdleCallback(mountChina, { timeout: 500 });
-  } else {
-    preloadHandle = globalThis.setTimeout(mountChina, 0);
-  }
+function prepareChinaMap() {
+  if (chinaMounted.value) return;
+  chinaMounted.value = true;
 }
 
-onMounted(() => {
-  preloadDelayHandle = globalThis.setTimeout(() => {
-    preloadChinaMap();
-  }, 1800);
-});
-
 onBeforeUnmount(() => {
-  if (preloadDelayHandle !== undefined) globalThis.clearTimeout(preloadDelayHandle);
   if (handoffCleanupHandle !== undefined) globalThis.clearTimeout(handoffCleanupHandle);
-  if (preloadHandle === undefined) return;
-  if ('cancelIdleCallback' in window) window.cancelIdleCallback(preloadHandle);
-  else globalThis.clearTimeout(preloadHandle);
 });
 </script>
 

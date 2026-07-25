@@ -32,6 +32,7 @@ The approved Earth source includes all of the following as one composed effect:
 - Fine spherical latitude/longitude grid with intersection dots and scan-linked highlights.
 - World land geometry and outlines projected from real GeoJSON.
 - Separate China surface generated from real GeoJSON, textured with China height and normal maps.
+- GeoJSON `*_JD` generated separately as spherical dashed lines; it never enters China fill, terrain tessellation, or extrusion geometry.
 - Tessellated China terrain, inner/outer boundary glow, visible extrusion walls, bottom edge, and explicit Taiwan main-island wall handling.
 - Restrained bloom, directional upper-left lighting, layered atmospheric Fresnel rims, and neutral black star field.
 - Persistent international route tracks, synchronized fly-line heads, stable node ripples, idle drift, breathing, surface scan, and boundary flow.
@@ -42,8 +43,8 @@ Never replace these with screenshots, SVG/canvas globes, flat fills, generic gra
 
 ## Component Responsibilities
 
-- `EarthView.vue`: own the globe renderer, textures, shaders, spherical China geometry, intro, idle effects, hover/click raycasting, and cloud dive. Emit `intro-ready`, `handoff-start`, and `enter-china` at the existing timings.
-- `EarthChinaMap.vue`: own the `earth | china` state, preload the destination after Earth intro, reveal it during handoff, and unexpose Earth only when the transition completes.
+- `EarthView.vue`: own the globe renderer, textures, shaders, spherical China geometry, intro, idle effects, hover/click raycasting, and cloud dive. Emit `scene-ready` after hidden GPU warm-up, wait for `start-intro`, then emit `intro-ready`, `handoff-start`, and `enter-china` at the existing visible-timeline timings.
+- `EarthChinaMap.vue`: own the `earth | china` state, prepare the inactive destination after `scene-ready`, release the Earth intro only after its compiled static frame exists, reveal that frame during handoff, keep the destination animation inactive until `enter-china`, and unexpose Earth only when the transition completes.
 - `ChinaMap.vue`: remain a thin adapter around `ZhejiangThreeMap.vue`. Do not duplicate the China renderer.
 - `mapTheme.ts`: remain the only color entry. `MAP_THEME_PRIMARY` feeds both Earth and the 3D map.
 
@@ -72,4 +73,7 @@ Do not hand-replace individual hex/RGB values in Earth shaders. The shared theme
 3. Run the target build.
 4. Open the Vite URL and capture the initial Earth, steady Earth, click handoff, and destination China map.
 5. Repeat with one non-green `MAP_THEME_PRIMARY`; confirm Earth, 3D map, labels, fly lines, walls, scan, atmosphere, and ripples change together while the background stays neutral.
-6. Treat missing texture relief, missing Taiwan wall, missing grid dots, missing route tracks, abrupt handoff, blank canvas, or any substitute renderer as a blocker.
+6. Inspect Earth `*_JD`: confirm it is a spherical dashed line layer and does not appear in surface fill or wall geometry.
+7. During handoff, confirm the destination is a fully rendered static frame and that its continuous animation begins only after Earth fade/postprocessing finishes.
+8. Confirm world outlines are batched into `THREE.LineSegments`; separate `LineLoop` objects for every world ring are a performance blocker.
+9. Treat missing texture relief, missing Taiwan wall, missing grid dots, missing route tracks, abrupt handoff, blank canvas, a missing/static `*_JD` line, or any substitute renderer as a blocker.

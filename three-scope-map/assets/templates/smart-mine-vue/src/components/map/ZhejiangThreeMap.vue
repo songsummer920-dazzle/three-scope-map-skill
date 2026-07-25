@@ -11,6 +11,7 @@
     <svg
       class="south-sea-inset"
       :class="{ 'is-visible': props.active && activeScope === 'country' }"
+      :style="{ width: `${southSeaInsetWidth}px` }"
       viewBox="0 0 78 126"
       aria-hidden="true"
     >
@@ -65,6 +66,7 @@ type DrillStackItem = {
 };
 
 const host = ref<HTMLElement>();
+const southSeaInsetWidth = ref(78);
 const props = withDefaults(defineProps<{
   active?: boolean;
 }>(), {
@@ -110,6 +112,8 @@ const flyLineMaterials: THREE.ShaderMaterial[] = [];
 let hoveredFeature = '';
 let isDrilling = false;
 let hasEmittedReady = false;
+let hasUserAdjustedCamera = false;
+let hasRenderedStaticFrame = false;
 let currentState: MapState = initialMapState;
 const activeScope = ref<MapScope>(initialMapState.scope);
 let geoData = currentState.geoData;
@@ -126,7 +130,10 @@ const provinceChaseZ = 44.25;
 const provinceChaseLineSegments = 34;
 const provinceSilhouetteCellSize = 1.85;
 const mapTransitionDuration = 0.78;
-const cameraViewStorageKey = 'three-scope-map:smart-mine-camera-view:v1';
+const southSeaInsetMinWidth = 62;
+const southSeaInsetMaxWidth = 92;
+const cameraReferenceAspect = 16 / 9;
+const cameraViewStorageKey = 'three-scope-map:smart-mine-template:camera-view:v2';
 const cameraViewConfig: CameraViewConfig = {
   default: {
     fov: 31,
@@ -232,8 +239,25 @@ function writeSavedCameraViewConfig(config: SavedCameraViewConfig) {
   window.localStorage.setItem(cameraViewStorageKey, JSON.stringify(config));
 }
 
+function fitBuiltInCameraViewToViewport(view: CameraViewPreset) {
+  const { width, height } = getHostSize();
+  const aspect = width / height;
+  if (aspect >= cameraReferenceAspect) return view;
+
+  const distanceScale = Math.min(1.5, (cameraReferenceAspect / aspect) * 1.02);
+  const target = new THREE.Vector3(...view.target);
+  const position = new THREE.Vector3(...view.position);
+  position.sub(target).multiplyScalar(distanceScale).add(target);
+  return {
+    ...view,
+    position: [position.x, position.y, position.z],
+  } satisfies CameraViewPreset;
+}
+
 function resolveBuiltInCameraView(scope: MapScope) {
-  return cameraViewConfig.byScope?.[scope] ?? cameraViewConfig.default;
+  return fitBuiltInCameraViewToViewport(
+    cameraViewConfig.byScope?.[scope] ?? cameraViewConfig.default,
+  );
 }
 
 function resolveInitialCameraView(scope: MapScope) {
@@ -255,6 +279,7 @@ function getCurrentCameraView() {
 function saveCurrentCameraView(mode: 'default' | 'scope') {
   const view = getCurrentCameraView();
   if (!view) return;
+  hasUserAdjustedCamera = true;
   const saved = readSavedCameraViewConfig();
   if (mode === 'default') {
     writeSavedCameraViewConfig({ default: view });
@@ -270,6 +295,7 @@ function saveCurrentCameraView(mode: 'default' | 'scope') {
 }
 
 function resetCameraView(mode: 'scope' | 'all') {
+  hasUserAdjustedCamera = false;
   if (mode === 'all') {
     window.localStorage.removeItem(cameraViewStorageKey);
     applyCameraView(resolveBuiltInCameraView(currentState.scope));
@@ -344,6 +370,21 @@ function applyCameraView(view: CameraViewPreset) {
   }
 }
 
+function updateSouthSeaInsetSize() {
+  if (!camera || !controls) return;
+  const cameraDistance = camera.position.distanceTo(controls.target);
+  const zoomProgress = THREE.MathUtils.clamp(
+    (cameraDistance - controls.minDistance)
+      / Math.max(controls.maxDistance - controls.minDistance, 1),
+    0,
+    1,
+  );
+  const nextWidth = Math.round(
+    THREE.MathUtils.lerp(southSeaInsetMaxWidth, southSeaInsetMinWidth, zoomProgress) * 10,
+  ) / 10;
+  if (nextWidth !== southSeaInsetWidth.value) southSeaInsetWidth.value = nextWidth;
+}
+
 function mapPointFromLocal(localPoint: THREE.Vector3) {
   return [
     localPoint.x + mapWidth / 2,
@@ -380,6 +421,19 @@ function primeGroupOpacity(group: THREE.Group) {
     material.transparent = true;
     material.opacity = 0;
   });
+}
+
+function settleMapForStaticFrame(group: THREE.Group) {
+  const baseScale = group.userData.baseScale as number | undefined;
+  const basePosition = group.userData.basePosition as THREE.Vector3 | undefined;
+  if (baseScale !== undefined) group.scale.setScalar(baseScale);
+  if (basePosition) group.position.copy(basePosition);
+  group.userData.transitionStart = undefined;
+  forEachMaterial(group, (material) => {
+    material.opacity = material.userData.baseOpacity ?? material.opacity;
+  });
+  if (labelRenderer?.domElement) labelRenderer.domElement.style.opacity = '1';
+  hasRenderedStaticFrame = true;
 }
 
 function applyGroupTransition(group: THREE.Group, time: number) {
@@ -2048,17 +2102,25 @@ async function rebuildMapForCurrentState() {
       // A hidden render below remains the compatibility warm-up path.
     }
     if (buildVersion !== mapBuildVersion || mapGroup !== nextMapGroup) return;
+    if (!props.active) settleMapForStaticFrame(nextMapGroup);
     renderer.render(scene, camera);
+    if (!props.active) labelRenderer?.render(scene, camera);
     hasEmittedReady = true;
     requestAnimationFrame(() => emit('ready'));
   }
 }
 
 watch(() => props.active, (active, wasActive) => {
-  if (!active || wasActive || !mapGroup) return;
-  primeGroupOpacity(mapGroup);
-  mapGroup.userData.transitionStart = performance.now() / 1000;
-  if (labelRenderer?.domElement) labelRenderer.domElement.style.opacity = '0';
+  if (active && !wasActive) {
+    if (mapGroup && !hasRenderedStaticFrame) {
+      primeGroupOpacity(mapGroup);
+      mapGroup.userData.transitionStart = performance.now() / 1000;
+      if (labelRenderer?.domElement) labelRenderer.domElement.style.opacity = '0';
+    }
+    startMapAnimation();
+    return;
+  }
+  if (!active && wasActive) stopMapAnimation();
 });
 
 async function drillToFeature(featureName: string) {
@@ -2142,7 +2204,7 @@ function onPointerDown(event: PointerEvent) {
 
 function setup() {
   if (!host.value) return;
-  cancelAnimationFrame(raf);
+  stopMapAnimation();
   resizeObserver?.disconnect();
   controls?.dispose();
   renderer?.dispose();
@@ -2174,9 +2236,18 @@ function setup() {
   controls.dampingFactor = 0.08;
   controls.enablePan = false;
   controls.minDistance = 520;
-  controls.maxDistance = 1050;
+  controls.maxDistance = 1450;
   controls.target.set(...cameraViewConfig.default.target);
+  controls.addEventListener('change', updateSouthSeaInsetSize);
+  controls.addEventListener('start', () => {
+    hasUserAdjustedCamera = true;
+  });
+  hasUserAdjustedCamera = !!(
+    readSavedCameraViewConfig().default
+    || Object.keys(readSavedCameraViewConfig().byScope ?? {}).length
+  );
   applyInitialCameraViewForCurrentScope();
+  updateSouthSeaInsetSize();
 
   labelRenderer = new CSS2DRenderer();
   labelRenderer.setSize(width, height);
@@ -2191,11 +2262,22 @@ function setup() {
 
   void rebuildMapForCurrentState();
 
-  animate();
+  startMapAnimation();
+}
+
+function startMapAnimation() {
+  if (raf || !props.active) return;
+  raf = requestAnimationFrame(animate);
+}
+
+function stopMapAnimation() {
+  if (!raf) return;
+  cancelAnimationFrame(raf);
+  raf = 0;
 }
 
 function animate() {
-  raf = requestAnimationFrame(animate);
+  raf = 0;
   if (!props.active) return;
   const t = performance.now() / 1000;
   if (mapGroup) {
@@ -2228,9 +2310,11 @@ function animate() {
   });
   if (scene && camera) {
     controls?.update();
+    updateSouthSeaInsetSize();
     renderer?.render(scene, camera);
     labelRenderer?.render(scene, camera);
   }
+  if (props.active) raf = requestAnimationFrame(animate);
 }
 
 function resize() {
@@ -2240,12 +2324,19 @@ function resize() {
   camera.updateProjectionMatrix();
   renderer.setSize(width, height);
   labelRenderer.setSize(width, height);
+  updateSouthSeaInsetSize();
+  if (!hasUserAdjustedCamera) {
+    applyCameraView(resolveBuiltInCameraView(currentState.scope));
+  }
 }
 
 function getHostSize() {
   const rect = host.value?.getBoundingClientRect();
-  const width = Math.max(1, Math.round(rect?.width || host.value?.clientWidth || 1920));
-  const height = Math.max(1, Math.round(rect?.height || host.value?.clientHeight || 1080));
+  // CSS transforms are used during the Earth -> China handoff. clientWidth/clientHeight
+  // preserve the real layout size, while getBoundingClientRect() reports the temporary
+  // 0.78-scale visual size and leaves the WebGL canvas undersized after the handoff.
+  const width = Math.max(1, Math.round(host.value?.clientWidth || rect?.width || 1920));
+  const height = Math.max(1, Math.round(host.value?.clientHeight || rect?.height || 1080));
   return { width, height };
 }
 
@@ -2259,13 +2350,14 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  cancelAnimationFrame(raf);
+  stopMapAnimation();
   window.removeEventListener('resize', resize);
   resizeObserver?.disconnect();
   resizeObserver = undefined;
   host.value?.removeEventListener('pointermove', onPointerMove);
   host.value?.removeEventListener('pointerdown', onPointerDown);
   host.value?.removeEventListener('pointerleave', onPointerLeave);
+  controls?.removeEventListener('change', updateSouthSeaInsetSize);
   controls?.dispose();
   renderer?.dispose();
   renderer?.domElement.remove();
@@ -2302,7 +2394,9 @@ onBeforeUnmount(() => {
   right: 23%;
   bottom: 7.5%;
   z-index: 8;
-  width: 110px;
+  width: 78px;
+  min-width: 62px;
+  max-width: 92px;
   height: auto;
   overflow: visible;
   opacity: 0;
@@ -2410,15 +2504,9 @@ onBeforeUnmount(() => {
   width: 68px;
   height: 41px;
   padding: 0 5px 11px;
-  border: 1.5px solid var(--map-label-border);
-  border-radius: 5px;
-  background:
-    linear-gradient(135deg, var(--map-label-sheen), transparent 32%),
-    linear-gradient(145deg, var(--map-label-dark-a), var(--map-label-dark-b) 62%, var(--map-label-dark-c));
-  box-shadow:
-    inset 0 0 18px var(--map-label-sheen),
-    inset -12px -8px 16px var(--map-label-sheen),
-    0 0 14px var(--map-label-glow);
+  background-image: var(--map-label-background-image);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   color: var(--map-label-text);
   font-size: 10px;
   line-height: 14px;
@@ -2430,20 +2518,6 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   transition: width 180ms ease, height 180ms ease, padding 180ms ease, font-size 180ms ease, opacity 180ms ease;
   white-space: nowrap;
-}
-
-.map-host :deep(.city-label::after) {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 8px solid var(--map-accent);
-  transform: translateX(-50%);
-  filter: drop-shadow(0 0 7px var(--map-label-pointer-glow));
 }
 
 .map-host :deep(.city-ripple) {

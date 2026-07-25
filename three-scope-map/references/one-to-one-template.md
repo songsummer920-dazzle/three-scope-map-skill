@@ -6,7 +6,7 @@ Use this reference when the user asks for the 3D map to match the validated map 
 
 Do not rebuild the map from scratch when this template is available. Start by copying the bundled template files, then adapt paths and project structure.
 
-This template is the default baseline for every generated 3D map, not only Zhejiang. For any requested region, keep the same renderer, material system, side-wall gradient, CSS label skin, ripple/fly-line behavior, chase light, terrain texture stack, camera controls, hover lift, and drilldown architecture. Change the region data and generated configuration, not the visual language.
+This template is the default baseline for every generated 3D map, not only Zhejiang. For any requested region, keep the same renderer, material system, side-wall gradient, theme-generated original SVG label skin, ripple/fly-line behavior, chase light, terrain texture stack, camera controls, hover lift, and drilldown architecture. Change the region data and generated configuration, not the visual language.
 
 Template location:
 
@@ -30,11 +30,15 @@ assets/maps/world.json
 assets/maps/zhejiang.json
 assets/textures/map/china/china-height-legacy.png
 assets/textures/map/china/china-normal-legacy.png
+assets/textures/map/terrain-diffuse.jpg
+assets/textures/map/terrain-height.jpg
+assets/textures/map/terrain-normal.jpg
+assets/textures/map/terrain-roughness.jpg
 assets/textures/map/world/earth-day.jpg
 assets/textures/map/world/earth-lights.png
 assets/textures/map/world/earth-normal.jpg
 assets/textures/map/world/earth-specular.jpg
-components/map/mapTerrainMaterial.ts  # procedural regional-map terrain textures
+components/map/mapTerrainMaterial.ts  # original four-layer regional terrain texture stack
 App.vue                               # mounts EarthChinaMap by default
 main.ts
 style.css
@@ -135,6 +139,6 @@ If WebGL creation fails, do not replace the map with SVG. Check browser WebGL su
 - City-scope ripple and fly lines use the same stable random district/county source.
 - All non-district scopes can click into the next level.
 - District/county scope is terminal by default and should not recurse into fake data.
-- Labels use the bundled CSS HUD skin in `ZhejiangThreeMap.vue`.
+- Labels use the theme-generated original SVG HUD geometry in `ZhejiangThreeMap.vue`; keep the pointer inside the exported `68px x 41px` frame instead of appending extra height.
 - If the theme color changes, the label pointer triangle and glow should use the same derived theme color instead of staying green.
 - Camera controls support unified and per-scope saved views.
