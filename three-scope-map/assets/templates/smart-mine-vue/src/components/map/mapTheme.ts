@@ -114,6 +114,34 @@ export function themeRgb(legacyValue: string): [number, number, number] {
   return [r, g, b];
 }
 
+function createMapLabelBackgroundImage() {
+  const darkA = deriveLegacyThemeColor('#050706');
+  const darkB = deriveLegacyThemeColor('#020302');
+  const darkC = deriveLegacyThemeColor('#131b12');
+  const sheenA = deriveLegacyThemeColor('#0a0e0a');
+  const sheenB = deriveLegacyThemeColor('#151d13');
+  const pointer = deriveLegacyThemeColor('#e8ff4f');
+  const svg = `<svg width="136" height="82" viewBox="0 0 136 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1.5 11.5C1.5 5.98 5.98 1.5 11.5 1.5H124.5C130.02 1.5 134.5 5.98 134.5 11.5V57.5C134.5 63.02 130.02 67.5 124.5 67.5H83.5L68 82L52.5 67.5H11.5C5.98 67.5 1.5 63.02 1.5 57.5V11.5Z" fill="url(#paint0_linear)" fill-opacity="0.92"/>
+    <path d="M1.5 11.5C1.5 5.98 5.98 1.5 11.5 1.5H124.5C130.02 1.5 134.5 5.98 134.5 11.5V57.5C134.5 63.02 130.02 67.5 124.5 67.5H83.5L68 82L52.5 67.5H11.5C5.98 67.5 1.5 63.02 1.5 57.5V11.5Z" stroke="url(#paint1_linear)" stroke-width="3"/>
+    <path d="M14 52H111L125 38V13C125 8.58 121.42 5 117 5H20C15.58 5 12 8.58 12 13V52H14Z" fill="black" fill-opacity="0.58"/>
+    <path d="M25 58H108L128 38V57C128 60.87 124.87 64 121 64H84L68 78L52 64H20L25 58Z" fill="url(#paint2_linear)" fill-opacity="0.52"/>
+    <path d="M54 67.5H82L68 81L54 67.5Z" fill="${pointer}"/>
+    <defs>
+      <linearGradient id="paint0_linear" x1="9" y1="5" x2="124" y2="72" gradientUnits="userSpaceOnUse">
+        <stop stop-color="${darkA}"/><stop offset="0.62" stop-color="${darkB}"/><stop offset="1" stop-color="${darkC}"/>
+      </linearGradient>
+      <linearGradient id="paint1_linear" x1="7" y1="2" x2="135" y2="65" gradientUnits="userSpaceOnUse">
+        <stop stop-color="white"/><stop offset="0.44" stop-color="white" stop-opacity="0.85"/><stop offset="0.73" stop-color="white" stop-opacity="0.25"/><stop offset="1" stop-color="white"/>
+      </linearGradient>
+      <linearGradient id="paint2_linear" x1="32" y1="53" x2="126" y2="66" gradientUnits="userSpaceOnUse">
+        <stop stop-color="${sheenA}" stop-opacity="0"/><stop offset="0.5" stop-color="${sheenB}" stop-opacity="0.7"/><stop offset="1" stop-color="white" stop-opacity="0.18"/>
+      </linearGradient>
+    </defs>
+  </svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
 export const mapTheme = {
   sourcePrimary: normalizeHex(MAP_THEME_PRIMARY),
   accent: deriveLegacyThemeColor('#E8FF4F'),
@@ -184,6 +212,7 @@ export const mapThemeStyle = {
   '--map-label-glow': mapTheme.css.labelGlow,
   '--map-label-text-glow': mapTheme.css.labelTextGlow,
   '--map-label-pointer-glow': mapTheme.css.labelPointerGlow,
+  '--map-label-background-image': createMapLabelBackgroundImage(),
   '--map-ripple-border': mapTheme.css.rippleBorder,
   '--map-ripple-center': mapTheme.css.rippleCenter,
   '--map-ripple-middle': mapTheme.css.rippleMiddle,

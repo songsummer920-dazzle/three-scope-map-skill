@@ -4,7 +4,11 @@
 // Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
 
 import * as THREE from 'three';
-import { mapTheme, themeRgb } from './mapTheme';
+import diffuseMapUrl from '../../assets/textures/map/terrain-diffuse.jpg';
+import heightMapUrl from '../../assets/textures/map/terrain-height.jpg';
+import normalMapUrl from '../../assets/textures/map/terrain-normal.jpg';
+import roughnessMapUrl from '../../assets/textures/map/terrain-roughness.jpg';
+import { mapTheme } from './mapTheme';
 
 export type MapTerrainMaterialConfig = {
   elevationScale: number;
@@ -28,70 +32,7 @@ type TerrainTextures = {
 };
 
 let terrainTextures: TerrainTextures | undefined;
-
-function pseudoNoise(x: number, y: number, seed = 0) {
-  const value = Math.sin(x * 12.9898 + y * 78.233 + seed * 37.719) * 43758.5453;
-  return value - Math.floor(value);
-}
-
-function fractalNoise(x: number, y: number, seed = 0) {
-  let value = 0;
-  let amplitude = 0.5;
-  let frequency = 1;
-  for (let i = 0; i < 5; i += 1) {
-    value += pseudoNoise(x * frequency, y * frequency, seed + i) * amplitude;
-    amplitude *= 0.52;
-    frequency *= 2.05;
-  }
-  return value;
-}
-
-function createTerrainCanvas(kind: 'diffuse' | 'height' | 'normal' | 'roughness', size = 512) {
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return canvas;
-
-  const image = ctx.createImageData(size, size);
-  const terrainDark = themeRgb('#081208');
-  const terrainLight = themeRgb('#1a3414');
-  for (let y = 0; y < size; y += 1) {
-    for (let x = 0; x < size; x += 1) {
-      const u = x / size;
-      const v = y / size;
-      const ridge = Math.abs(fractalNoise(u * 3.4, v * 4.1, 2) - 0.5) * 2;
-      const vein = Math.abs(Math.sin((u * 14.0 + v * 8.5 + fractalNoise(u * 5, v * 5, 4) * 2.8) * Math.PI));
-      const terrain = Math.min(1, ridge * 0.62 + vein * 0.22 + fractalNoise(u * 9, v * 9, 8) * 0.18);
-      const i = (y * size + x) * 4;
-
-      if (kind === 'diffuse') {
-        image.data[i] = terrainDark[0] + terrain * (terrainLight[0] - terrainDark[0]);
-        image.data[i + 1] = terrainDark[1] + terrain * (terrainLight[1] - terrainDark[1]);
-        image.data[i + 2] = terrainDark[2] + terrain * (terrainLight[2] - terrainDark[2]);
-      } else if (kind === 'height') {
-        const h = 58 + terrain * 150;
-        image.data[i] = h;
-        image.data[i + 1] = h;
-        image.data[i + 2] = h;
-      } else if (kind === 'normal') {
-        const dx = fractalNoise((u + 0.006) * 5, v * 5, 5) - fractalNoise((u - 0.006) * 5, v * 5, 5);
-        const dy = fractalNoise(u * 5, (v + 0.006) * 5, 5) - fractalNoise(u * 5, (v - 0.006) * 5, 5);
-        image.data[i] = 128 + dx * 220;
-        image.data[i + 1] = 128 + dy * 220;
-        image.data[i + 2] = 210;
-      } else {
-        const r = 150 + terrain * 78;
-        image.data[i] = r;
-        image.data[i + 1] = r;
-        image.data[i + 2] = r;
-      }
-      image.data[i + 3] = 255;
-    }
-  }
-  ctx.putImageData(image, 0, 0);
-  return canvas;
-}
+let terrainTexturesReady: Promise<TerrainTextures> | undefined;
 
 function configureTexture(texture: THREE.Texture, isColorMap = false) {
   texture.wrapS = THREE.RepeatWrapping;
@@ -108,28 +49,36 @@ function configureTexture(texture: THREE.Texture, isColorMap = false) {
   return texture;
 }
 
-function createProceduralTexture(kind: 'diffuse' | 'height' | 'normal' | 'roughness', isColorMap = false) {
-  const texture = new THREE.CanvasTexture(createTerrainCanvas(kind));
-  texture.generateMipmaps = true;
-  texture.minFilter = THREE.LinearMipmapLinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  return configureTexture(texture, isColorMap);
-}
-
 export function getTerrainTextures() {
   if (!terrainTextures) {
+    const loader = new THREE.TextureLoader();
+    let resolveReady: ((textures: TerrainTextures) => void) | undefined;
+    let pendingTextures = 4;
+    terrainTexturesReady = new Promise<TerrainTextures>((resolve) => {
+      resolveReady = resolve;
+    });
+    const markTextureReady = () => {
+      pendingTextures -= 1;
+      if (pendingTextures === 0 && terrainTextures && resolveReady) resolveReady(terrainTextures);
+    };
+    const loadTexture = (url: string, isColorMap = false) => configureTexture(
+      loader.load(url, markTextureReady, undefined, markTextureReady),
+      isColorMap,
+    );
     terrainTextures = {
-      diffuseMap: createProceduralTexture('diffuse', true),
-      displacementMap: createProceduralTexture('height'),
-      normalMap: createProceduralTexture('normal'),
-      roughnessMap: createProceduralTexture('roughness'),
+      diffuseMap: loadTexture(diffuseMapUrl, true),
+      displacementMap: loadTexture(heightMapUrl),
+      normalMap: loadTexture(normalMapUrl),
+      roughnessMap: loadTexture(roughnessMapUrl),
     };
   }
   return terrainTextures;
 }
 
 export async function waitForTerrainTexturesReady() {
-  return getTerrainTextures();
+  const textures = getTerrainTextures();
+  await terrainTexturesReady;
+  return textures;
 }
 
 export function createMapTerrainMaterial(

@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { gsap } from 'gsap';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
@@ -56,10 +56,17 @@ import { MAP_THEME_PRIMARY } from './mapTheme';
 // Code-only attribution. Do not render it in the UI.
 
 const emit = defineEmits<{
+  'scene-ready': [];
   'intro-ready': [];
   'handoff-start': [];
   'enter-china': [];
 }>();
+
+const props = withDefaults(defineProps<{
+  startIntro?: boolean;
+}>(), {
+  startIntro: true,
+});
 
 type PolygonRings = Position[][];
 
@@ -214,6 +221,7 @@ let idleMotionValue = 1;
 let pointerParallaxYaw = 0;
 let pointerParallaxPitch = 0;
 let introValue = 0;
+let requestIntroStart: (() => void) | undefined;
 let hasEmittedIntroReady = false;
 let animationElapsed = 0;
 
@@ -998,6 +1006,36 @@ function isDecorativeChinaInset(feature: GeoFeatureCollection['features'][number
   return String(code).endsWith('_JD');
 }
 
+function getDecorativeChinaInsetSegments() {
+  const source = chinaGeoJson as unknown as GeoFeatureCollection;
+  return source.features
+    .filter(isDecorativeChinaInset)
+    .flatMap((feature) => {
+      const polygons = feature.geometry.type === 'Polygon'
+        ? [feature.geometry.coordinates as Position[][]]
+        : feature.geometry.coordinates as Position[][][];
+      return polygons.map((polygon) => {
+        const ring = polygon[0] ?? [];
+        let start = ring[0];
+        let end = ring[1];
+        let maxDistanceSquared = -1;
+        for (let firstIndex = 0; firstIndex < ring.length; firstIndex += 1) {
+          for (let secondIndex = firstIndex + 1; secondIndex < ring.length; secondIndex += 1) {
+            const lonDistance = ring[firstIndex][0] - ring[secondIndex][0];
+            const latDistance = ring[firstIndex][1] - ring[secondIndex][1];
+            const distanceSquared = lonDistance * lonDistance + latDistance * latDistance;
+            if (distanceSquared <= maxDistanceSquared) continue;
+            maxDistanceSquared = distanceSquared;
+            start = ring[firstIndex];
+            end = ring[secondIndex];
+          }
+        }
+        return start && end ? { start, end } : undefined;
+      });
+    })
+    .filter((segment): segment is { start: Position; end: Position } => Boolean(segment));
+}
+
 function getPolygonRings(source: GeoFeatureCollection = chinaGeoJson as unknown as GeoFeatureCollection) {
   const polygons: PolygonRings[] = [];
   const features = source.features.filter((feature) => !isDecorativeChinaInset(feature));
@@ -1366,17 +1404,24 @@ function createWorldOutlines(radius: number) {
     depthWrite: false,
     blending: THREE.AdditiveBlending,
   });
+  const positions: number[] = [];
   getPolygonRings(worldGeoJson as unknown as GeoFeatureCollection).forEach((rings) => {
     rings.forEach((ring) => {
       if (ring.length < 2) return;
-      const geometry = new THREE.BufferGeometry().setFromPoints(
-        ring.map(([lon, lat]) => lonLatToVector3(lon, lat, radius)),
-      );
-      const line = new THREE.LineLoop(geometry, material);
-      line.renderOrder = 3;
-      group.add(line);
+      for (let index = 0; index < ring.length; index += 1) {
+        const current = ring[index];
+        const next = ring[(index + 1) % ring.length];
+        const start = lonLatToVector3(current[0], current[1], radius);
+        const end = lonLatToVector3(next[0], next[1], radius);
+        positions.push(start.x, start.y, start.z, end.x, end.y, end.z);
+      }
     });
   });
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  const lines = new THREE.LineSegments(geometry, material);
+  lines.renderOrder = 3;
+  group.add(lines);
   fadeMaterials.push(material);
   return group;
 }
@@ -1512,6 +1557,45 @@ function createOuterGlowTube(ring: Position[], radius: number) {
   return glow;
 }
 
+function createChinaJdDashedLines(radius: number) {
+  const group = new THREE.Group();
+  const material = new THREE.LineDashedMaterial({
+    color: earthTheme.outline,
+    transparent: true,
+    opacity: 0.68,
+    dashSize: 0.025,
+    gapSize: 0.014,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  material.userData.baseOpacity = 0.68;
+  material.userData.introOnly = true;
+  chinaRevealMaterials.push(material);
+  fadeMaterials.push(material);
+
+  getDecorativeChinaInsetSegments().forEach(({ start, end }) => {
+    const angularSpan = Math.hypot(end[0] - start[0], end[1] - start[1]);
+    const segmentCount = Math.max(4, Math.ceil(angularSpan / 0.12));
+    const points = Array.from({ length: segmentCount + 1 }, (_, index) => {
+      const progress = index / segmentCount;
+      return lonLatToVector3(
+        THREE.MathUtils.lerp(start[0], end[0], progress),
+        THREE.MathUtils.lerp(start[1], end[1], progress),
+        radius,
+      );
+    });
+    const line = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(points),
+      material,
+    );
+    line.computeLineDistances();
+    line.renderOrder = 7;
+    group.add(line);
+  });
+
+  return group;
+}
+
 function createChinaRegion(
   radius: number,
   heightMap: THREE.Texture,
@@ -1571,6 +1655,7 @@ function createChinaRegion(
   const outlineGroup = new THREE.Group();
   const extrusionGroup = new THREE.Group();
   const innerRadius = 2.004;
+  outlineGroup.add(createChinaJdDashedLines(radius + 0.016));
   polygons.forEach((rings) => {
     rings.forEach((ring) => {
       if (ring.length < 2) return;
@@ -2239,8 +2324,9 @@ function disposeObject(object: THREE.Object3D) {
 function animate() {
   raf = requestAnimationFrame(animate);
   if (!renderer || !scene || !camera) return;
-  const delta = Math.min(clock.getDelta(), 0.05);
-  animationElapsed += delta;
+  const rawDelta = clock.getDelta();
+  const delta = Math.min(rawDelta, 0.05);
+  animationElapsed += Math.min(rawDelta, 0.16);
   const elapsed = animationElapsed;
   introValue = THREE.MathUtils.clamp(elapsed / introDuration, 0, 1);
   if (!hasEmittedIntroReady && introValue >= 0.68) {
@@ -2628,6 +2714,7 @@ function setup() {
   controls.addEventListener('end', onControlsEnd);
 
   let animationStarted = false;
+  let scenePrepared = false;
   const startAnimation = () => {
     if (
       animationStarted
@@ -2640,9 +2727,18 @@ function setup() {
       requestAnimationFrame(startAnimation);
       return;
     }
+    if (!scenePrepared) {
+      scenePrepared = true;
+      renderer.compile(scene, camera);
+      composer.render(0);
+      emit('scene-ready');
+    }
+    if (!props.startIntro) {
+      requestIntroStart = startAnimation;
+      return;
+    }
+    requestIntroStart = undefined;
     animationStarted = true;
-    renderer.compile(scene, camera);
-    composer.render(0);
     animationElapsed = 0;
     clock.start();
     renderer.domElement.style.visibility = '';
@@ -2663,9 +2759,14 @@ function setup() {
   resizeObserver.observe(host.value);
 }
 
+watch(() => props.startIntro, (ready) => {
+  if (ready) requestIntroStart?.();
+});
+
 onMounted(setup);
 
 onBeforeUnmount(() => {
+  requestIntroStart = undefined;
   transitionTimeline?.kill();
   cancelAnimationFrame(raf);
   resizeObserver?.disconnect();

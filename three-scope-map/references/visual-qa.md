@@ -31,10 +31,20 @@ Capture these when possible:
 - Only intended scatter/ripple points are visible.
 - Chase light is one segment on the outer contour only.
 - Labels remain inside their exported/background frames.
+- At country scope, the South China Sea SVG stays fixed in screen space while its width follows camera distance and remains within approximately `62–92px`.
 - Drilldown click swaps to the correct next scope and back navigation restores the exact previous scope.
 - While drilling or returning, navigation/camera buttons are temporarily disabled so repeated clicks cannot desync the drill stack and rendered scene.
 - Camera controls behave as specified: `保存统一` applies one default to all scopes, `保存本层` only affects the current scope, `恢复本层` restores the current scope to the skill built-in camera even when a unified default exists, and `恢复全部` clears every saved camera view.
 - After drilldown, no parent-scope labels, scatter points, fly lines, ripples, or chase-light paths remain.
+
+## Earth Handoff Checks
+
+- The complete staged Earth intro still plays before the globe becomes interactive.
+- Earth `*_JD` appears only as spherical dashed line geometry; it is absent from China fill, terrain, thickness walls, and bottom edges.
+- Destination precompile produces one fully opaque static WebGL/CSS2D frame while the destination is inactive.
+- `handoff-start` reveals that static frame without starting the destination continuous RAF loop.
+- `enter-china` starts the destination normal animation only after Earth fade/postprocessing is effectively complete.
+- No blank frame, transparent map reset, or overlapping pair of full render loops appears during the handoff.
 
 ## Regression Guardrail
 

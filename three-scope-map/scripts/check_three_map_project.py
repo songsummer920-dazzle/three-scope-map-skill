@@ -53,6 +53,8 @@ EARTH_EFFECT_PATTERNS = {
     "Earth atmosphere": r"outerAtmosphere|atmosphereVertexShader|atmospheric",
     "Earth grid scan": r"gridDotSweep|uSweep|scan",
     "Earth international fly lines": r"flyTrackMaterials|createFlyLines|createInternationalFlyLines",
+    "Earth batched world outlines": r"function\s+createWorldOutlines[\s\S]*new\s+THREE\.LineSegments",
+    "Earth spherical JD dashed line": r"createChinaJdDashedLines[\s\S]*LineDashedMaterial",
     "Earth handoff events": r"intro-ready[\s\S]*handoff-start[\s\S]*enter-china",
 }
 
@@ -203,6 +205,29 @@ def main() -> int:
             passes.append("Shared one-color Earth/3D map theme entry found")
         else:
             problems.append("Earth and 3D map are not both connected to mapTheme.ts/MAP_THEME_PRIMARY.")
+
+        earth_china_map = root / "src/components/map/EarthChinaMap.vue"
+        earth_china_sources = [earth_china_map] if earth_china_map.exists() else []
+        static_handoff_ok = (
+            file_contains(map_components, r"settleMapForStaticFrame")
+            and file_contains(map_components, r"startMapAnimation[\s\S]*stopMapAnimation")
+            and file_contains(earth_china_sources, r':active="mode\s*===\s*[\'"]china[\'"]"')
+        )
+        if static_handoff_ok:
+            passes.append("Earth handoff uses a static precompiled destination frame before map animation")
+        else:
+            problems.append(
+                "Earth handoff must reveal a static precompiled destination frame and keep map animation inactive until enter-china."
+            )
+
+        south_sea_svg_ok = file_contains(
+            map_components,
+            r"southSeaInsetMinWidth\s*=\s*62[\s\S]*southSeaInsetMaxWidth\s*=\s*92[\s\S]*updateSouthSeaInsetSize",
+        )
+        if south_sea_svg_ok:
+            passes.append("South China Sea SVG camera-distance clamp found: 62-92px")
+        else:
+            problems.append("South China Sea SVG must follow camera distance and remain clamped to 62-92px.")
 
         if file_contains(source_files, r"EarthViewLegacy|earthVersion"):
             problems.append("Legacy/query-switch Earth fork detected; the bundled exact EarthView must be the only default entrance.")

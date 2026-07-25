@@ -67,6 +67,22 @@ Keep the raw GeoJSON too. The preprocessed file is a render cache, not the sourc
 - Keep texture opacity and material parameters in the renderer preset so preprocessing never changes the look.
 - Keep top texture UVs clamped to the map bounds to avoid texture bleeding outside the boundary.
 
+## Earth-To-Map Render Handoff
+
+Preserve the authoritative Earth intro and its existing event timings. Optimize only ownership of the destination render loop:
+
+1. Warm the Earth scene and postprocessing targets without starting the visible intro, then emit `scene-ready`.
+2. Mount the destination map from `scene-ready` with `active=false`.
+3. Load textures, run `compileAsync`, initialize GPU resources, settle all transition materials to their final opacity, and render exactly one complete WebGL frame plus one CSS2D label frame.
+4. Release the Earth `start-intro` gate only after that static destination frame is ready. This keeps CPU geometry creation and GPU uploads outside the visible Earth/China rise.
+5. Keep the destination static canvas mounted and hidden. Do not leave an inactive `requestAnimationFrame` chain running.
+6. At `handoff-start`, reveal the already-rendered static canvas underneath Earth while Earth remains the only continuous renderer.
+7. When `enter-china` fires after Earth postprocessing/fade is effectively complete, set the destination map active and start its normal animation loop without replaying a transparent entrance over the static frame.
+
+Batch all same-material world outlines into one `THREE.LineSegments` geometry. Thousands of individual `LineLoop` objects create thousands of draw calls per frame and can make the visible China-rise animation run at half speed even though the destination map is inactive.
+
+Do not remove, shorten, or bypass the Earth intro to gain performance. Do not activate the destination map merely because the handoff stage is visible. One-shot compile/upload/static renders are allowed; two simultaneous full render loops are not.
+
 ## Publishing Checklist
 
 - Include the data adapter file.
@@ -74,4 +90,5 @@ Keep the raw GeoJSON too. The preprocessed file is a render cache, not the sourc
 - Include sample commands for country/province/city/district data.
 - Document where local seed files live.
 - Document the expected GeoJSON properties: `name`, `fullname`, `adcode`, `center`.
+- Confirm the destination map has no continuous RAF while inactive and that its precompiled static handoff frame is fully opaque.
 - Preserve code-only attribution: `作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天`.
