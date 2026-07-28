@@ -27,6 +27,7 @@ REQUIRED_EARTH_FILES = (
     "src/components/map/mapTheme.ts",
     "src/assets/maps/china.json",
     "src/assets/maps/world.json",
+    "src/assets/maps/world.earth-render.json",
     "src/assets/textures/map/china/china-height-legacy.png",
     "src/assets/textures/map/china/china-normal-legacy.png",
     "src/assets/textures/map/world/earth-day.jpg",
@@ -208,6 +209,16 @@ def main() -> int:
 
         earth_china_map = root / "src/components/map/EarthChinaMap.vue"
         earth_china_sources = [earth_china_map] if earth_china_map.exists() else []
+        isolated_preload_ok = (
+            file_contains(earth_sources, r"emit\(['\"]scene-ready['\"]\)")
+            and file_contains(earth_sources, r"startIntro")
+            and file_contains(earth_china_sources, r':start-intro="chinaReady"')
+            and file_contains(earth_china_sources, r"prepareChinaMap[\s\S]*chinaMounted\.value\s*=\s*true")
+            and file_contains(earth_china_sources, r"defineAsyncComponent\(\(\)\s*=>\s*import\(['\"]\./ChinaMap\.vue['\"]\)\)")
+            and file_contains(earth_sources, r"world\.earth-render\.json")
+            and not file_contains(earth_sources, r"from\s*['\"][^'\"]*/world\.json['\"]")
+            and file_contains(map_components, r"waitForPreloadSlice[\s\S]*compileAsync[\s\S]*initTexture")
+        )
         static_handoff_ok = (
             file_contains(map_components, r"settleMapForStaticFrame")
             and file_contains(map_components, r"startMapAnimation[\s\S]*stopMapAnimation")
@@ -218,6 +229,12 @@ def main() -> int:
         else:
             problems.append(
                 "Earth handoff must reveal a static precompiled destination frame and keep map animation inactive until enter-china."
+            )
+        if isolated_preload_ok:
+            passes.append("Earth visible intro is isolated from destination preload")
+        else:
+            problems.append(
+                "Earth visible intro must start only after the inactive destination static frame is ready."
             )
 
         south_sea_svg_ok = file_contains(

@@ -19,7 +19,7 @@
       <ChinaMap
         key="china"
         :active="mode === 'china'"
-      @ready="onChinaReady"
+        @ready="onChinaReady"
       />
     </div>
     <EarthView
@@ -34,9 +34,10 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
-import ChinaMap from './ChinaMap.vue';
+import { defineAsyncComponent, onBeforeUnmount, ref } from 'vue';
 import EarthView from './EarthView.vue';
+
+const ChinaMap = defineAsyncComponent(() => import('./ChinaMap.vue'));
 
 export type EarthChinaMapMode = 'earth' | 'china';
 
@@ -107,18 +108,30 @@ onBeforeUnmount(() => {
   inset: 0;
   z-index: 6;
   opacity: 0;
-  visibility: hidden;
-  transform: scale(0.78);
+  visibility: visible;
+  transform: translateZ(0);
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  contain: layout paint;
   pointer-events: none;
   transition:
     opacity 420ms ease,
-    transform 620ms cubic-bezier(0.16, 1, 0.3, 1),
-    visibility 0s linear 620ms;
+    transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .china-map-stage.is-handoff {
-  visibility: visible;
   animation: china-cloud-reveal 1.44s cubic-bezier(0.22, 0.72, 0.18, 1) both;
+}
+
+.china-map-stage:not(.is-active) :deep(.map-host) {
+  filter: none;
+}
+
+.china-map-stage:not(.is-active) :deep(.map-label-layer),
+.china-map-stage:not(.is-active) :deep(.map-drill-control),
+.china-map-stage:not(.is-active) :deep(.south-sea-inset) {
+  display: none;
 }
 
 .china-map-stage.is-active {
@@ -132,20 +145,16 @@ onBeforeUnmount(() => {
 
 @keyframes china-cloud-reveal {
   0% {
-    opacity: 0.06;
-    transform: scale(0.78);
+    opacity: 0.04;
   }
   28% {
-    opacity: 0.24;
-    transform: scale(0.83);
+    opacity: 0.2;
   }
   66% {
-    opacity: 0.78;
-    transform: scale(0.94);
+    opacity: 0.72;
   }
   100% {
     opacity: 1;
-    transform: scale(1);
   }
 }
 </style>
