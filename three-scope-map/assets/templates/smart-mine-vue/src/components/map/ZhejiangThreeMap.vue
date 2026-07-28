@@ -84,19 +84,11 @@ let raf = 0;
 let resizeObserver: ResizeObserver | undefined;
 let mapGroup: THREE.Group | undefined;
 let ringDecorGroup: THREE.Group | undefined;
-type ProvinceChaseSegment = {
-  geometry: THREE.BufferGeometry;
-  material: THREE.LineBasicMaterial;
-  positions: Float32Array;
-};
-
-let provinceChaseLine: THREE.Group | undefined;
+let provinceChaseLine: THREE.Mesh | undefined;
 let provinceChasePath: {
-  points: THREE.Vector3[];
   distances: Float32Array;
   total: number;
   tailLength: number;
-  segments: ProvinceChaseSegment[];
 } | undefined;
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -138,7 +130,8 @@ const coastalFragmentFeatureNames = new Set(['舟山市', '宁波市', '台州�
 const minCoastalPolygonArea = 0.25;
 const minInlandPolygonArea = 20;
 const provinceChaseZ = 44.25;
-const provinceChaseLineSegments = 34;
+const provinceChaseSegmentLength = 1.35;
+const provinceChaseRibbonWidth = 2.02;
 const provinceSilhouetteCellSize = 1.85;
 const mapTransitionDuration = 0.78;
 const southSeaInsetMinWidth = 62;
@@ -1150,101 +1143,101 @@ function smoothClosedPath(points: THREE.Vector3[], iterations = 2) {
   return smoothed;
 }
 
-function sanitizeChaseLoop(points: THREE.Vector3[]) {
-  const clean: THREE.Vector3[] = [];
-  points.forEach((point) => {
-    const previous = clean[clean.length - 1];
-    if (!previous || previous.distanceTo(point) > 0.6) {
-      clean.push(point.clone());
-    }
-  });
-  if (clean.length > 2 && clean[0].distanceTo(clean[clean.length - 1]) < 0.6) {
-    clean.pop();
-  }
-  return clean;
-}
-
-function buildChaseDistances(points: THREE.Vector3[]) {
-  const distances = [0];
-  let total = 0;
-  for (let index = 0; index < points.length; index += 1) {
-    const current = points[index];
-    const next = points[(index + 1) % points.length];
-    total += current.distanceTo(next);
-    distances.push(total);
-  }
-  return {
-    distances: new Float32Array(distances),
-    total,
-  };
-}
-
-function sampleProvinceChasePoint(distance: number) {
-  if (!provinceChasePath?.points.length || provinceChasePath.total <= 0) {
-    return new THREE.Vector3();
-  }
-  const { points, distances, total } = provinceChasePath;
-  const wrapped = ((distance % total) + total) % total;
-  let segmentIndex = 0;
-  while (segmentIndex < points.length - 1 && distances[segmentIndex + 1] < wrapped) {
-    segmentIndex += 1;
-  }
-  const startDistance = distances[segmentIndex];
-  const endDistance = distances[segmentIndex + 1] ?? total;
-  const segmentLength = Math.max(0.001, endDistance - startDistance);
-  const ratio = THREE.MathUtils.clamp((wrapped - startDistance) / segmentLength, 0, 1);
-  return points[segmentIndex].clone().lerp(points[(segmentIndex + 1) % points.length], ratio);
-}
-
 function createProvinceChaseLight() {
   const group = new THREE.Group();
+  const positions: number[] = [];
+  const vertexDistances: number[] = [];
+  const indices: number[] = [];
+  let totalDistance = 0;
 
-  let chaseLoop = sanitizeChaseLoop(smoothClosedPath(createProvinceSilhouetteLoop(), 4));
-  if (chaseLoop.length <= 4) {
-    const fallbackLoop = getProvinceOuterLoops()
-      .sort((a, b) => ringProjectedArea(b) - ringProjectedArea(a))[0];
-    chaseLoop = sanitizeChaseLoop(
-      fallbackLoop?.map((coord) => projectPoint(coord, provinceChaseZ)) ?? [],
-    );
-  }
-  if (chaseLoop.length <= 4) return group;
+  const appendSegment = (
+    start: THREE.Vector3,
+    end: THREE.Vector3,
+  ) => {
+    const length = start.distanceTo(end);
+    if (length < 0.01) return;
 
-  const pathInfo = buildChaseDistances(chaseLoop);
-  if (pathInfo.total <= 0) return group;
+    const normal = new THREE.Vector3(-(end.y - start.y), end.x - start.x, 0)
+      .normalize()
+      .multiplyScalar(provinceChaseRibbonWidth / 2);
+    const divisions = Math.max(1, Math.ceil(length / provinceChaseSegmentLength));
+    for (let step = 0; step < divisions; step += 1) {
+      const fromRatio = step / divisions;
+      const toRatio = (step + 1) / divisions;
+      const from = start.clone().lerp(end, fromRatio);
+      const to = start.clone().lerp(end, toRatio);
+      const fromDistance = totalDistance + length * fromRatio;
+      const toDistance = totalDistance + length * toRatio;
+      const offset = positions.length / 3;
 
-  const segments: ProvinceChaseSegment[] = [];
-  const chaseGroup = new THREE.Group();
-  chaseGroup.renderOrder = 20;
+      [
+        from.clone().add(normal),
+        from.clone().sub(normal),
+        to.clone().add(normal),
+        to.clone().sub(normal),
+      ].forEach((point) => positions.push(point.x, point.y, point.z));
 
-  for (let index = 0; index < provinceChaseLineSegments; index += 1) {
-    const fade = 1 - index / provinceChaseLineSegments;
-    const positions = new Float32Array(6);
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const material = new THREE.LineBasicMaterial({
-      color: mapTheme.chaseLight,
-      transparent: true,
-      opacity: Math.pow(fade, 1.35) * 0.9,
-      blending: THREE.AdditiveBlending,
-      depthTest: false,
-      depthWrite: false,
-    });
-    const line = new THREE.Line(geometry, material);
-    line.frustumCulled = false;
-    line.renderOrder = 20;
-    chaseGroup.add(line);
-    segments.push({ geometry, material, positions });
-  }
-
-  provinceChasePath = {
-    points: chaseLoop,
-    distances: pathInfo.distances,
-    total: pathInfo.total,
-    tailLength: Math.max(90, pathInfo.total * 0.06),
-    segments,
+      vertexDistances.push(fromDistance, fromDistance, toDistance, toDistance);
+      indices.push(offset, offset + 1, offset + 2, offset + 2, offset + 1, offset + 3);
+    }
+    totalDistance += length;
   };
 
-  provinceChaseLine = chaseGroup;
+  const provinceSilhouetteLoop = smoothClosedPath(createProvinceSilhouetteLoop(), 4);
+  if (provinceSilhouetteLoop.length > 4) {
+    provinceSilhouetteLoop.forEach((point, index) => {
+      const nextPoint = provinceSilhouetteLoop[(index + 1) % provinceSilhouetteLoop.length];
+      appendSegment(point, nextPoint);
+    });
+  } else {
+    const fallbackLoop = getProvinceOuterLoops()
+      .sort((a, b) => ringProjectedArea(b) - ringProjectedArea(a))[0];
+    fallbackLoop?.forEach((coord, index) => {
+      const nextCoord = fallbackLoop[(index + 1) % fallbackLoop.length];
+      appendSegment(projectPoint(coord, provinceChaseZ), projectPoint(nextCoord, provinceChaseZ));
+    });
+  }
+
+  if (!positions.length || totalDistance <= 0) return group;
+
+  provinceChasePath = {
+    distances: new Float32Array(vertexDistances),
+    total: totalDistance,
+    tailLength: Math.max(100, totalDistance * 0.07),
+  };
+
+  const alphas = new Float32Array(vertexDistances.length);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+  geometry.setIndex(indices);
+
+  const material = new THREE.ShaderMaterial({
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthTest: false,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      color: { value: new THREE.Color(mapTheme.chaseLight) },
+    },
+    vertexShader: `
+      attribute float alpha;
+      varying float vAlpha;
+      void main() {
+        vAlpha = alpha;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 color;
+      varying float vAlpha;
+      void main() {
+        gl_FragColor = vec4(color, vAlpha);
+      }
+    `,
+  });
+  provinceChaseLine = new THREE.Mesh(geometry, material);
   provinceChaseLine.renderOrder = 20;
   group.add(provinceChaseLine);
 
@@ -1254,23 +1247,21 @@ function createProvinceChaseLight() {
 function updateProvinceChaseLight(time: number) {
   if (!provinceChasePath || !provinceChaseLine) return;
 
-  const chaseSpeed = 320;
+  const alphaAttribute = provinceChaseLine.geometry.getAttribute('alpha') as THREE.BufferAttribute;
+  const chaseSpeed = 230;
   const headDistance = (time * chaseSpeed) % provinceChasePath.total;
-  const segmentLength = provinceChasePath.tailLength / provinceChasePath.segments.length;
-  provinceChasePath.segments.forEach((segment, index) => {
-    const start = sampleProvinceChasePoint(headDistance - index * segmentLength);
-    const end = sampleProvinceChasePoint(headDistance - (index + 0.88) * segmentLength);
-    segment.positions[0] = start.x;
-    segment.positions[1] = start.y;
-    segment.positions[2] = start.z;
-    segment.positions[3] = end.x;
-    segment.positions[4] = end.y;
-    segment.positions[5] = end.z;
-    const fade = 1 - index / provinceChasePath!.segments.length;
-    segment.material.opacity = Math.pow(fade, 1.35) * 0.9;
-    const positionAttribute = segment.geometry.getAttribute('position') as THREE.BufferAttribute;
-    positionAttribute.needsUpdate = true;
-  });
+
+  for (let index = 0; index < provinceChasePath.distances.length; index += 1) {
+    const vertexDistance = provinceChasePath.distances[index];
+    const distanceBehindHead = (headDistance - vertexDistance + provinceChasePath.total) % provinceChasePath.total;
+    if (distanceBehindHead > provinceChasePath.tailLength) {
+      alphaAttribute.setX(index, 0);
+    } else {
+      const headRatio = 1 - distanceBehindHead / provinceChasePath.tailLength;
+      alphaAttribute.setX(index, Math.pow(headRatio, 1.65));
+    }
+  }
+  alphaAttribute.needsUpdate = true;
 }
 
 function createProvinceOutlineSegments(z: number, material: THREE.Material, renderOrder: number) {
@@ -1955,7 +1946,7 @@ async function createMap() {
     group.add(createProvinceOutlineSegments(44, provinceOutlineMaterial, 9));
     group.add(createProvinceOutlineSegments(24, bottomOutlineMaterial, 1));
   }
-  if (currentState.scope !== 'world' && currentState.scope !== 'country') {
+  if (currentState.scope !== 'world') {
     await waitForBuildSlice();
     group.add(createProvinceChaseLight());
   }
