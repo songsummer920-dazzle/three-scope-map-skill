@@ -108,12 +108,23 @@ const featureHighlightMaterials = new Map<string, THREE.MeshBasicMaterial[]>();
 const featureByName = new Map<string, MapFeature>();
 let worldHitMesh: THREE.Mesh | undefined;
 const cityLabelElements = new Map<string, HTMLDivElement>();
+type ProjectedPolygonLookup = {
+  rings: Array<Array<readonly [number, number]>>;
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+};
+type ProvinceOuterEdge = { count: number; start: Position; end: Position };
+let projectedMapPolygonsCache: ProjectedPolygonLookup[] | undefined;
+let provinceOuterEdgesCache: ProvinceOuterEdge[] | undefined;
 const flyLineMaterials: THREE.ShaderMaterial[] = [];
 let hoveredFeature = '';
 let isDrilling = false;
 let hasEmittedReady = false;
 let hasUserAdjustedCamera = false;
 let hasRenderedStaticFrame = false;
+let resolutionUpgradeHandle: number | undefined;
 let currentState: MapState = initialMapState;
 const activeScope = ref<MapScope>(initialMapState.scope);
 let geoData = currentState.geoData;
@@ -186,11 +197,22 @@ let mapScale = 1;
 let projectedOffsetX = 0;
 let projectedOffsetY = 0;
 let mapBuildVersion = 0;
+let rendererWarmupVersion = 0;
 
 function waitForNextFrame() {
   return new Promise<void>((resolve) => {
     requestAnimationFrame(() => resolve());
   });
+}
+
+function waitForPreloadSlice() {
+  return new Promise<void>((resolve) => {
+    globalThis.setTimeout(resolve, 0);
+  });
+}
+
+function waitForBuildSlice() {
+  return props.active ? waitForNextFrame() : waitForPreloadSlice();
 }
 
 function disposeObject3D(object: THREE.Object3D) {
@@ -766,6 +788,22 @@ function makeBoundary(ring: Position[], z: number, material: THREE.Material) {
   return line;
 }
 
+function makeBoundarySegments(rings: Position[][], z: number, material: THREE.Material) {
+  const points: THREE.Vector3[] = [];
+  rings.forEach((ring) => {
+    for (let index = 0; index < ring.length; index += 1) {
+      points.push(
+        projectPoint(ring[index], z),
+        projectPoint(ring[(index + 1) % ring.length], z),
+      );
+    }
+  });
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const lines = new THREE.LineSegments(geometry, material);
+  lines.renderOrder = z > 40 ? 8 : 0;
+  return lines;
+}
+
 function coordKey(coord: Position) {
   return `${coord[0].toFixed(6)},${coord[1].toFixed(6)}`;
 }
@@ -794,10 +832,51 @@ function pointInProjectedPolygon(point: readonly [number, number], polygon: Posi
   return !polygon.slice(1).some((ring) => pointInProjectedRing(point, ring));
 }
 
-function pointInCurrentMap(point: readonly [number, number]) {
-  return getRenderableFeatures().some((feature) => (
-    toPolygons(feature).some((polygon) => pointInProjectedPolygon(point, polygon))
+function pointInProjectedCoordinateRing(
+  point: readonly [number, number],
+  ring: Array<readonly [number, number]>,
+) {
+  let inside = false;
+  for (let index = 0, previous = ring.length - 1; index < ring.length; previous = index, index += 1) {
+    const currentPoint = ring[index];
+    const previousPoint = ring[previous];
+    const intersects = ((currentPoint[1] > point[1]) !== (previousPoint[1] > point[1]))
+      && (point[0] < ((previousPoint[0] - currentPoint[0]) * (point[1] - currentPoint[1]))
+        / (previousPoint[1] - currentPoint[1]) + currentPoint[0]);
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+function getProjectedMapPolygonLookup() {
+  if (projectedMapPolygonsCache) return projectedMapPolygonsCache;
+  projectedMapPolygonsCache = getRenderableFeatures().flatMap((feature) => (
+    toRenderablePolygons(feature).map((polygon) => {
+      const rings = polygon.map((ring) => ring.map((coord) => projectCoord(coord)));
+      const outer = rings[0];
+      return {
+        rings,
+        minX: Math.min(...outer.map((point) => point[0])),
+        minY: Math.min(...outer.map((point) => point[1])),
+        maxX: Math.max(...outer.map((point) => point[0])),
+        maxY: Math.max(...outer.map((point) => point[1])),
+      };
+    })
   ));
+  return projectedMapPolygonsCache;
+}
+
+function pointInCurrentMap(point: readonly [number, number]) {
+  return getProjectedMapPolygonLookup().some((polygon) => {
+    if (
+      point[0] < polygon.minX
+      || point[0] > polygon.maxX
+      || point[1] < polygon.minY
+      || point[1] > polygon.maxY
+    ) return false;
+    if (!pointInProjectedCoordinateRing(point, polygon.rings[0])) return false;
+    return !polygon.rings.slice(1).some((ring) => pointInProjectedCoordinateRing(point, ring));
+  });
 }
 
 function isProvinceExteriorEdge(start: Position, end: Position) {
@@ -820,7 +899,8 @@ function isProvinceExteriorEdge(start: Position, end: Position) {
 }
 
 function getProvinceOuterEdges() {
-  const edges = new Map<string, { count: number; start: Position; end: Position }>();
+  if (provinceOuterEdgesCache) return provinceOuterEdgesCache;
+  const edges = new Map<string, ProvinceOuterEdge>();
 
   getRenderableFeatures().forEach((feature) => {
     toRenderablePolygons(feature).forEach((polygon) => {
@@ -839,7 +919,9 @@ function getProvinceOuterEdges() {
     });
   });
 
-  return [...edges.values()].filter((edge) => edge.count === 1 && isProvinceExteriorEdge(edge.start, edge.end));
+  provinceOuterEdgesCache = [...edges.values()]
+    .filter((edge) => edge.count === 1 && isProvinceExteriorEdge(edge.start, edge.end));
+  return provinceOuterEdgesCache;
 }
 
 function getProvinceOuterLoops() {
@@ -1451,6 +1533,8 @@ function createWorldTexture() {
 
 function createWorldMap() {
   const group = new THREE.Group();
+  projectedMapPolygonsCache = undefined;
+  provinceOuterEdgesCache = undefined;
   interactiveMeshes.length = 0;
   featureMeshes.clear();
   featureLiftGroups.clear();
@@ -1664,6 +1748,8 @@ function createRotatingRingDecor() {
 
 async function createMap() {
   const group = new THREE.Group();
+  projectedMapPolygonsCache = undefined;
+  provinceOuterEdgesCache = undefined;
   interactiveMeshes.length = 0;
   featureMeshes.clear();
   featureLiftGroups.clear();
@@ -1755,77 +1841,64 @@ async function createMap() {
     const featureName = getFeatureName(feature);
     if (featureName) featureByName.set(featureName, feature);
     const renderablePolygons = toRenderablePolygons(feature);
-    for (let polygonIndex = 0; polygonIndex < renderablePolygons.length; polygonIndex += 1) {
-      const polygon = renderablePolygons[polygonIndex];
-      const polygonGroup = new THREE.Group();
-      polygonGroup.userData.featureName = featureName;
-      polygonGroup.userData.baseZ = 0;
-      polygonGroup.userData.targetZ = 0;
-      group.add(polygonGroup);
-      const liftGroups = featureLiftGroups.get(featureName) ?? [];
-      liftGroups.push(polygonGroup);
-      featureLiftGroups.set(featureName, liftGroups);
+    if (!renderablePolygons.length) continue;
+    const featureGroup = new THREE.Group();
+    featureGroup.userData.featureName = featureName;
+    featureGroup.userData.baseZ = 0;
+    featureGroup.userData.targetZ = 0;
+    group.add(featureGroup);
+    featureLiftGroups.set(featureName, [featureGroup]);
 
-      const shape = makeShape(polygon);
+    const shapes = renderablePolygons.map((polygon) => makeShape(polygon));
+    const featureRings = renderablePolygons.flat();
 
-      const geoBase = new THREE.Mesh(new THREE.ShapeGeometry(shape), geoBaseMaterial);
-      geoBase.position.z = 20;
-      polygonGroup.add(geoBase);
-      polygon.forEach((ring) => {
-        polygonGroup.add(makeBoundary(ring, 21, geoBaseLineMaterial));
-      });
+    const geoBase = new THREE.Mesh(new THREE.ShapeGeometry(shapes), geoBaseMaterial);
+    geoBase.position.z = 20;
+    featureGroup.add(geoBase);
+    featureGroup.add(makeBoundarySegments(featureRings, 21, geoBaseLineMaterial));
 
-      const liftSideMaterial = createSideGradientMaterial(0);
-      const liftSideWall = createPolygonSideWalls(polygon, liftSideMaterial);
-      polygonGroup.add(liftSideWall);
-      const sideMaterials = featureSideMaterials.get(featureName) ?? [];
-      sideMaterials.push(liftSideMaterial);
-      featureSideMaterials.set(featureName, sideMaterials);
+    const liftSideMaterial = createSideGradientMaterial(0);
+    featureGroup.add(createPolygonSideWalls(featureRings, liftSideMaterial));
+    featureSideMaterials.set(featureName, [liftSideMaterial]);
 
-      const topGeometry = applyMapTerrainUv(new THREE.ShapeGeometry(shape));
-      const mesh = new THREE.Mesh(topGeometry, topMaterial.clone());
-      mesh.position.z = 44;
-      mesh.userData.featureName = featureName;
-      mesh.userData.featureCode = getFeatureCode(feature);
-      mesh.userData.baseZ = 44;
-      polygonGroup.add(mesh);
-      interactiveMeshes.push(mesh);
-      const meshes = featureMeshes.get(featureName) ?? [];
-      meshes.push(mesh);
-      featureMeshes.set(featureName, meshes);
+    const topGeometry = applyMapTerrainUv(new THREE.ShapeGeometry(shapes));
+    const mesh = new THREE.Mesh(topGeometry, topMaterial.clone());
+    mesh.position.z = 44;
+    mesh.userData.featureName = featureName;
+    mesh.userData.featureCode = getFeatureCode(feature);
+    mesh.userData.baseZ = 44;
+    featureGroup.add(mesh);
+    interactiveMeshes.push(mesh);
+    featureMeshes.set(featureName, [mesh]);
 
-      const topGlow = new THREE.Mesh(new THREE.ShapeGeometry(shape), topGlowMaterial);
-      topGlow.position.z = 48;
-      polygonGroup.add(topGlow);
+    const topGlow = new THREE.Mesh(new THREE.ShapeGeometry(shapes), topGlowMaterial);
+    topGlow.position.z = 48;
+    featureGroup.add(topGlow);
 
-      const highlightInstanceMaterial = highlightMaterial.clone();
-      highlightInstanceMaterial.userData.targetOpacity = 0;
-      const highlightMesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), highlightInstanceMaterial);
-      highlightMesh.position.z = 52;
-      highlightMesh.renderOrder = 7;
-      polygonGroup.add(highlightMesh);
-      const highlightMaterials = featureHighlightMaterials.get(featureName) ?? [];
-      highlightMaterials.push(highlightInstanceMaterial);
-      featureHighlightMaterials.set(featureName, highlightMaterials);
+    const highlightInstanceMaterial = highlightMaterial.clone();
+    highlightInstanceMaterial.userData.targetOpacity = 0;
+    const highlightMesh = new THREE.Mesh(new THREE.ShapeGeometry(shapes), highlightInstanceMaterial);
+    highlightMesh.position.z = 52;
+    highlightMesh.renderOrder = 7;
+    featureGroup.add(highlightMesh);
+    featureHighlightMaterials.set(featureName, [highlightInstanceMaterial]);
 
-      polygon.forEach((ring) => {
-        polygonGroup.add(makeBoundary(ring, 44, lineMaterial));
-      });
-    }
-    if (featureIndex % 2 === 1) await waitForNextFrame();
+    featureGroup.add(makeBoundarySegments(featureRings, 44, lineMaterial));
+    if (props.active && featureIndex % 2 === 1) await waitForNextFrame();
+    if (!props.active && featureIndex % 6 === 5) await waitForPreloadSlice();
   }
 
   if (currentState.scope !== 'world') {
-    await waitForNextFrame();
+    await waitForBuildSlice();
     group.add(createProvinceSideWalls(sideMaterial));
     group.add(createProvinceOutlineSegments(44, provinceOutlineMaterial, 9));
     group.add(createProvinceOutlineSegments(24, bottomOutlineMaterial, 1));
   }
   if (currentState.scope !== 'world' && currentState.scope !== 'country') {
-    await waitForNextFrame();
+    await waitForBuildSlice();
     group.add(createProvinceChaseLight());
   }
-  await waitForNextFrame();
+  await waitForBuildSlice();
   group.add(createFlyLines());
 
   group.add(createRotatingRingDecor());
@@ -2066,6 +2139,48 @@ function createDrillControl() {
   refreshDrillControl();
 }
 
+async function warmInitialMapRenderer(group: THREE.Group, buildVersion: number) {
+  const warmupVersion = ++rendererWarmupVersion;
+  const warmRenderer = renderer;
+  const warmScene = scene;
+  const warmCamera = camera;
+  if (!warmRenderer || !warmScene || !warmCamera) return;
+
+  const textures = await waitForTerrainTexturesReady();
+  if (
+    warmupVersion !== rendererWarmupVersion
+    || buildVersion !== mapBuildVersion
+    || mapGroup !== group
+    || renderer !== warmRenderer
+  ) return;
+
+  await waitForPreloadSlice();
+  try {
+    await warmRenderer.compileAsync(warmScene, warmCamera);
+  } catch {
+    // A hidden render below remains the compatibility warm-up path.
+  }
+
+  for (const texture of Object.values(textures)) {
+    if (warmupVersion !== rendererWarmupVersion || renderer !== warmRenderer) return;
+    await waitForPreloadSlice();
+    warmRenderer.initTexture(texture);
+  }
+
+  await waitForPreloadSlice();
+  if (
+    warmupVersion !== rendererWarmupVersion
+    || buildVersion !== mapBuildVersion
+    || mapGroup !== group
+    || renderer !== warmRenderer
+  ) return;
+  if (!props.active) settleMapForStaticFrame(group);
+  warmRenderer.render(warmScene, warmCamera);
+  if (!props.active) labelRenderer?.render(warmScene, warmCamera);
+  hasEmittedReady = true;
+  requestAnimationFrame(() => emit('ready'));
+}
+
 async function rebuildMapForCurrentState() {
   if (!scene) return;
   activeScope.value = currentState.scope;
@@ -2093,21 +2208,7 @@ async function rebuildMapForCurrentState() {
   resetAllFeatureHighlights();
   refreshDrillControl();
 
-  if (!hasEmittedReady && renderer && camera && scene) {
-    await waitForTerrainTexturesReady();
-    if (buildVersion !== mapBuildVersion || mapGroup !== nextMapGroup) return;
-    try {
-      await renderer.compileAsync(scene, camera);
-    } catch {
-      // A hidden render below remains the compatibility warm-up path.
-    }
-    if (buildVersion !== mapBuildVersion || mapGroup !== nextMapGroup) return;
-    if (!props.active) settleMapForStaticFrame(nextMapGroup);
-    renderer.render(scene, camera);
-    if (!props.active) labelRenderer?.render(scene, camera);
-    hasEmittedReady = true;
-    requestAnimationFrame(() => emit('ready'));
-  }
+  if (!hasEmittedReady) void warmInitialMapRenderer(nextMapGroup, buildVersion);
 }
 
 watch(() => props.active, (active, wasActive) => {
@@ -2118,9 +2219,25 @@ watch(() => props.active, (active, wasActive) => {
       if (labelRenderer?.domElement) labelRenderer.domElement.style.opacity = '0';
     }
     startMapAnimation();
+    resolutionUpgradeHandle = globalThis.setTimeout(() => {
+      resolutionUpgradeHandle = undefined;
+      if (!props.active || !renderer || !host.value) return;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      renderer.setSize(
+        Math.max(host.value.clientWidth, 1),
+        Math.max(host.value.clientHeight, 1),
+        false,
+      );
+    }, 520);
     return;
   }
-  if (!active && wasActive) stopMapAnimation();
+  if (!active && wasActive) {
+    if (resolutionUpgradeHandle !== undefined) {
+      globalThis.clearTimeout(resolutionUpgradeHandle);
+      resolutionUpgradeHandle = undefined;
+    }
+    stopMapAnimation();
+  }
 });
 
 async function drillToFeature(featureName: string) {
@@ -2225,7 +2342,7 @@ function setup() {
     powerPreference: 'high-performance',
   });
   renderer.setSize(width, height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, props.active ? 1.5 : 1));
   host.value.appendChild(renderer.domElement);
   host.value.addEventListener('pointermove', onPointerMove);
   host.value.addEventListener('pointerdown', onPointerDown);
@@ -2350,6 +2467,8 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  rendererWarmupVersion += 1;
+  if (resolutionUpgradeHandle !== undefined) globalThis.clearTimeout(resolutionUpgradeHandle);
   stopMapAnimation();
   window.removeEventListener('resize', resize);
   resizeObserver?.disconnect();

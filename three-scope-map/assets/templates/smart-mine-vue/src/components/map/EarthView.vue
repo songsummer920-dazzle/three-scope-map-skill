@@ -40,7 +40,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import chinaGeoJson from '../../assets/maps/china.json';
-import worldGeoJson from '../../assets/maps/world.json';
+import worldGeoJson from '../../assets/maps/world.earth-render.json';
 // Cropped 70–140°E / 15–55°N from NASA BMNG topography (0–6400 m scale).
 // https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/
 import chinaHeightUrl from '../../assets/textures/map/china/china-height-legacy.png';
@@ -2245,38 +2245,29 @@ function enterChina(event: PointerEvent) {
 
   chinaCenter.copy(lonLatToVector3(103.6, 35.2, 2.078));
   globeOrientation.localToWorld(chinaCenter);
-  const flightDirection = chinaCenter.clone().normalize();
-  const flightEnd = flightDirection.multiplyScalar(2.42);
-  const lookTarget = chinaCenter.clone().multiplyScalar(0.74);
-  const startTarget = cameraTarget.clone();
-  const targetProgress = { value: 0 };
   const backdropElement = hostElement.querySelector<HTMLElement>('.earth-backdrop');
   const canvasElement = renderer.domElement;
+  const canvasRect = canvasElement.getBoundingClientRect();
+  const projectedChina = chinaCenter.clone().project(camera);
+  const chinaScreenX = (projectedChina.x * 0.5 + 0.5) * canvasRect.width;
+  const chinaScreenY = (-projectedChina.y * 0.5 + 0.5) * canvasRect.height;
+  const canvasOffsetX = canvasRect.width * 0.5 - chinaScreenX;
+  const canvasOffsetY = canvasRect.height * 0.5 - chinaScreenY;
+  canvasElement.style.transformOrigin = `${chinaScreenX}px ${chinaScreenY}px`;
+  canvasElement.style.willChange = 'transform, opacity';
 
   transitionTimeline?.kill();
   transitionTimeline = gsap.timeline({
     defaults: { ease: 'power3.inOut' },
-    onComplete: () => emit('enter-china'),
+    onComplete: () => {
+      emit('enter-china');
+    },
   });
   transitionTimeline
-    .to(camera.position, {
-      x: flightEnd.x,
-      y: flightEnd.y,
-      z: flightEnd.z,
-      duration: 1.94,
-      ease: 'power2.inOut',
-      onUpdate: () => camera?.lookAt(cameraTarget),
-    }, 0)
-    .to(targetProgress, {
-      value: 1,
-      duration: 1.86,
-      ease: 'power2.inOut',
-      onUpdate: () => cameraTarget.lerpVectors(startTarget, lookTarget, targetProgress.value),
-    }, 0)
-    .to(spinGroup.scale, {
-      x: 2.42,
-      y: 2.42,
-      z: 2.42,
+    .to(canvasElement, {
+      x: canvasOffsetX,
+      y: canvasOffsetY,
+      scale: 2.42,
       duration: 1.94,
       ease: 'power2.inOut',
     }, 0)
@@ -2324,6 +2315,10 @@ function disposeObject(object: THREE.Object3D) {
 function animate() {
   raf = requestAnimationFrame(animate);
   if (!renderer || !scene || !camera) return;
+  // The handoff deliberately zooms the already-rendered canvas with a compositor
+  // transform. Continuing the full bloom/terrain render while that canvas grows
+  // would multiply the fragment workload and contend with the incoming map.
+  if (isTransitioning.value) return;
   const rawDelta = clock.getDelta();
   const delta = Math.min(rawDelta, 0.05);
   animationElapsed += Math.min(rawDelta, 0.16);
@@ -2871,7 +2866,6 @@ onBeforeUnmount(() => {
     transparent 44%
   );
   mix-blend-mode: screen;
-  filter: blur(7px);
   transform: scale(0.42);
 }
 
@@ -2881,6 +2875,37 @@ onBeforeUnmount(() => {
   overflow: hidden;
   contain: paint;
   transform: translateZ(0);
+}
+
+.dive-cloudscape::before,
+.dive-cloudscape::after {
+  content: '';
+  position: absolute;
+  inset: -16%;
+  opacity: 0;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.dive-cloudscape::before {
+  background: var(--earth-cloud-mid);
+  -webkit-mask: url('../../assets/textures/map/transition/cloud-sheet.svg') center / 100% 100% no-repeat;
+  mask: url('../../assets/textures/map/transition/cloud-sheet.svg') center / 100% 100% no-repeat;
+  transform: translate3d(-14%, -7%, 0) rotate(7deg) scale(0.72);
+}
+
+.dive-cloudscape::after {
+  background: var(--earth-cloud-body);
+  -webkit-mask: url('../../assets/textures/map/transition/cloud-sheet.svg') center / 100% 100% no-repeat;
+  mask: url('../../assets/textures/map/transition/cloud-sheet.svg') center / 100% 100% no-repeat;
+  transform: translate3d(14%, 8%, 0) rotate(-8deg) scale(0.7);
+  display: none;
+}
+
+.cloud-bank,
+.dive-cloud-texture,
+.dive-cloud-haze {
+  display: none;
 }
 
 .cloud-bank {
@@ -3014,6 +3039,14 @@ onBeforeUnmount(() => {
   animation: atmosphere-dive 2.18s cubic-bezier(0.45, 0, 0.65, 1) both;
 }
 
+.earth-view.is-transitioning .dive-cloudscape::before {
+  animation: cloud-sheet-left-dive 2.18s cubic-bezier(0.4, 0, 0.62, 1) both;
+}
+
+.earth-view.is-transitioning .dive-cloudscape::after {
+  animation: cloud-sheet-right-dive 2.18s cubic-bezier(0.4, 0, 0.62, 1) both;
+}
+
 .earth-view.is-transitioning .cloud-bank--far {
   animation: cloud-far-dive 2.18s cubic-bezier(0.4, 0, 0.65, 1) both;
 }
@@ -3056,6 +3089,22 @@ onBeforeUnmount(() => {
   52% { opacity: 0.72; }
   76% { opacity: 0.32; transform: scale(3.5); }
   100% { opacity: 0; transform: scale(5.2); }
+}
+
+@keyframes cloud-sheet-left-dive {
+  0%, 14% { opacity: 0; transform: translate3d(-14%, -7%, 0) rotate(7deg) scale(0.72); }
+  42% { opacity: 0.34; }
+  65% { opacity: 0.78; transform: translate3d(-2%, 1%, 0) rotate(3deg) scale(1.08); }
+  83% { opacity: 0.34; }
+  100% { opacity: 0; transform: translate3d(15%, -6%, 0) rotate(-1deg) scale(1.46); }
+}
+
+@keyframes cloud-sheet-right-dive {
+  0%, 17% { opacity: 0; transform: translate3d(14%, 8%, 0) rotate(-8deg) scale(0.7); }
+  45% { opacity: 0.3; }
+  67% { opacity: 0.74; transform: translate3d(2%, 0, 0) rotate(-3deg) scale(1.06); }
+  84% { opacity: 0.3; }
+  100% { opacity: 0; transform: translate3d(-16%, -5%, 0) rotate(1deg) scale(1.44); }
 }
 
 @keyframes cloud-far-dive {

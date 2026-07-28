@@ -71,17 +71,20 @@ Keep the raw GeoJSON too. The preprocessed file is a render cache, not the sourc
 
 Preserve the authoritative Earth intro and its existing event timings. Optimize only ownership of the destination render loop:
 
-1. Warm the Earth scene and postprocessing targets without starting the visible intro, then emit `scene-ready`.
-2. Mount the destination map from `scene-ready` with `active=false`.
-3. Load textures, run `compileAsync`, initialize GPU resources, settle all transition materials to their final opacity, and render exactly one complete WebGL frame plus one CSS2D label frame.
-4. Release the Earth `start-intro` gate only after that static destination frame is ready. This keeps CPU geometry creation and GPU uploads outside the visible Earth/China rise.
-5. Keep the destination static canvas mounted and hidden. Do not leave an inactive `requestAnimationFrame` chain running.
-6. At `handoff-start`, reveal the already-rendered static canvas underneath Earth while Earth remains the only continuous renderer.
-7. When `enter-china` fires after Earth postprocessing/fade is effectively complete, set the destination map active and start its normal animation loop without replaying a transparent entrance over the static frame.
+1. Warm the Earth scene and postprocessing targets while its WebGL canvas remains hidden; keep the CSS starfield/backdrop visible.
+2. Emit `scene-ready` once after hidden Earth GPU warm-up, and hold the visible intro behind a `start-intro` prop.
+3. Keep the raw high-resolution world GeoJSON as source data, but import the simplified `world.earth-render.json` cache in `EarthView.vue` so first paint does not parse the raw multi-megabyte file.
+4. Define `ChinaMap.vue` as an async component, then mount it immediately from `scene-ready` with `active=false`.
+5. Split inactive destination geometry construction into cooperative idle slices of roughly 4 ms or less. Yield within complex regional features as well as between features.
+6. Load textures, run `compileAsync`, initialize one texture per idle slice, settle all transition materials to their final opacity, and render exactly one complete WebGL frame plus one CSS2D label frame.
+7. When the destination emits `ready`, release `start-intro`; from this point until Earth intro completion, perform no destination initialization or GPU upload.
+8. Keep the destination static canvas mounted and hidden. Do not leave an inactive `requestAnimationFrame` chain running.
+9. At `handoff-start`, reveal the already-rendered static canvas underneath Earth while Earth remains the only continuous renderer.
+10. When `enter-china` fires after Earth postprocessing/fade is effectively complete, set the destination map active and start its normal animation loop without replaying a transparent entrance over the static frame.
 
 Batch all same-material world outlines into one `THREE.LineSegments` geometry. Thousands of individual `LineLoop` objects create thousands of draw calls per frame and can make the visible China-rise animation run at half speed even though the destination map is inactive.
 
-Do not remove, shorten, or bypass the Earth intro to gain performance. Do not activate the destination map merely because the handoff stage is visible. One-shot compile/upload/static renders are allowed; two simultaneous full render loops are not.
+Do not remove, shorten, or bypass the Earth intro to gain performance. A short warm-up before the visible intro is intentional; hide it behind the existing backdrop instead of starting Earth and destination work together. Do not activate the destination map merely because the handoff stage is visible.
 
 ## Publishing Checklist
 
@@ -90,5 +93,8 @@ Do not remove, shorten, or bypass the Earth intro to gain performance. Do not ac
 - Include sample commands for country/province/city/district data.
 - Document where local seed files live.
 - Document the expected GeoJSON properties: `name`, `fullname`, `adcode`, `center`.
+- Confirm Earth remains hidden until destination readiness and begins without a mid-intro preload stall.
+- Confirm the raw world GeoJSON is not in the Earth first-paint bundle and the destination renderer is a separate async chunk.
+- Confirm destination geometry work yields in short idle slices, texture uploads are separated, and the `start-intro` gate is released only by destination `ready`.
 - Confirm the destination map has no continuous RAF while inactive and that its precompiled static handoff frame is fully opaque.
 - Preserve code-only attribution: `作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天`.

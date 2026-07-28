@@ -43,8 +43,8 @@ Never replace these with screenshots, SVG/canvas globes, flat fills, generic gra
 
 ## Component Responsibilities
 
-- `EarthView.vue`: own the globe renderer, textures, shaders, spherical China geometry, intro, idle effects, hover/click raycasting, and cloud dive. Emit `scene-ready` after hidden GPU warm-up, wait for `start-intro`, then emit `intro-ready`, `handoff-start`, and `enter-china` at the existing visible-timeline timings.
-- `EarthChinaMap.vue`: own the `earth | china` state, prepare the inactive destination after `scene-ready`, release the Earth intro only after its compiled static frame exists, reveal that frame during handoff, keep the destination animation inactive until `enter-china`, and unexpose Earth only when the transition completes.
+- `EarthView.vue`: own the globe renderer, textures, shaders, spherical China geometry, intro, idle effects, hover/click raycasting, and cloud dive. Warm the hidden canvas, emit `scene-ready`, wait for `start-intro`, then emit `intro-ready`, `handoff-start`, and `enter-china` at the existing visible-timeline timings.
+- `EarthChinaMap.vue`: own the `earth | china` state, prepare the inactive destination after `scene-ready`, release `start-intro` only after its completed static frame exists, reveal that frame during handoff, keep the destination animation inactive until `enter-china`, and unexpose Earth only when the transition completes.
 - `ChinaMap.vue`: remain a thin adapter around `ZhejiangThreeMap.vue`. Do not duplicate the China renderer.
 - `mapTheme.ts`: remain the only color entry. `MAP_THEME_PRIMARY` feeds both Earth and the 3D map.
 
@@ -64,6 +64,7 @@ Do not hand-replace individual hex/RGB values in Earth shaders. The shared theme
 - For an existing project, mount `<EarthChinaMap />` in a positioned container with non-zero width and height.
 - Install `vue`, `three`, `gsap`, and `@types/three`; do not introduce Cesium or Globe.gl.
 - Keep the bundled relative asset paths unless the target build system requires a mechanical alias adjustment.
+- Keep `world.json` as source data, use `world.earth-render.json` for Earth rendering, and retain the async `ChinaMap.vue` import so the destination renderer is not parsed before Earth first paint.
 - Do not copy dashboard panels, charts, business metrics, Figma frames, absolute paths, local URLs, or temporary chat assets.
 
 ## Required Validation
@@ -74,6 +75,6 @@ Do not hand-replace individual hex/RGB values in Earth shaders. The shared theme
 4. Open the Vite URL and capture the initial Earth, steady Earth, click handoff, and destination China map.
 5. Repeat with one non-green `MAP_THEME_PRIMARY`; confirm Earth, 3D map, labels, fly lines, walls, scan, atmosphere, and ripples change together while the background stays neutral.
 6. Inspect Earth `*_JD`: confirm it is a spherical dashed line layer and does not appear in surface fill or wall geometry.
-7. During handoff, confirm the destination is a fully rendered static frame and that its continuous animation begins only after Earth fade/postprocessing finishes.
+7. Confirm the visible Earth intro begins only after destination preload is complete, then during handoff confirm the destination is a fully rendered static frame and that its continuous animation begins only after Earth fade/postprocessing finishes.
 8. Confirm world outlines are batched into `THREE.LineSegments`; separate `LineLoop` objects for every world ring are a performance blocker.
 9. Treat missing texture relief, missing Taiwan wall, missing grid dots, missing route tracks, abrupt handoff, blank canvas, a missing/static `*_JD` line, or any substitute renderer as a blocker.
