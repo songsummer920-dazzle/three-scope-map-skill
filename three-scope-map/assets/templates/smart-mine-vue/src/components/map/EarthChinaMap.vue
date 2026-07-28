@@ -108,8 +108,8 @@ onBeforeUnmount(() => {
   inset: 0;
   z-index: 6;
   opacity: 0;
-  visibility: visible;
-  transform: translateZ(0);
+  visibility: hidden;
+  transform: translateZ(0) scale(0.78);
   transform-origin: 50% 50%;
   backface-visibility: hidden;
   will-change: transform, opacity;
@@ -117,10 +117,12 @@ onBeforeUnmount(() => {
   pointer-events: none;
   transition:
     opacity 420ms ease,
-    transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 620ms;
 }
 
 .china-map-stage.is-handoff {
+  visibility: visible;
   animation: china-cloud-reveal 1.44s cubic-bezier(0.22, 0.72, 0.18, 1) both;
 }
 
@@ -145,16 +147,20 @@ onBeforeUnmount(() => {
 
 @keyframes china-cloud-reveal {
   0% {
-    opacity: 0.04;
+    opacity: 0.06;
+    transform: translateZ(0) scale(0.78);
   }
   28% {
-    opacity: 0.2;
+    opacity: 0.24;
+    transform: translateZ(0) scale(0.83);
   }
   66% {
-    opacity: 0.72;
+    opacity: 0.78;
+    transform: translateZ(0) scale(0.94);
   }
   100% {
     opacity: 1;
+    transform: translateZ(0) scale(1);
   }
 }
 </style>
