@@ -20,7 +20,7 @@
   "src/components/map/ChinaMap.vue": "e2d33cacdd033d781341c8542cad6bc30b64cbf7b21d909966852034a0a3c8a0",
   "src/components/map/EarthChinaMap.vue": "a2d6f236b6267115ea268068eaa48288f8bb36df4a9d930dd6882b81b3457a02",
   "src/components/map/EarthView.vue": "8372d9a0d9308009c4ad8ed0a0d94359964a010302ae49b5de0edf0b95533c26",
-  "src/components/map/ZhejiangThreeMap.vue": "24b97050dc5d72f49625ab214021c65087d60e1625ffbf991e69b944ae941686",
+  "src/components/map/ZhejiangThreeMap.vue": "a2246f05b7a49b9c35f348ba4996154f76bfc4522767ccd85881ea015192d7bd",
   "src/components/map/mapDataAdapter.ts": "bf115fa5862b009ff76ac2b37db5aef5b1404652fd635273ae79bec94367d8e7",
   "src/components/map/mapTerrainMaterial.ts": "4c592ec9cf83ec671a86b163beada4815067a83d121dee09824a60b471704485",
   "src/components/map/mapTheme.ts": "64f0405dbd4b8bf521320d9b4eb70324445e274c135b0dd7211512dada2d8bda",
