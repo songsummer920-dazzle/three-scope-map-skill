@@ -149,8 +149,10 @@ Use `diffuseMap`, `normalMap`, `roughnessMap`, and `displacementMap` where suppo
 ## Labels And Scatter Points
 
 - Use exported Figma label background when available.
-- Default labels: 0.5 scale, 10px text.
-- Hovered/selected labels: 0.7 scale unless the user gives another size, 14px text.
+- Default labels must respond to camera distance. At the approved country camera, use approximately `51 x 31px`; allow a restrained `42–68px` width range as the camera zooms.
+- Hovered/selected labels should be approximately `1.18x` the current default label size, rather than jumping to a fixed oversized frame.
+- Scale frame, text, padding, and line height together. Do not resize only the SVG background.
+- Keep every current-scope geographic label visible at all camera distances; reduce overlap through camera-responsive sizing rather than density-based hiding.
 - Keep text inside the label frame.
 - Only intentional points should have ripple effects. By default, country scope uses 北京市, province scope uses the province capital as the ripple/fly-line source, and city scope uses the same stable random district/county source as fly lines. If one region gets a ripple, verify no stray inactive point remains elsewhere.
 

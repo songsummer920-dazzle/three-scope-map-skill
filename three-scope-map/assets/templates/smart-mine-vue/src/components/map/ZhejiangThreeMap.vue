@@ -143,8 +143,10 @@ const provinceSilhouetteCellSize = 1.85;
 const mapTransitionDuration = 0.78;
 const southSeaInsetMinWidth = 62;
 const southSeaInsetMaxWidth = 92;
+const labelReferenceDistance = 880;
 const cameraReferenceAspect = 16 / 9;
 const cameraViewStorageKey = 'three-scope-map:smart-mine-template:camera-view:v2';
+let cityLabelPresentationKey = '';
 const cameraViewConfig: CameraViewConfig = {
   default: {
     fov: 31,
@@ -405,6 +407,65 @@ function updateSouthSeaInsetSize() {
     THREE.MathUtils.lerp(southSeaInsetMaxWidth, southSeaInsetMinWidth, zoomProgress) * 10,
   ) / 10;
   if (nextWidth !== southSeaInsetWidth.value) southSeaInsetWidth.value = nextWidth;
+}
+
+function getCityLabelScale(cameraDistance: number) {
+  if (!controls) return 0.75;
+  if (cameraDistance <= labelReferenceDistance) {
+    const nearProgress = THREE.MathUtils.clamp(
+      (labelReferenceDistance - cameraDistance)
+        / Math.max(labelReferenceDistance - controls.minDistance, 1),
+      0,
+      1,
+    );
+    return THREE.MathUtils.lerp(0.75, 1, THREE.MathUtils.smoothstep(nearProgress, 0, 1));
+  }
+  const farProgress = THREE.MathUtils.clamp(
+    (cameraDistance - labelReferenceDistance)
+      / Math.max(controls.maxDistance - labelReferenceDistance, 1),
+    0,
+    1,
+  );
+  return THREE.MathUtils.lerp(0.75, 0.62, THREE.MathUtils.smoothstep(farProgress, 0, 1));
+}
+
+function updateCityLabelPresentation() {
+  if (!camera || !controls || !labelRenderer) return;
+  const cameraDistance = camera.position.distanceTo(controls.target);
+  const labelScale = getCityLabelScale(cameraDistance);
+  const nextPresentationKey = [
+    labelScale.toFixed(3),
+    currentState.scope,
+  ].join(':');
+  if (nextPresentationKey === cityLabelPresentationKey) return;
+  cityLabelPresentationKey = nextPresentationKey;
+
+  const baseWidth = 68 * labelScale;
+  const baseHeight = 41 * labelScale;
+  const baseFontSize = THREE.MathUtils.lerp(
+    8,
+    10,
+    THREE.MathUtils.clamp((labelScale - 0.62) / 0.38, 0, 1),
+  );
+  const selectedScale = 1.18;
+  const style = labelRenderer.domElement.style;
+  style.setProperty('--map-label-width', `${baseWidth.toFixed(1)}px`);
+  style.setProperty('--map-label-height', `${baseHeight.toFixed(1)}px`);
+  style.setProperty('--map-label-padding-x', `${(5 * labelScale).toFixed(1)}px`);
+  style.setProperty('--map-label-padding-bottom', `${(11 * labelScale).toFixed(1)}px`);
+  style.setProperty('--map-label-font-size', `${baseFontSize.toFixed(1)}px`);
+  style.setProperty('--map-label-line-height', `${(baseFontSize * 1.4).toFixed(1)}px`);
+  style.setProperty('--map-label-selected-width', `${(baseWidth * selectedScale).toFixed(1)}px`);
+  style.setProperty('--map-label-selected-height', `${(baseHeight * selectedScale).toFixed(1)}px`);
+  style.setProperty('--map-label-selected-padding-x', `${(5 * labelScale * selectedScale).toFixed(1)}px`);
+  style.setProperty('--map-label-selected-padding-bottom', `${(11 * labelScale * selectedScale).toFixed(1)}px`);
+  style.setProperty('--map-label-selected-font-size', `${(baseFontSize * selectedScale).toFixed(1)}px`);
+  style.setProperty('--map-label-selected-line-height', `${(baseFontSize * selectedScale * 1.4).toFixed(1)}px`);
+}
+
+function updateCameraResponsiveOverlays() {
+  updateSouthSeaInsetSize();
+  updateCityLabelPresentation();
 }
 
 function mapPointFromLocal(localPoint: THREE.Vector3) {
@@ -1932,6 +1993,8 @@ function createCityMarkers(group: THREE.Group) {
     label.position.copy(anchorPoint);
     group.add(label);
   });
+  cityLabelPresentationKey = '';
+  updateCityLabelPresentation();
 }
 
 function setCityLabelSelected(featureName: string) {
@@ -2355,7 +2418,7 @@ function setup() {
   controls.minDistance = 520;
   controls.maxDistance = 1450;
   controls.target.set(...cameraViewConfig.default.target);
-  controls.addEventListener('change', updateSouthSeaInsetSize);
+  controls.addEventListener('change', updateCameraResponsiveOverlays);
   controls.addEventListener('start', () => {
     hasUserAdjustedCamera = true;
   });
@@ -2364,7 +2427,7 @@ function setup() {
     || Object.keys(readSavedCameraViewConfig().byScope ?? {}).length
   );
   applyInitialCameraViewForCurrentScope();
-  updateSouthSeaInsetSize();
+  updateCameraResponsiveOverlays();
 
   labelRenderer = new CSS2DRenderer();
   labelRenderer.setSize(width, height);
@@ -2427,7 +2490,7 @@ function animate() {
   });
   if (scene && camera) {
     controls?.update();
-    updateSouthSeaInsetSize();
+    updateCameraResponsiveOverlays();
     renderer?.render(scene, camera);
     labelRenderer?.render(scene, camera);
   }
@@ -2441,7 +2504,7 @@ function resize() {
   camera.updateProjectionMatrix();
   renderer.setSize(width, height);
   labelRenderer.setSize(width, height);
-  updateSouthSeaInsetSize();
+  updateCameraResponsiveOverlays();
   if (!hasUserAdjustedCamera) {
     applyCameraView(resolveBuiltInCameraView(currentState.scope));
   }
@@ -2476,7 +2539,7 @@ onBeforeUnmount(() => {
   host.value?.removeEventListener('pointermove', onPointerMove);
   host.value?.removeEventListener('pointerdown', onPointerDown);
   host.value?.removeEventListener('pointerleave', onPointerLeave);
-  controls?.removeEventListener('change', updateSouthSeaInsetSize);
+  controls?.removeEventListener('change', updateCameraResponsiveOverlays);
   controls?.dispose();
   renderer?.dispose();
   renderer?.domElement.remove();
@@ -2620,15 +2683,18 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 68px;
-  height: 41px;
-  padding: 0 5px 11px;
+  width: var(--map-label-width, 51px);
+  height: var(--map-label-height, 30.8px);
+  padding:
+    0
+    var(--map-label-padding-x, 3.8px)
+    var(--map-label-padding-bottom, 8.3px);
   background-image: var(--map-label-background-image);
   background-repeat: no-repeat;
   background-size: 100% 100%;
   color: var(--map-label-text);
-  font-size: 10px;
-  line-height: 14px;
+  font-size: var(--map-label-font-size, 8.7px);
+  line-height: var(--map-label-line-height, 12.2px);
   font-weight: 700;
   letter-spacing: 0;
   text-shadow: 0 0 8px var(--map-label-text-glow);
@@ -2659,11 +2725,14 @@ onBeforeUnmount(() => {
 }
 
 .map-host :deep(.city-label.is-selected) {
-  width: 95.2px;
-  height: 57.4px;
-  padding: 0 7px 15.4px;
-  font-size: 14px;
-  line-height: 20px;
+  width: var(--map-label-selected-width, 60.2px);
+  height: var(--map-label-selected-height, 36.3px);
+  padding:
+    0
+    var(--map-label-selected-padding-x, 4.4px)
+    var(--map-label-selected-padding-bottom, 9.7px);
+  font-size: var(--map-label-selected-font-size, 10.3px);
+  line-height: var(--map-label-selected-line-height, 14.4px);
   opacity: 1;
 }
 
