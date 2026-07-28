@@ -2245,29 +2245,41 @@ function enterChina(event: PointerEvent) {
 
   chinaCenter.copy(lonLatToVector3(103.6, 35.2, 2.078));
   globeOrientation.localToWorld(chinaCenter);
+  const flightDirection = chinaCenter.clone().normalize();
+  const flightEnd = flightDirection.multiplyScalar(2.42);
+  const lookTarget = chinaCenter.clone().multiplyScalar(0.74);
+  const startTarget = cameraTarget.clone();
+  const targetProgress = { value: 0 };
   const backdropElement = hostElement.querySelector<HTMLElement>('.earth-backdrop');
   const canvasElement = renderer.domElement;
-  const canvasRect = canvasElement.getBoundingClientRect();
-  const projectedChina = chinaCenter.clone().project(camera);
-  const chinaScreenX = (projectedChina.x * 0.5 + 0.5) * canvasRect.width;
-  const chinaScreenY = (-projectedChina.y * 0.5 + 0.5) * canvasRect.height;
-  const canvasOffsetX = canvasRect.width * 0.5 - chinaScreenX;
-  const canvasOffsetY = canvasRect.height * 0.5 - chinaScreenY;
-  canvasElement.style.transformOrigin = `${chinaScreenX}px ${chinaScreenY}px`;
-  canvasElement.style.willChange = 'transform, opacity';
+  const transitionPixelRatio = Math.min(window.devicePixelRatio, 1);
+  renderer.setPixelRatio(transitionPixelRatio);
+  composer?.setPixelRatio(transitionPixelRatio);
 
   transitionTimeline?.kill();
   transitionTimeline = gsap.timeline({
     defaults: { ease: 'power3.inOut' },
-    onComplete: () => {
-      emit('enter-china');
-    },
+    onComplete: () => emit('enter-china'),
   });
   transitionTimeline
-    .to(canvasElement, {
-      x: canvasOffsetX,
-      y: canvasOffsetY,
-      scale: 2.42,
+    .to(camera.position, {
+      x: flightEnd.x,
+      y: flightEnd.y,
+      z: flightEnd.z,
+      duration: 1.94,
+      ease: 'power2.inOut',
+      onUpdate: () => camera?.lookAt(cameraTarget),
+    }, 0)
+    .to(targetProgress, {
+      value: 1,
+      duration: 1.86,
+      ease: 'power2.inOut',
+      onUpdate: () => cameraTarget.lerpVectors(startTarget, lookTarget, targetProgress.value),
+    }, 0)
+    .to(spinGroup.scale, {
+      x: 2.42,
+      y: 2.42,
+      z: 2.42,
       duration: 1.94,
       ease: 'power2.inOut',
     }, 0)
@@ -2315,10 +2327,6 @@ function disposeObject(object: THREE.Object3D) {
 function animate() {
   raf = requestAnimationFrame(animate);
   if (!renderer || !scene || !camera) return;
-  // The handoff deliberately zooms the already-rendered canvas with a compositor
-  // transform. Continuing the full bloom/terrain render while that canvas grows
-  // would multiply the fragment workload and contend with the incoming map.
-  if (isTransitioning.value) return;
   const rawDelta = clock.getDelta();
   const delta = Math.min(rawDelta, 0.05);
   animationElapsed += Math.min(rawDelta, 0.16);
