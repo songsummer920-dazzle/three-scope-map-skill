@@ -66,6 +66,20 @@ PRIVATE_OR_DASHBOARD_PATTERNS = {
     "dashboard business copy": r"矿山产能实时监控|环境监测数据看板|设备运行状态分析|人员安全管理|生产调度指挥中心",
 }
 
+APPROVED_CHASE_RIBBON_PATTERNS = (
+    r"const\s+provinceChaseSegmentLength\s*=\s*1\.35",
+    r"const\s+provinceChaseRibbonWidth\s*=\s*2\.02",
+    r"function\s+createProvinceSilhouetteLoop",
+    r"function\s+smoothClosedPath",
+    r"const\s+divisions\s*=\s*Math\.max\(1,\s*Math\.ceil\(length\s*/\s*provinceChaseSegmentLength\)\)",
+    r"indices\.push\(offset,\s*offset\s*\+\s*1,\s*offset\s*\+\s*2,\s*offset\s*\+\s*2,\s*offset\s*\+\s*1,\s*offset\s*\+\s*3\)",
+    r"blending:\s*THREE\.AdditiveBlending",
+    r"depthTest:\s*false",
+    r"depthWrite:\s*false",
+    r"attribute\s+float\s+alpha",
+    r"Math\.pow\(headRatio,\s*1\.65\)",
+)
+
 
 def read_json(path: Path) -> dict:
     try:
@@ -275,12 +289,23 @@ def main() -> int:
         else:
             passes.append("No full-map transparent texture plane detected")
 
-        if file_contains(source_files, r"provinceChaseLine\s*=\s*new\s+THREE\.Mesh|attribute\s+float\s+alpha"):
+        ribbon_detected = file_contains(
+            map_components,
+            r"provinceChaseLine\s*=\s*new\s+THREE\.Mesh|attribute\s+float\s+alpha",
+        )
+        approved_ribbon = ribbon_detected and all(
+            file_contains(map_components, pattern)
+            for pattern in APPROVED_CHASE_RIBBON_PATTERNS
+        )
+        if approved_ribbon:
+            passes.append("Approved one-to-one segmented chase-light ribbon detected")
+        elif ribbon_detected:
             problems.append(
-                "Chase light ribbon mesh detected; use short Line segments instead of transparent triangle strips."
+                "Unapproved chase-light ribbon detected; copy the bundled narrow segmented-ribbon implementation "
+                "exactly or use short THREE.Line segments as the safe fallback."
             )
         else:
-            passes.append("No chase-light ribbon mesh detected")
+            passes.append("No unapproved chase-light ribbon detected")
     else:
         problems.append("No source files found under src/.")
 

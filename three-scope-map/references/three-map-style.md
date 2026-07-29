@@ -46,7 +46,7 @@ For province, city, and district maps, apply terrain textures through the actual
 
 ## Chase Light Geometry
 
-Render the outer-contour chase light with short animated `THREE.Line` segments sampled along the province/city outer loop. Do not use a transparent filled ribbon mesh, indexed triangle strip, or wide alpha shader mesh for the chase light. Filled chase geometry can self-intersect or sort incorrectly and produce large white triangular flashes.
+Reuse the bundled approved narrow segmented-ribbon implementation for the outer-contour chase light. It must use one smoothed outer silhouette, subdivide every edge into independent short quads, keep the validated fixed ribbon width and segment length, use one additive shader with depth test/write disabled, and animate only the per-vertex alpha tail. Do not create a generic wide ribbon, an unsanitized continuous triangle strip, multiple contour bands, or a filled glow surface; those variants can self-intersect or sort incorrectly and produce large white triangular flashes. If the bundled implementation cannot be reused in another renderer, use short animated `THREE.Line` segments as the safe fallback.
 
 ## Theme Color Switching
 
