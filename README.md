@@ -1,6 +1,10 @@
-# Three Scope Map Skill
+# Three Scope Map · Earth-to-China 3D Map Skill
 
-A Codex skill for building, migrating, theming, drilling down, and optimizing reusable Three.js 3D geographic maps for Vue/web dashboards.
+A Codex skill for building an exact Three.js Earth entrance and reusable
+multi-level 3D geographic maps for Vue/web projects. The bundled default
+experience starts in space, highlights a textured and extruded China on the
+globe, then performs a coordinated 3D handoff into the existing China map and
+continues through province, city, and district/county drilldown.
 
 > **Original project notice:** This repository is the original public source of
 > `three-scope-map-skill` by **宋夏天Dazzle**. Forks, derivative works,
@@ -13,14 +17,21 @@ A Codex skill for building, migrating, theming, drilling down, and optimizing re
 > 公开展示或再分发版本都必须保留原作者署名，不得暗示修改版是完全原创
 > 或原作者官方发布。
 
-This repository intentionally contains only the standalone 3D map skill, not the full dashboard project.
+This repository intentionally contains only the standalone Earth/3D map skill
+and its runnable minimal Vue template, not the full dashboard project or any
+business-screen content.
 
 ## What It Supports
 
+- A validated one-to-one Vue 3 template that opens directly on the Three.js Earth.
+- Textured spherical Earth rendering with neutral starfield, atmosphere, geographic outlines, fine grid intersections, grid scan, and idle motion.
+- A separately tessellated and extruded China surface with terrain texture, side-wall thickness, inner glow, animated contour light, and Taiwan wall handling.
+- Persistent international fly-line tracks, synchronized moving light segments, and node ripple effects.
+- A cloud/atmosphere dive and real 3D camera push from Earth into the existing China map.
 - Province, country, city, district, and world map scopes.
 - Real GeoJSON-driven Three.js 3D map geometry.
 - Dark HUD/B-end visualization style.
-- Theme color generation from one main color.
+- One-sentence theme changes through one shared primary color for both Earth and every 3D map scope.
 - Terrain texture configuration: diffuse, height/displacement, normal, roughness.
 - Labels, scatter points, ripple effects, fly lines, hover lift, HUD base ring, and outer-contour chase light.
 - Hierarchical drilldown for every non-terminal scope: world -> country -> province -> city -> district.
@@ -28,7 +39,27 @@ This repository intentionally contains only the standalone 3D map skill, not the
 - GeoJSON preprocessing for smoother runtime rendering.
 - Chunked map rebuild and Three.js resource disposal for reduced click jank.
 - User camera angle save/reset with unified defaults and optional per-scope overrides.
-- A validated one-to-one Vue 3 map template with component code, GeoJSON, terrain textures, and label asset.
+- A fixed screen-space South China Sea inset for China scope and a separate spherical dashed representation on Earth.
+- Template integrity, strict project checks, build validation, and browser visual regression guidance.
+
+## Default Experience
+
+The bundled minimal project follows one authoritative render path:
+
+```txt
+Starfield warm-up
+  -> Earth intro
+  -> textured/extruded China rises
+  -> grid scan + international fly lines + persistent ripples
+  -> click China
+  -> real 3D camera push + cloud/atmosphere dive
+  -> compiled China 3D map appears
+  -> China -> province -> city -> district/county drilldown
+```
+
+Earth and the destination map are coordinated as two render phases. The
+template avoids running both full animation loops at the same time and
+prepares a static destination frame before handoff to reduce visible stalls.
 
 ## Repository Layout
 
@@ -41,24 +72,34 @@ three-scope-map-skill/
     agents/openai.yaml
     references/
     scripts/
-    assets/templates/
+    assets/
+      template-manifest.json
+      templates/smart-mine-vue/
+        src/components/map/
+          EarthChinaMap.vue
+          EarthView.vue
+          ChinaMap.vue
+          mapTheme.ts
+        src/assets/maps/
+        src/assets/textures/map/
 ```
 
-## Songsummer 3D Map Template
+## Songsummer Earth-to-China Template
 
-If you want the generated map to match the validated 3D map style as closely as possible, tell Codex to use the bundled template first instead of rebuilding from scratch:
+The bundled project is the visual and interaction baseline. Tell Codex to copy
+it before adapting data or integrating it into another project:
 
 ```txt
-Use three-scope-map skill and use the bundled Songsummer 3D Map Vue template first. Do not recreate the 3D map from scratch. Copy and adapt assets/templates/smart-mine-vue/src, then run the project and verify the map.
+Use three-scope-map and copy the bundled Songsummer Earth-to-China Vue template first. Keep EarthView.vue, EarthChinaMap.vue, ChinaMap.vue, mapTheme.ts, map data, and texture assets as one unit. Do not recreate or redesign the Earth or 3D map from scratch. Mount EarthChinaMap.vue as the default view, then run the project and verify the full Earth-to-China handoff in a browser.
 ```
 
 For one-to-one output on any requested region, keep this sentence in your prompt:
 
 ```txt
-No matter which region I ask for, preserve the bundled Songsummer 3D Map style one-to-one; only replace GeoJSON, labels, texture scope, fly-line source/targets, drilldown registry, and camera config.
+Preserve the bundled Songsummer Earth and 3D map style one-to-one. Do not simplify, reinterpret, or replace its renderer, textures, geometry, motion, labels, fly lines, contour light, camera behavior, South China Sea treatment, or handoff. Only adapt approved GeoJSON, labels, texture scope, fly-line source/targets, drilldown registry, and camera presets.
 ```
 
-The template includes the validated Vue component, map data, terrain textures, and label asset under:
+The complete runnable template is under:
 
 ```txt
 three-scope-map/assets/templates/smart-mine-vue/src/
@@ -73,6 +114,9 @@ cp -R three-scope-map ~/.codex/skills/
 ```
 
 Or install it from this GitHub repository with the skill installer if your Codex environment supports GitHub skill installation.
+
+The bundled Vue template requires Node.js `^20.19.0` or `>=22.12.0`. Its
+dependency versions are locked for reproducible installation.
 
 ## Example Prompts
 
@@ -89,21 +133,22 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 要求：
 1. 先从这个 GitHub 链接安装或读取 three-scope-map skill。
 2. 检查当前工作目录。
-3. 如果当前目录不是前端项目，请自动初始化 Vue 3 + Vite + TypeScript 项目。
-4. 安装需要的依赖，包括 three。
-5. 使用真实 GeoJSON 数据创建一个 3D 地图。
-6. 默认做浙江省地图。
-7. 地图风格必须优先使用 skill 内置 validated 3D map Vue 模板，不要自由重画样式。
-8. 必须先复制 skill 内置 assets/templates/smart-mine-vue/src 模板到当前项目并挂载组件，不要从零重写地图组件。
-9. 地图风格使用暗色 HUD 风格，主色 #E8FF4F。
-10. 需要包含地图挤出厚度、侧边渐变、地形纹理、外轮廓描边、内部边界、城市标签、hover 高亮凸起、飞线、追光、HUD 底座环、视角保存和恢复。
-11. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果需要 16:9，由外层大屏容器控制。
-12. 除区县级外，每个层级都要支持下钻；浙江省级的涟漪和飞线从省会杭州市出发。
-13. 完成后运行 skill 里的 scripts/check_three_map_project.py 对当前项目做严格自检，并修复所有非环境限制类 blocker。
-14. 完成后必须通过 Vite dev server 打开页面做视觉检查；如果看不到真实 Three.js 地图，请自动检查依赖、挂载点、容器尺寸、GeoJSON、纹理路径、WebGL/控制台报错并修复到地图可见后再结束，不要只告诉我构建成功。
-15. 不要用截图、SVG、CSS 或 2D 平面 GeoJSON 替代 Three.js 地图；如果 WebGL 真不可用，请明确告诉我具体原因和解决建议。
-16. 完成后启动项目，并告诉我本地访问地址。
-17. 如果中途需要我确认，只问我必须确认的问题；能自动决定的请直接完成。
+3. 如果当前目录不是前端项目，直接复制 skill 内置 assets/templates/smart-mine-vue 完整最小项目，不要重新生成一套相似实现。
+4. 安装锁文件指定的依赖，并挂载 EarthChinaMap.vue 作为默认视图。
+5. EarthView.vue、EarthChinaMap.vue、ChinaMap.vue、mapTheme.ts、GeoJSON 和纹理资源必须作为一个整体复制，不得从零重写或删减。
+6. 页面打开后必须先显示真实 Three.js 地球，再点击中国进入现有中国 3D 地图。
+7. 地球必须保留星空、真实纹理、中国立体高程与侧边厚度、网格交点、扫描光、国际飞线、常态涟漪、大气边缘光和云层下钻。
+8. 中国 3D 地图必须保留挤出厚度、侧边渐变、地形纹理、外/内部边界、标签、hover 抬升、飞线、追光、HUD 底座环、视角保存/恢复和南海线框。
+9. 使用共享主色 #E8FF4F；如果之后只给一句新颜色，必须仅修改 MAP_THEME_PRIMARY，并让地球与所有 3D 地图层级同步换色。
+10. 除区县级外，每个地图层级都要支持下钻，默认链路为中国 -> 省 -> 市 -> 区县。
+11. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果需要 16:9，由外层容器控制。
+12. 不要加入完整大屏、业务面板、图表、指标数据、个人路径、临时文件或预览地址。
+13. 运行 scripts/verify_template_integrity.py，必须通过模板完整性检查。
+14. 运行 scripts/check_three_map_project.py <项目目录> --strict，并修复所有非环境限制类 blocker。
+15. 运行 npm run build，并通过 Vite dev server 做真实浏览器检查。
+16. 浏览器验收必须覆盖：地球首屏、中国立体表面、台湾侧墙、球面南海虚线、网格扫描、国际飞线、地球到中国地图的 3D 衔接、各级下钻和返回上级。
+17. 不要用截图、SVG、CSS 或 2D 平面 GeoJSON 替代 Three.js 地图；WebGL 真不可用时必须说明具体原因。
+18. 完成后启动项目并告诉我本地访问地址；能自动判断的内容不要反复询问。
 ```
 
 ### Existing Project Prompt
@@ -120,19 +165,25 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 1. 检查当前项目技术栈和目录结构。
 2. 如果缺少 three 或相关依赖，请安装。
 3. 如果当前项目不是 Vue 项目，请根据现有技术栈给出最小适配实现。
-4. 使用真实 GeoJSON 数据。
-5. 地图风格必须优先使用 skill 内置 validated 3D map Vue 模板，不要自由重画样式。
-6. 必须先复制 skill 内置 assets/templates/smart-mine-vue/src 模板到当前项目并挂载组件，不要从零重写地图组件。
-7. 创建暗色 HUD 风格 3D 地图，主色 #E8FF4F，包含 3D 挤出、侧边渐变、地形纹理、外轮廓描边、内部边界、标签、hover 高亮、飞线、追光、HUD 底座环、视角保存和恢复。
-8. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果项目是 16:9 大屏，由外层容器负责缩放。
-9. 除区县级外，每个层级都要支持下钻；浙江省级的涟漪和飞线从省会杭州市出发。
-10. 完成后运行 skill 里的 scripts/check_three_map_project.py 对当前项目做严格自检，并修复所有非环境限制类 blocker。
-11. 完成后必须通过 Vite dev server 打开页面做视觉检查；如果看不到真实 Three.js 地图，请自动检查依赖、挂载点、容器尺寸、GeoJSON、纹理路径、WebGL/控制台报错并修复到地图可见后再结束，不要只告诉我构建成功。
-12. 不要用截图、SVG、CSS 或 2D 平面 GeoJSON 替代 Three.js 地图；如果 WebGL 真不可用，请明确告诉我具体原因和解决建议。
-13. 完成后运行项目，并告诉我本地访问地址。
+4. 从 skill 内置模板复制 EarthView.vue、EarthChinaMap.vue、ChinaMap.vue、mapTheme.ts、地图数据和纹理资源，保持其实现一模一样。
+5. 将 EarthChinaMap.vue 接入指定页面或容器，默认先显示地球，再下钻到现有中国 3D 地图。
+6. 不得自由重画地球、重写地图材质、替换动画、删减纹理或用简化实现代替模板。
+7. 保留地球星空、中国立体高程、网格扫描、国际飞线、涟漪、云层下钻，以及 3D 地图的厚度、纹理、标签、hover、飞线、追光、底座环和南海线框。
+8. 使用共享主色 #E8FF4F；后续一句话换色时只修改 MAP_THEME_PRIMARY，让地球和 3D 地图统一换色。
+9. 地图组件填满父容器，不要写死 1920px x 1080px；16:9 缩放由现有外层容器负责。
+10. 除区县级外，每个层级都要支持下钻；地图数据加载、缓存和预取不能改变既有视觉样式。
+11. 不要修改当前项目中与地图无关的面板、图表、业务数据和页面资源。
+12. 运行 scripts/verify_template_integrity.py 和 scripts/check_three_map_project.py <项目目录> --strict，并修复所有 blocker。
+13. 运行 npm run build，再通过 Vite dev server 做真实浏览器验收，覆盖地球首屏、3D 衔接、各级下钻和返回。
+14. 不要用截图、SVG、CSS 或 2D 平面 GeoJSON 替代 Three.js 地图；WebGL 真不可用时必须说明具体原因。
+15. 完成后运行项目并告诉我本地访问地址。
 ```
 
 ### Specific Task Prompts
+
+```txt
+Use three-scope-map to install the bundled Earth-to-China Vue template as-is, open directly on Earth, and preserve its full 3D handoff into the China map.
+```
 
 ```txt
 Use three-scope-map to build a dark HUD-style Three.js Zhejiang province map with city boundaries, labels, fly lines, hover lift, and chase light.
@@ -147,7 +198,7 @@ Use three-scope-map to add China -> province -> city -> district drilldown and o
 ```
 
 ```txt
-Use three-scope-map to change the map theme color to #2AF7FF and derive the full map color system.
+Use three-scope-map to change MAP_THEME_PRIMARY to #2AF7FF so the Earth and every 3D map scope derive one unified color system.
 ```
 
 ```txt
@@ -161,16 +212,40 @@ The skill includes helper scripts under `three-scope-map/scripts/`:
 - `resolve_map_data.py`: validate/download GeoJSON candidates.
 - `resolve_map_textures.py`: validate or generate terrain texture sets.
 - `generate_map_theme.py`: derive a full map theme from one color.
-- `apply_map_theme.py`: apply a generated theme to a standard map theme file and optionally recolor the bundled label SVG pointer.
+- `apply_map_theme.py`: change the shared `MAP_THEME_PRIMARY` so Earth and every 3D map scope derive one unified theme.
 - `recolor_label_asset.py`: recolor only the `map-label-bg.svg` pointer triangle.
 - `preprocess_map_data.py`: simplify GeoJSON and add render metadata.
-- `check_three_map_project.py`: check a target project for required Vue/Vite/Three setup, copied map template files, map assets, one-to-one Three.js effects, fixed-size host mistakes, and SVG/image substitutes.
+- `check_three_map_project.py`: strictly check a target project for the complete Earth/3D map template, required effects, assets, handoff architecture, layout mistakes, privacy leaks, and prohibited substitutes.
+- `verify_template_integrity.py`: verify every bundled source file and binary asset against `assets/template-manifest.json`.
+
+## Required Validation
+
+Before publishing a generated project or claiming one-to-one fidelity:
+
+```bash
+cd three-scope-map
+python3 scripts/verify_template_integrity.py
+python3 scripts/check_three_map_project.py <target-project> --strict
+
+cd <target-project>
+npm ci
+npm run build
+npm run dev
+```
+
+The final check is visual, not build-only. Open the Vite URL and verify the
+Earth first frame, textured/extruded China, Taiwan wall, spherical South China
+Sea dashed line, grid scan, fly lines and ripples, Earth-to-map handoff,
+country/province/city drilldown, return-to-parent behavior, and browser console.
 
 ## Notes
 
 - Confirm GeoJSON and texture data licenses before using them in commercial projects.
 - Generated fallback textures are useful for development, but replace them with approved terrain assets when final accuracy matters.
 - Performance improvements reduce main-thread jank but cannot guarantee zero stutter on every device.
+- The template uses `world.earth-render.json` for Earth first paint while retaining the raw world data separately.
+- Theme changes must not tint the neutral black starfield or replace the bundled texture/material hierarchy.
+- The repository contains no full dashboard, mining-screen panels, business metrics, or private project data.
 
 ## License
 
