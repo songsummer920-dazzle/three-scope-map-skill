@@ -175,6 +175,7 @@ Validated chase-light rules:
 - Do not apply chase light to internal city/prefecture boundaries.
 - Smooth the path before rendering; avoid pixelated turns and noisy multi-line artifacts.
 - Keep the line narrow enough to avoid white flooding. In this project the final requested width was about `0.6x` of the earlier wide version.
+- Preserve the bundled segmented-ribbon construction exactly: one sanitized silhouette loop, independent subdivided quads, the validated fixed width/segment constants, additive blending, disabled depth test/write, and a per-vertex alpha tail. Do not generalize it into a wide continuous strip or additional contour bands.
 
 If the light appears to jump around:
 
