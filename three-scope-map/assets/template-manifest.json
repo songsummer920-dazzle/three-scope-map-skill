@@ -1,6 +1,7 @@
 {
   "index.html": "6d52c0f662512881cb705085d2ec0b0d9ecd34c546b9da62735c3c8f9e41bcde",
-  "package.json": "9a98ec6e8cbfcfeade19c9acf9d01f829c38f2006c98bb3b129a94e0c710368b",
+  "package-lock.json": "95ab3fcc5329cbb4d376c8c3051000af0b2a98628b5d3cfd008306da8784dad9",
+  "package.json": "95501a1983d2e2f38cdce326a46fb924ce6bc26d2ab88ce7745d22dff299a7d9",
   "src/App.vue": "eb1ca9164ddf49654a9ac0341cb57921c120d646cb8c32c18f791d5e6301c299",
   "src/assets/maps/china.json": "99adfeded5223848bbe37a0a12f8023e11ee12161c7800521c27db42fdeac275",
   "src/assets/maps/world.earth-render.json": "63e4751763942aa14d693ff1d50863372d570bde19802d2ec6e2d041d08d34aa",
