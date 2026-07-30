@@ -1,3 +1,9 @@
+## 效果预览
+
+<p align="center">
+  <img src="./3d-map-theme-green.gif" alt="3D Map Green Theme" width="48%">
+  <img src="./3d-map-theme-blue.gif" alt="3D Map Blue Theme" width="48%">
+</p>
 # Three Scope Map · Earth-to-China 3D Map Skill
 
 A Codex skill for building an exact Three.js Earth entrance and reusable
