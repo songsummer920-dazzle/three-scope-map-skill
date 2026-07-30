@@ -48,25 +48,6 @@ business-screen content.
 - A fixed screen-space South China Sea inset for China scope and a separate spherical dashed representation on Earth.
 - Template integrity, strict project checks, build validation, and browser visual regression guidance.
 
-## Default Experience
-
-The bundled minimal project follows one authoritative render path:
-
-```txt
-Starfield warm-up
-  -> Earth intro
-  -> textured/extruded China rises
-  -> grid scan + international fly lines + persistent ripples
-  -> click China
-  -> real 3D camera push + cloud/atmosphere dive
-  -> compiled China 3D map appears
-  -> China -> province -> city -> district/county drilldown
-```
-
-Earth and the destination map are coordinated as two render phases. The
-template avoids running both full animation loops at the same time and
-prepares a static destination frame before handoff to reduce visible stalls.
-
 
 ## Songsummer Earth-to-China Template
 
