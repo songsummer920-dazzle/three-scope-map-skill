@@ -67,28 +67,6 @@ Earth and the destination map are coordinated as two render phases. The
 template avoids running both full animation loops at the same time and
 prepares a static destination frame before handoff to reduce visible stalls.
 
-## Repository Layout
-
-```txt
-three-scope-map-skill/
-  README.md
-  LICENSE
-  three-scope-map/
-    SKILL.md
-    agents/openai.yaml
-    references/
-    scripts/
-    assets/
-      template-manifest.json
-      templates/smart-mine-vue/
-        src/components/map/
-          EarthChinaMap.vue
-          EarthView.vue
-          ChinaMap.vue
-          mapTheme.ts
-        src/assets/maps/
-        src/assets/textures/map/
-```
 
 ## Songsummer Earth-to-China Template
 
@@ -211,38 +189,6 @@ Use three-scope-map to change MAP_THEME_PRIMARY to #2AF7FF so the Earth and ever
 Use three-scope-map to add user camera angle save/reset controls with unified default and per-scope override support.
 ```
 
-## Scripts
-
-The skill includes helper scripts under `three-scope-map/scripts/`:
-
-- `resolve_map_data.py`: validate/download GeoJSON candidates.
-- `resolve_map_textures.py`: validate or generate terrain texture sets.
-- `generate_map_theme.py`: derive a full map theme from one color.
-- `apply_map_theme.py`: change the shared `MAP_THEME_PRIMARY` so Earth and every 3D map scope derive one unified theme.
-- `recolor_label_asset.py`: recolor only the `map-label-bg.svg` pointer triangle.
-- `preprocess_map_data.py`: simplify GeoJSON and add render metadata.
-- `check_three_map_project.py`: strictly check a target project for the complete Earth/3D map template, required effects, assets, handoff architecture, layout mistakes, privacy leaks, and prohibited substitutes.
-- `verify_template_integrity.py`: verify every bundled source file and binary asset against `assets/template-manifest.json`.
-
-## Required Validation
-
-Before publishing a generated project or claiming one-to-one fidelity:
-
-```bash
-cd three-scope-map
-python3 scripts/verify_template_integrity.py
-python3 scripts/check_three_map_project.py <target-project> --strict
-
-cd <target-project>
-npm ci
-npm run build
-npm run dev
-```
-
-The final check is visual, not build-only. Open the Vite URL and verify the
-Earth first frame, textured/extruded China, Taiwan wall, spherical South China
-Sea dashed line, grid scan, fly lines and ripples, Earth-to-map handoff,
-country/province/city drilldown, return-to-parent behavior, and browser console.
 
 ## Notes
 
