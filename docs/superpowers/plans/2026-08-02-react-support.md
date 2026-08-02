@@ -21,7 +21,7 @@
   // 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
   // Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
   ```
-  归属信息只能出现在注释/元数据里，**不得**渲染进 UI（不加 DOM 元素、canvas 文字、sprite、CSS 伪元素）。
+  归属信息只能出现在注释/元数据里，**不得**渲染进 UI（不加 DOM 元素、canvas 文字、sprite、CSS 伪元素）。CSS 文件用 `/* */` 形式。不支持注释的配置文件（`package.json`、`tsconfig.json`、`index.html`）不加 —— 与现有 Vue 模板保持一致。
 - **核心代码唯一真源是 `assets/templates/map-core/`。** 任何核心改动必须改 `map-core/` 里的文件，然后运行 `python3 three-scope-map/scripts/sync_map_templates.py`。绝不直接编辑两个模板里 `src/components/map/core/` 下的副本。
 - **资产唯一真源是 `assets/templates/smart-mine-vue/src/assets/`**（16MB maps + 4.8MB textures）。React 模板的资产由 sync 脚本生成。
 - **每个任务的最后一步都要跑** `python3 three-scope-map/scripts/verify_template_integrity.py --update` 重算 manifest，并把 manifest 一起提交。
@@ -430,7 +430,6 @@ git commit -m "refactor: 建立 map-core 共享源与模板同步脚本"
 - Create: `three-scope-map/assets/templates/map-core/core/scopeMapCore.ts`
 - Create: `three-scope-map/assets/templates/map-core/core/scopeMapCore.css`
 - Modify: `three-scope-map/assets/templates/smart-mine-vue/src/components/map/ChinaMap.vue`
-- Modify: `three-scope-map/assets/templates/smart-mine-vue/src/components/map/EarthChinaMap.vue`（只改 import 与 `:deep` 选择器）
 - Delete: `three-scope-map/assets/templates/smart-mine-vue/src/components/map/ZhejiangThreeMap.vue`
 - Modify: `three-scope-map/scripts/check_three_map_project.py`
 
@@ -753,17 +752,7 @@ Expected: 肉眼无差异。**重点核对历史上最易回归的三处**：
     )
 ```
 
-2. `static_handoff_ok` 里 `file_contains(earth_china_sources, r':active="mode\s*===\s*[\'"]china[\'"]"')` 改为检查核心调用：
-
-```python
-        static_handoff_ok = (
-            file_contains(map_components, r"settleMapForStaticFrame")
-            and file_contains(map_components, r"startMapAnimation[\s\S]*stopMapAnimation")
-            and file_contains(earth_china_sources, r"setActive\(")
-        )
-```
-
-（`earth_china_sources` 在 Task 5 会指向 `core/earthChinaMapCore.ts`；本任务先只改这一条的正则，路径在 Task 5 更新。）
+2. **`static_handoff_ok` 本任务不动。** 它里面的 `file_contains(earth_china_sources, r':active="mode\s*===\s*[\'"]china[\'"]"')` 仍指向未改动的 `EarthChinaMap.vue`，此刻依然成立。这一条要等 Task 5 把 `earth_china_sources` 换成核心文件时再一起改 —— 现在就改会让 Step 13 的 `--strict` 直接失败。
 
 3. 主题连线检查里 `map_theme_ok` 的正则由 `from './mapTheme'` 改为兼容核心的上一级路径：
 
@@ -1403,7 +1392,19 @@ Expected: 肉眼无差异。**这一步是整个抽取阶段的总验收**，重
         earth_china_sources = [earth_china_map] if earth_china_map.exists() else []
 ```
 
-2. `isolated_preload_ok` 的三条 Vue 语法正则替换：
+2. `static_handoff_ok` 里指向 Vue 模板语法的那条改为核心调用（这一条是 Task 3 Step 12 刻意推迟到现在的）：
+
+```python
+        static_handoff_ok = (
+            file_contains(map_components, r"settleMapForStaticFrame")
+            and file_contains(map_components, r"startMapAnimation[\s\S]*stopMapAnimation")
+            and file_contains(earth_china_sources, r"createScopeMap\([\s\S]*active:\s*false")
+        )
+```
+
+用 `createScopeMap(... active: false ...)` 而不是宽泛的 `setActive\(` —— 前者才真正断言了「目标地图挂载时处于非激活态」这个 SKILL.md 规则 18 要求的行为。
+
+3. `isolated_preload_ok` 的三条 Vue 语法正则替换：
 
 ```python
         isolated_preload_ok = (
@@ -1418,7 +1419,7 @@ Expected: 肉眼无差异。**这一步是整个抽取阶段的总验收**，重
         )
 ```
 
-3. `REQUIRED_EARTH_FILES` 里三个 `.vue` 换成核心文件（框架壳在 Task 6 按框架追加）：
+4. `REQUIRED_EARTH_FILES` 里三个 `.vue` 换成核心文件（框架壳在 Task 6 按框架追加）：
 
 ```python
 REQUIRED_EARTH_FILES = (
