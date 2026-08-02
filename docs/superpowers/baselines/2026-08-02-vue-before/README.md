@@ -34,20 +34,31 @@
 
 ## 截图脚本
 
-复用位置（不在仓库内，不提交）：
+**稳定复用路径**（仓库内，但 `.superpowers/` 已被 `.gitignore` 忽略，不会被提交，也不随会话 scratchpad 失效）：
 
 ```
-/private/tmp/claude-501/-Users-lijiaxi-prj-skills-three-scope-map-skill/c6bb05b9-bc96-4420-a2f6-60c229c28b79/scratchpad/capture.cjs
+.superpowers/sdd/2026-08-02-react-support/capture.cjs
 ```
 
-用法：
+> 注意：早期版本曾把脚本放在某次会话专属的 `/private/tmp/claude-501/.../scratchpad/` 目录下——那个路径只在产生它的那次会话里可达，**不要**依赖它。上面这条仓库内路径才是 Task 3/4/5/7 应该使用的。
+
+脚本本身已经把输出目录做成命令行参数（`process.argv[2]`），不同任务截图到不同目录即可，互不覆盖。
+
+用法（先在另一个终端/后台启动 `smart-mine-vue` 的 `npm run dev`）：
 
 ```bash
-cd /private/tmp/claude-501/-Users-lijiaxi-prj-skills-three-scope-map-skill/c6bb05b9-bc96-4420-a2f6-60c229c28b79/scratchpad
-node capture.cjs <输出目录> [http://127.0.0.1:5173/]
+# 1. 启动 dev server（后台）
+cd /Users/lijiaxi/prj/skills/three-scope-map-skill/three-scope-map/assets/templates/smart-mine-vue
+npm run dev
+
+# 2. 跑截图脚本，输出到你自己的目录（不要覆盖本基线目录）
+NODE_PATH=/private/tmp/claude-501/-Users-lijiaxi-prj-skills-three-scope-map-skill/c6bb05b9-bc96-4420-a2f6-60c229c28b79/scratchpad/node_modules \
+  node /Users/lijiaxi/prj/skills/three-scope-map-skill/.superpowers/sdd/2026-08-02-react-support/capture.cjs <输出目录> [http://127.0.0.1:5173/]
 ```
 
-前提：该目录下已 `npm install playwright`；目标 dev server 已在后台运行；使用系统 Chrome（`channel: 'chrome'`），因为该环境下 Playwright 自带的 Chromium 版本与本机缓存不匹配，headless 启动会报 `Executable doesn't exist`。
+`playwright` 本身没有装进仓库（不能新增依赖），当前借用的是上面那次会话 scratchpad 里已经装好的 `node_modules`，通过 `NODE_PATH` 指给 Node 用。**这个 scratchpad 目录同样不保证长期存在** —— 如果 `NODE_PATH` 指向的路径已经失效（报 `Cannot find module 'playwright'`），就地在任意可写目录下 `npm install playwright`，再把 `NODE_PATH` 换成新目录的 `node_modules` 路径即可，脚本本身不用改。
+
+启动浏览器必须用 `channel: 'chrome'`（脚本里已经这样写死，见 `chromium.launch` 调用）：本机缓存的 Playwright 自带 Chromium 版本与系统不匹配，headless 用自带 Chromium 会报 `Executable doesn't exist`；改用系统安装的 Chrome 后一切正常。
 
 脚本要点（后续任务复用时需要知道的坑）：
 
