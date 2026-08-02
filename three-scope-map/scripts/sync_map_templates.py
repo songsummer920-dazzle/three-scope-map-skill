@@ -32,13 +32,32 @@ def core_pairs(target: Path) -> list[tuple[Path, Path]]:
         if source.is_file():
             pairs.append((source, target / "src/types" / source.relative_to(CORE / "shared/types")))
     for source in sorted((CORE / "shared").glob("*")):
-        if not source.is_file():
+        if source.is_dir():
+            if source.name != "types":
+                raise SystemExit(
+                    f"sync_map_templates.py: unmapped directory under map-core/shared/: "
+                    f"{source.relative_to(TEMPLATES).as_posix()}/ is not in the sync mapping "
+                    "(only shared/types/ is synced as a directory). Add explicit handling in "
+                    "core_pairs() before adding files under this directory."
+                )
             continue
         if source.name == "style.css":
             pairs.append((source, target / "src/style.css"))
         else:
             pairs.append((source, target / "src/components/map" / source.name))
     return pairs
+
+
+def extra_core_files(target: Path) -> list[Path]:
+    """Files under target's core/ directory with no matching source in map-core/core."""
+    target_core = target / "src/components/map/core"
+    if not target_core.exists():
+        return []
+    return [
+        path
+        for path in sorted(target_core.rglob("*"))
+        if path.is_file() and not (CORE / "core" / path.relative_to(target_core)).exists()
+    ]
 
 
 def asset_pairs() -> list[tuple[Path, Path]]:
@@ -71,6 +90,10 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    for target in TARGETS:
+        if not target.exists():
+            print(f"WARNING: template directory missing, skipped: {target.relative_to(TEMPLATES).as_posix()}")
+
     pairs = all_pairs()
     drifted = [
         (source, destination)
@@ -78,11 +101,24 @@ def main() -> int:
         if not destination.exists() or not filecmp.cmp(source, destination, shallow=False)
     ]
 
+    extras: list[Path] = []
+    for target in TARGETS:
+        if target.exists():
+            extras.extend(extra_core_files(target))
+
     if args.check:
+        ok = True
         if drifted:
+            ok = False
             print(f"Template sync check failed: {len(drifted)} file(s) out of sync")
             for source, destination in drifted:
                 print(f"  - {destination.relative_to(TEMPLATES).as_posix()}")
+        if extras:
+            ok = False
+            print(f"Template sync check failed: {len(extras)} extra file(s) under core/ not tracked in map-core/core/")
+            for path in extras:
+                print(f"  - {path.relative_to(TEMPLATES).as_posix()}")
+        if not ok:
             print("\nRun: python3 three-scope-map/scripts/sync_map_templates.py")
             return 1
         print(f"Template sync check passed: {len(pairs)} files")
@@ -92,6 +128,10 @@ def main() -> int:
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
     print(f"Synced {len(drifted)} file(s) of {len(pairs)}")
+    if extras:
+        print(f"WARNING: {len(extras)} file(s) under core/ are not tracked in map-core/core/ (not removed automatically):")
+        for path in extras:
+            print(f"  - {path.relative_to(TEMPLATES).as_posix()}")
     return 0
 
 

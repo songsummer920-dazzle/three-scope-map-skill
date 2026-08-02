@@ -118,16 +118,16 @@ def file_contains(files: Iterable[Path], pattern: str) -> bool:
 
 
 FRAMEWORK_SHELL_FILES = {
-    "vue": (
-        "src/components/map/EarthView.vue",
-        "src/components/map/EarthChinaMap.vue",
-        "src/components/map/ChinaMap.vue",
-    ),
-    "react": (
-        "src/components/map/EarthView.tsx",
-        "src/components/map/EarthChinaMap.tsx",
-        "src/components/map/ChinaMap.tsx",
-    ),
+    "vue": {
+        "src/components/map/EarthView.vue": "createEarthView",
+        "src/components/map/EarthChinaMap.vue": "createEarthChinaMap",
+        "src/components/map/ChinaMap.vue": "createScopeMap",
+    },
+    "react": {
+        "src/components/map/EarthView.tsx": "createEarthView",
+        "src/components/map/EarthChinaMap.tsx": "createEarthChinaMap",
+        "src/components/map/ChinaMap.tsx": "createScopeMap",
+    },
 }
 
 FRAMEWORK_DEPENDENCIES = {
@@ -216,7 +216,7 @@ def main() -> int:
         root,
         [
             "src/components/map/core/scopeMapCore.ts",
-            *(f"{path}" for path in FRAMEWORK_SHELL_FILES.get(framework, ()) if "ChinaMap" in path and "Earth" not in path),
+            *(f"{path}" for path in FRAMEWORK_SHELL_FILES.get(framework, {}) if "ChinaMap" in path and "Earth" not in path),
         ],
     )
     if map_components:
@@ -231,12 +231,17 @@ def main() -> int:
         else:
             problems.append(f"Earth template file missing: {relative_path}")
 
-    for relative_path in FRAMEWORK_SHELL_FILES.get(framework, ()):
+    for relative_path, factory_name in FRAMEWORK_SHELL_FILES.get(framework, {}).items():
         path = root / relative_path
-        if path.exists():
+        if not path.exists():
+            problems.append(f"Framework shell missing: {relative_path}")
+        elif file_contains([path], rf"\b{re.escape(factory_name)}\s*\("):
             passes.append(f"Framework shell found: {relative_path}")
         else:
-            problems.append(f"Framework shell missing: {relative_path}")
+            problems.append(
+                f"Framework shell exists but is not wired: {relative_path} does not call "
+                f"{factory_name}(); it will render blank."
+            )
 
     for asset in REQUIRED_ASSETS:
         if (root / asset).exists():

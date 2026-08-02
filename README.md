@@ -67,7 +67,7 @@ The bundled project is the visual and interaction baseline. Tell Codex to copy
 it before adapting data or integrating it into another project:
 
 ```txt
-Use three-scope-map and copy the bundled Songsummer Earth-to-China Vue template first. Keep EarthView.vue, EarthChinaMap.vue, ChinaMap.vue, mapTheme.ts, map data, and texture assets as one unit. Do not recreate or redesign the Earth or 3D map from scratch. Mount EarthChinaMap.vue as the default view, then run the project and verify the full Earth-to-China handoff in a browser.
+Use three-scope-map and copy the bundled Songsummer Earth-to-China template first (Vue by default, or the React template if React is requested/detected). Keep EarthView, EarthChinaMap, ChinaMap (the framework's .vue or .tsx shells), mapTheme.ts, map data, and texture assets as one unit. Do not recreate or redesign the Earth or 3D map from scratch. Mount EarthChinaMap as the default view, then run the project and verify the full Earth-to-China handoff in a browser.
 ```
 
 For one-to-one output on any requested region, keep this sentence in your prompt:
