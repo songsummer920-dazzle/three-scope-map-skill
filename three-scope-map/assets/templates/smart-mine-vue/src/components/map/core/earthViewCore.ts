@@ -2801,6 +2801,7 @@ export function createEarthView(
     bloomPass?.dispose();
     composer?.dispose();
     renderer?.dispose();
+    renderer?.forceContextLoss();
     renderer?.domElement.remove();
     loadedTextures.forEach((texture) => texture.dispose());
     loadedTextures.length = 0;

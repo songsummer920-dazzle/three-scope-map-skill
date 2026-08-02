@@ -2565,6 +2565,7 @@ export function createScopeMap(
     controls?.removeEventListener('change', updateCameraResponsiveOverlays);
     controls?.dispose();
     renderer?.dispose();
+    renderer?.forceContextLoss();
     renderer?.domElement.remove();
     labelRenderer?.domElement.remove();
     stage?.remove();
