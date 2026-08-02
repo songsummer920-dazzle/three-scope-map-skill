@@ -117,7 +117,38 @@ def file_contains(files: Iterable[Path], pattern: str) -> bool:
     return False
 
 
-def package_status(root: Path) -> tuple[list[str], list[str]]:
+FRAMEWORK_SHELL_FILES = {
+    "vue": (
+        "src/components/map/EarthView.vue",
+        "src/components/map/EarthChinaMap.vue",
+        "src/components/map/ChinaMap.vue",
+    ),
+    "react": (
+        "src/components/map/EarthView.tsx",
+        "src/components/map/EarthChinaMap.tsx",
+        "src/components/map/ChinaMap.tsx",
+    ),
+}
+
+FRAMEWORK_DEPENDENCIES = {
+    "vue": ("vue",),
+    "react": ("react", "react-dom"),
+}
+
+
+def detect_framework(root: Path) -> str:
+    package = read_json(root / "package.json")
+    deps = {}
+    deps.update(package.get("dependencies", {}))
+    deps.update(package.get("devDependencies", {}))
+    if "react" in deps:
+        return "react"
+    if "vue" in deps:
+        return "vue"
+    return "unknown"
+
+
+def package_status(root: Path, framework: str) -> tuple[list[str], list[str]]:
     package_path = root / "package.json"
     if not package_path.exists():
         return ["package.json missing"], []
@@ -127,8 +158,10 @@ def package_status(root: Path) -> tuple[list[str], list[str]]:
     deps.update(package.get("dependencies", {}))
     deps.update(package.get("devDependencies", {}))
 
-    missing = [name for name in ("vue", "vite", "three") if name not in deps]
-    present = [name for name in ("vue", "vite", "three", "@types/three") if name in deps]
+    required = ("vite", "three") + FRAMEWORK_DEPENDENCIES.get(framework, ())
+    optional = ("@types/three",)
+    missing = [name for name in required if name not in deps]
+    present = [name for name in required + optional if name in deps]
     return [f"{name} dependency missing" for name in missing], present
 
 
@@ -160,7 +193,15 @@ def main() -> int:
     elif not root.is_dir():
         problems.append(f"Project path is not a directory: {root}")
 
-    dependency_problems, present_deps = package_status(root)
+    framework = detect_framework(root)
+    if framework == "unknown":
+        problems.append(
+            "Could not detect the target framework; package.json must depend on vue or react."
+        )
+    else:
+        passes.append(f"Target framework detected: {framework}")
+
+    dependency_problems, present_deps = package_status(root, framework)
     problems.extend(dependency_problems)
     if present_deps:
         passes.append(f"Dependencies present: {', '.join(present_deps)}")
@@ -175,8 +216,7 @@ def main() -> int:
         root,
         [
             "src/components/map/core/scopeMapCore.ts",
-            "src/components/map/ChinaMap.vue",
-            "src/components/map/ChinaMap.tsx",
+            *(f"{path}" for path in FRAMEWORK_SHELL_FILES.get(framework, ()) if "ChinaMap" in path and "Earth" not in path),
         ],
     )
     if map_components:
@@ -190,6 +230,13 @@ def main() -> int:
             passes.append(f"Earth template file found: {relative_path}")
         else:
             problems.append(f"Earth template file missing: {relative_path}")
+
+    for relative_path in FRAMEWORK_SHELL_FILES.get(framework, ()):
+        path = root / relative_path
+        if path.exists():
+            passes.append(f"Framework shell found: {relative_path}")
+        else:
+            problems.append(f"Framework shell missing: {relative_path}")
 
     for asset in REQUIRED_ASSETS:
         if (root / asset).exists():
