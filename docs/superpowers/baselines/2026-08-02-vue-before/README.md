@@ -56,7 +56,7 @@ NODE_PATH=/private/tmp/claude-501/-Users-lijiaxi-prj-skills-three-scope-map-skil
   node /Users/lijiaxi/prj/skills/three-scope-map-skill/.superpowers/sdd/2026-08-02-react-support/capture.cjs <输出目录> [http://127.0.0.1:5173/]
 ```
 
-`playwright` 本身没有装进仓库（不能新增依赖），当前借用的是上面那次会话 scratchpad 里已经装好的 `node_modules`，通过 `NODE_PATH` 指给 Node 用。**这个 scratchpad 目录同样不保证长期存在** —— 如果 `NODE_PATH` 指向的路径已经失效（报 `Cannot find module 'playwright'`），就地在任意可写目录下 `npm install playwright`，再把 `NODE_PATH` 换成新目录的 `node_modules` 路径即可，脚本本身不用改。
+`playwright` 本身没有装进仓库（不能新增依赖），当前借用的是上面那次会话 scratchpad 里已经装好的 `node_modules`（同一目录下还装了 `pngjs`，供亮度判据用），通过 `NODE_PATH` 指给 Node 用。**这个 scratchpad 目录同样不保证长期存在** —— 如果 `NODE_PATH` 指向的路径已经失效（报 `Cannot find module 'playwright'` 或 `'pngjs'`），就地在任意可写目录下 `npm install playwright pngjs`，再把 `NODE_PATH` 换成新目录的 `node_modules` 路径即可，脚本本身不用改。
 
 启动浏览器必须用 `channel: 'chrome'`（脚本里已经这样写死，见 `chromium.launch` 调用）：本机缓存的 Playwright 自带 Chromium 版本与系统不匹配，headless 用自带 Chromium 会报 `Executable doesn't exist`；改用系统安装的 Chrome 后一切正常。
 
@@ -65,8 +65,25 @@ NODE_PATH=/private/tmp/claude-501/-Users-lijiaxi-prj-skills-three-scope-map-skil
 1. **两个 `<canvas>`**：`EarthChinaMap.vue` 的模板顺序是先渲染（可能隐藏的）`ChinaMap`/`ZhejiangThreeMap` 的画布容器 `.china-map-stage`，再渲染 `EarthView`，所以 `document.querySelector('canvas')`（不加限定）拿到的是**中国地图的画布**，不是地球画布。脚本里区分用 `.earth-view canvas`（地球状态）和 `.map-host canvas`（中国/省级状态）。
 2. **地球点击命中检测**：`EarthView.vue` 的 `enterChina` 要求鼠标事件精确落在 `chinaMesh`（通过 `raycaster.intersectObject`）上，随手点屏幕中心大概率落空。脚本用"移动鼠标 + 读取 `canvas.style.cursor === 'pointer'`"的网格搜索来找到真正命中中国大陆的屏幕坐标，而不是猜测固定坐标。
 3. **省份标签 ≠ 精确点击点**：`浙江省` 等标签是 CSS2DRenderer 生成的 `.city-label` 挂在零尺寸的 `.city-label-anchor` 上；直接点标签的可视文字框中心，实测会因 3D 透视下省份边界重叠而误触邻省（第一次尝试点在"浙江省"标签上，实际命中的是江苏省）。脚本改用同样的"移动鼠标 + 读取 `.city-label.is-selected` 文本"网格搜索，围绕标签锚点小范围扩展直到命中目标省份的 hover 高亮，再点击该精确坐标。
-4. **状态断言**：脚本在每个关键节点用 DOM 而非纯计时判断状态是否真的切换了：`.china-map-stage.is-active` 是否出现、`.map-drill-control span` 文本是否变为 `省级 / 浙江省` / `国家 / 中国`。如果状态没到位会 `pollUntil` 重试，最终仍不满足则整体失败退出（不会静默截一张错误状态的图）。
-5. 每张截图前都会检查对应 canvas 存在且 `width/height` 非零；截图完成后本任务人工用 Read 工具查看了全部 6 张 PNG，确认均能看到地球/地图内容，非纯黑/纯灰的失败截图。
+
+### 确定性契约：每张截图都等到"真的到达目标状态"才拍，绝不定时硬睡
+
+第一版脚本对 6 张图里的每一张都用固定 `sleep(fixedMs)` 起拍，实测在这个 headless 环境下 WebGL/纹理加载耗时抖动很大（同一张图不同次运行需要等待的真实时长可以从 ~6s 抖动到 ~25s），导致固定延时有时截到"还没到目标状态"的半途画面（最明显的是 `02-earth-intro-done` 偶尔截成接近纯黑，和 `01` 状态混淆）。这会让 Task 3/4/5/7 的像素对比失去意义——没法区分"搬运搞坏了渲染"还是"这次运气不好又抖动了"。
+
+现在每张截图都由一个明确的、可轮询的就绪判据来门控，判据不满足就持续轮询（间隔数百毫秒），超时（每张给足 8–30s）仍不满足则**直接抛错、非零退出码**，并在错误信息里写明是哪一张截图、卡在等什么条件——绝不会静默保存一张状态不对的图。各张图的判据：
+
+| 文件名 | 就绪判据 | 为什么选这个 |
+| --- | --- | --- |
+| `01-earth-first-paint` | `.earth-view canvas` 存在且 `width/height` 非零，再等两个 `requestAnimationFrame` | 这张图**本来就该暗**（intro 刚开始），不能用"够亮"当判据；只确认画布已经真正画过至少一帧 |
+| `02-earth-intro-done` | 对 `.earth-view canvas` 连续采样平均亮度（用 `pngjs` 解码 `canvas.screenshot()`），直到最近 3 次采样都比一开始测到的暗基线亮出至少一个阈值、且彼此波动 < 6% | `EarthView.vue` 里驱动 intro 的 `introValue` 是纯内部闭包变量，没有暴露到 DOM/`window`（也不允许改 `three-scope-map/` 源码去加调试钩子），亮度是唯一能从外部观察到的、随 intro 单调上升再趋于平台期的信号 |
+| `03-cloud-handoff` | `.china-map-stage` 同时满足 `classList.contains('is-handoff')` 为真、`is-active` 为假 | 对应 `EarthChinaMap.vue` 里 `beginChinaHandoff()`（云层揭幕开始）与 `showChinaMap()`（完全落位）之间的窗口，是精确的状态标志而非猜测的毫秒偏移 |
+| `04-china-settled` | `.china-map-stage.is-active` 为真，且 `document.querySelectorAll('.city-label').length` 连续 3 次采样不变 | 标签是 CSS2DObject 逐帧插入的，数量不再增长即代表标签层渲染完毕 |
+| `05-province-drilldown` | `.map-drill-control span` 文本包含"省级"，且确认包含"浙江"（否则直接抛错，不静默截错省份），随后同样等 `.city-label` 数量稳定 | 沿用已验证可靠的下钻状态断言，并补上标签稳定判据覆盖地级市标签渲染 |
+| `06-south-sea-inset-zoomed` | `.south-sea-inset` 的 `getBoundingClientRect()` 宽高连续两次采样不变 | 相机被钳制到最近距离、OrbitControls 阻尼平息后，插图尺寸才会真正停止变化 |
+
+**验证**：改完后连续跑了 3 次（各输出到独立临时目录），3 次全部以退出码 0 结束；用 Read 工具检查了 3 次各自的 `02-earth-intro-done.png` 和 `05-province-drilldown.png`（共 6 张），全部是完整显现的地球（球体、中国高亮、国际飞线清晰可见）和正确的浙江省下钻画面，没有一次出现黑屏或误触邻省。3 次运行里 `02` 实际等待时长分别是 ~6.9s / ~24.9s / ~7.5s——抖动依然存在，但脚本会一直等到真正就绪，而不是提前掐点截图。
+
+将新脚本的输出与仓库里现有基线（`01`–`06`）逐张目视比对：构图、控制条、标签、南海插图尺寸均一致，未发现系统性差异（仅有国际飞线高亮点位置、云南省悬停高亮等预期内的动画相位差异，这在原脚本自身多次运行之间也同样存在）。因此**未重截基线**，`docs/superpowers/baselines/2026-08-02-vue-before/` 下的 6 张 PNG 保持原样。
 
 ## 质量闸门（截图前确认）
 
