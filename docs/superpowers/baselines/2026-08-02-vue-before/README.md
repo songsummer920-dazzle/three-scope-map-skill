@@ -59,29 +59,32 @@ Task 3 审查阶段做过受控实验：把代码回退到重构前（commit `ab
 
 ## 截图脚本
 
-**稳定复用路径**（仓库内，但 `.superpowers/` 已被 `.gitignore` 忽略，不会被提交，也不随会话 scratchpad 失效）：
+**稳定复用路径**（已提交进仓库，跟本 README 同目录的上一级）：
 
 ```
-.superpowers/sdd/2026-08-02-react-support/capture.cjs
+docs/superpowers/baselines/capture.cjs
 ```
 
-> 注意：早期版本曾把脚本放在某次会话专属的 `/private/tmp/claude-501/.../scratchpad/` 目录下——那个路径只在产生它的那次会话里可达，**不要**依赖它。上面这条仓库内路径才是 Task 3/4/5/7 应该使用的。
+> 注意：脚本曾经放在 `.superpowers/sdd/2026-08-02-react-support/capture.cjs`，但 `.superpowers/` 被 `.gitignore` 忽略、且是一次性执行工作区，会被清理。现在的仓库内固定路径是上面这条，**不要**再引用 `.superpowers/` 下的旧路径。
 
 脚本本身已经把输出目录做成命令行参数（`process.argv[2]`），不同任务截图到不同目录即可，互不覆盖。
 
 用法（先在另一个终端/后台启动 `smart-mine-vue` 的 `npm run dev`）：
 
 ```bash
-# 1. 启动 dev server（后台）
-cd /Users/lijiaxi/prj/skills/three-scope-map-skill/three-scope-map/assets/templates/smart-mine-vue
-npm run dev
+# 1. 依赖装在仓库外，避免污染技能模板
+mkdir -p /tmp/capture-deps && cd /tmp/capture-deps && npm init -y && npm install playwright pngjs
 
-# 2. 跑截图脚本，输出到你自己的目录（不要覆盖本基线目录）
-NODE_PATH=/private/tmp/claude-501/-Users-lijiaxi-prj-skills-three-scope-map-skill/c6bb05b9-bc96-4420-a2f6-60c229c28b79/scratchpad/node_modules \
-  node /Users/lijiaxi/prj/skills/three-scope-map-skill/.superpowers/sdd/2026-08-02-react-support/capture.cjs <输出目录> [http://127.0.0.1:5173/]
+# 2. 启动 dev server（后台）
+cd /Users/lijiaxi/prj/skills/three-scope-map-skill/three-scope-map/assets/templates/smart-mine-vue
+npm install && npm run dev
+
+# 3. 跑截图脚本，输出到你自己的目录（不要覆盖本基线目录）
+NODE_PATH=/tmp/capture-deps/node_modules \
+  node /Users/lijiaxi/prj/skills/three-scope-map-skill/docs/superpowers/baselines/capture.cjs <输出目录> [http://127.0.0.1:5173/]
 ```
 
-`playwright` 本身没有装进仓库（不能新增依赖），当前借用的是上面那次会话 scratchpad 里已经装好的 `node_modules`（同一目录下还装了 `pngjs`，供亮度判据用），通过 `NODE_PATH` 指给 Node 用。**这个 scratchpad 目录同样不保证长期存在** —— 如果 `NODE_PATH` 指向的路径已经失效（报 `Cannot find module 'playwright'` 或 `'pngjs'`），就地在任意可写目录下 `npm install playwright pngjs`，再把 `NODE_PATH` 换成新目录的 `node_modules` 路径即可，脚本本身不用改。
+`playwright` 和 `pngjs` 都不装进仓库（不给技能模板引入无关依赖），装在任意仓库外的可写目录（如上面的 `/tmp/capture-deps`）下，通过 `NODE_PATH` 指给 Node 用即可。若换了机器/环境导致 `NODE_PATH` 指向的路径失效（报 `Cannot find module 'playwright'` 或 `'pngjs'`），就地在任意可写目录下重新 `npm install playwright pngjs`，再把 `NODE_PATH` 换成新目录的 `node_modules` 路径，脚本本身不用改。
 
 启动浏览器必须用 `channel: 'chrome'`（脚本里已经这样写死，见 `chromium.launch` 调用）：本机缓存的 Playwright 自带 Chromium 版本与系统不匹配，headless 用自带 Chromium 会报 `Executable doesn't exist`；改用系统安装的 Chrome 后一切正常。
 
