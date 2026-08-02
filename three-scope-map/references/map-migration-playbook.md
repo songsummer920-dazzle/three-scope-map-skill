@@ -175,7 +175,7 @@ For older local projects that still use an SVG label pointer, recolor only the l
 python3 <skill>/scripts/recolor_label_asset.py '#2AF7FF' src/assets/figma/map-label-bg.svg
 ```
 
-2. Confirm Earth and `ZhejiangThreeMap.vue` both import the bundled `mapTheme.ts`; do not add per-component theme constants.
+2. Confirm Earth (`earthViewCore.ts`) and the destination map renderer (`scopeMapCore.ts`) both import the bundled `mapTheme.ts`; do not add per-component theme constants.
 
 3. Search for hardcoded old colors in map files:
 

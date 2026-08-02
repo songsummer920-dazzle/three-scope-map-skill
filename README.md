@@ -7,7 +7,7 @@
 # Three Scope Map · Earth-to-China 3D Map Skill
 
 A Codex skill for building an exact Three.js Earth entrance and reusable
-multi-level 3D geographic maps for Vue/web projects. The bundled default
+multi-level 3D geographic maps for Vue / React web projects. The bundled default
 experience starts in space, highlights a textured and extruded China on the
 globe, then performs a coordinated 3D handoff into the existing China map and
 continues through province, city, and district/county drilldown.
@@ -24,12 +24,12 @@ continues through province, city, and district/county drilldown.
 > 或原作者官方发布。
 
 This repository intentionally contains only the standalone Earth/3D map skill
-and its runnable minimal Vue template, not the full dashboard project or any
-business-screen content.
+and its runnable minimal Vue and React templates, not the full dashboard
+project or any business-screen content.
 
 ## What It Supports
 
-- A validated one-to-one Vue 3 template that opens directly on the Three.js Earth.
+- A validated one-to-one Vue 3 template and an equivalent React 19 template, both opening directly on the Three.js Earth.
 - Textured spherical Earth rendering with neutral starfield, atmosphere, geographic outlines, fine grid intersections, grid scan, and idle motion.
 - A separately tessellated and extruded China surface with terrain texture, side-wall thickness, inner glow, animated contour light, and Taiwan wall handling.
 - Persistent international fly-line tracks, synchronized moving light segments, and node ripple effects.
@@ -48,6 +48,18 @@ business-screen content.
 - A fixed screen-space South China Sea inset for China scope and a separate spherical dashed representation on Earth.
 - Template integrity, strict project checks, build validation, and browser visual regression guidance.
 
+## Two Templates, One Core
+
+`three-scope-map/assets/templates/smart-mine-vue/` and
+`three-scope-map/assets/templates/smart-mine-react/` are both runnable,
+one-to-one projects that render identically. They share the same
+framework-agnostic rendering core under
+`three-scope-map/assets/templates/map-core/` (`createEarthView`,
+`createScopeMap`, `createEarthChinaMap`); each template only adds a thin
+Vue or React component shell around those factory functions. The skill
+resolves which template to use from the target project's `package.json`
+(`react` dependency -> React, `vue` dependency -> Vue), and defaults to Vue
+when there is no target project yet.
 
 ## Songsummer Earth-to-China Template
 
@@ -64,10 +76,11 @@ For one-to-one output on any requested region, keep this sentence in your prompt
 Preserve the bundled Songsummer Earth and 3D map style one-to-one. Do not simplify, reinterpret, or replace its renderer, textures, geometry, motion, labels, fly lines, contour light, camera behavior, South China Sea treatment, or handoff. Only adapt approved GeoJSON, labels, texture scope, fly-line source/targets, drilldown registry, and camera presets.
 ```
 
-The complete runnable template is under:
+The complete runnable templates are under:
 
 ```txt
 three-scope-map/assets/templates/smart-mine-vue/src/
+three-scope-map/assets/templates/smart-mine-react/src/
 ```
 
 ## Install
@@ -80,8 +93,29 @@ cp -R three-scope-map ~/.codex/skills/
 
 Or install it from this GitHub repository with the skill installer if your Codex environment supports GitHub skill installation.
 
-The bundled Vue template requires Node.js `^20.19.0` or `>=22.12.0`. Its
+Both bundled templates require Node.js `^20.19.0` or `>=22.12.0`. Their
 dependency versions are locked for reproducible installation.
+
+## Quick Start
+
+```bash
+cd three-scope-map/assets/templates/smart-mine-vue && npm install && npm run dev
+cd three-scope-map/assets/templates/smart-mine-react && npm install && npm run dev
+```
+
+## Contributing
+
+Core map logic (rendering, theme, data adapter, terrain material, types) has
+a single source of truth: `three-scope-map/assets/templates/map-core/`. Only
+edit code there, then re-sync both runnable templates:
+
+```bash
+python3 three-scope-map/scripts/sync_map_templates.py
+```
+
+Do not hand-edit the `core/` directories inside `smart-mine-vue/` or
+`smart-mine-react/` — they are generated copies and will be overwritten by
+the sync script.
 
 ## Example Prompts
 

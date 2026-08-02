@@ -8,16 +8,17 @@ Do not rebuild the map from scratch when this template is available. Start by co
 
 This template is the default baseline for every generated 3D map, not only Zhejiang. For any requested region, keep the same renderer, material system, side-wall gradient, theme-generated original SVG label skin, ripple/fly-line behavior, chase light, terrain texture stack, camera controls, hover lift, and drilldown architecture. Change the region data and generated configuration, not the visual language.
 
-Template location:
+Resolve the target framework first (see `SKILL.md` Core Workflow rule 1), then use the matching template location:
 
 ```txt
-assets/templates/smart-mine-vue/src/
+assets/templates/smart-mine-vue/src/     # Vue 3 target
+assets/templates/smart-mine-react/src/   # React target
 ```
 
-It includes:
+Both templates share the same rendering core and only differ in their component shells. The Vue template includes:
 
 ```txt
-components/map/ZhejiangThreeMap.vue
+components/map/core/scopeMapCore.ts   # framework-agnostic scope-aware renderer (province/country/city/district)
 components/map/EarthView.vue
 components/map/EarthChinaMap.vue
 components/map/ChinaMap.vue
@@ -44,10 +45,12 @@ main.ts
 style.css
 ```
 
+The React template mirrors this exactly, with `.tsx` shells (`EarthView.tsx`, `EarthChinaMap.tsx`, `ChinaMap.tsx`) in place of the `.vue` files, `App.tsx`/`main.tsx` in place of `App.vue`/`main.ts`, and the identical `components/map/core/` directory.
+
 ## Integration Steps
 
 1. Inspect the target project stack and aliases.
-2. If it is Vue 3 + Vite + TypeScript, copy the template `src/` files into matching locations.
+2. Detect the target framework (`SKILL.md` Core Workflow rule 1). If it is Vue 3 + Vite + TypeScript, copy the Vue template's `src/` files into matching locations; if it is React 19 + Vite + TypeScript, copy the React template's `src/` files instead.
 3. Install missing dependencies:
 
 ```bash
@@ -56,7 +59,7 @@ npm install gsap
 npm install -D @types/three
 ```
 
-4. Mount `ZhejiangThreeMap.vue` for a direct regional map, or mount `EarthChinaMap.vue` when Earth View should be the entry. The runnable template already mounts `EarthChinaMap.vue`. Both fill the parent container; do not hardcode the map host to `1920px x 1080px`.
+4. Mount `ChinaMap.vue`/`ChinaMap.tsx` for a direct regional map, or mount `EarthChinaMap.vue`/`EarthChinaMap.tsx` when Earth View should be the entry. The runnable template already mounts `EarthChinaMap` by default. Both fill the parent container; do not hardcode the map host to `1920px x 1080px`.
 5. Preserve relative asset paths unless the target project has a different alias convention.
 6. Keep the camera, materials, terrain config, label CSS, chase light, fly lines, and hover logic intact for the first pass.
 7. Add drilldown data for every non-terminal visible scope before delivery:
@@ -139,6 +142,6 @@ If WebGL creation fails, do not replace the map with SVG. Check browser WebGL su
 - City-scope ripple and fly lines use the same stable random district/county source.
 - All non-district scopes can click into the next level.
 - District/county scope is terminal by default and should not recurse into fake data.
-- Labels use the theme-generated original SVG HUD geometry in `ZhejiangThreeMap.vue`; keep the pointer inside the exported `68px x 41px` frame instead of appending extra height.
+- Labels use the theme-generated original SVG HUD geometry in `map-core/core/scopeMapCore.ts`; keep the pointer inside the exported `68px x 41px` frame instead of appending extra height.
 - If the theme color changes, the label pointer triangle and glow should use the same derived theme color instead of staying green.
 - Camera controls support unified and per-scope saved views.

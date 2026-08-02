@@ -2,205 +2,154 @@
 
 Use this as the structural template for a reusable Three.js map that can switch between world, country, province, city, and district scopes, including click drilldown.
 
+## Core API
+
+The renderer lives in the framework-agnostic core (`assets/templates/map-core/core/`), shared by both the Vue and React templates. Each factory function mounts into a container element and returns a handle with `destroy()`:
+
+```ts
+// map-core/core/scopeMapCore.ts
+export type ScopeMapHandle = {
+  readonly element: HTMLElement;
+  setActive(value: boolean): void;
+  destroy(): void;
+};
+export function createScopeMap(
+  container: HTMLElement,
+  opts?: { active?: boolean; onReady?(): void },
+): ScopeMapHandle;
+
+// map-core/core/earthViewCore.ts
+export type EarthViewHandle = {
+  readonly element: HTMLElement;
+  setStartIntro(value: boolean): void;
+  destroy(): void;
+};
+export function createEarthView(
+  container: HTMLElement,
+  opts?: {
+    onSceneReady?(): void;
+    onIntroReady?(): void;
+    onHandoffStart?(): void;
+    onEnterChina?(): void;
+  },
+): EarthViewHandle;
+
+// map-core/core/earthChinaMapCore.ts
+export type EarthChinaMapMode = 'earth' | 'china';
+export type EarthChinaMapHandle = { destroy(): void };
+export function createEarthChinaMap(
+  container: HTMLElement,
+  opts?: { onModeChange?(mode: EarthChinaMapMode): void },
+): EarthChinaMapHandle;
+```
+
+`createEarthChinaMap` internally owns `createEarthView` and lazy-loads `createScopeMap` (via a dynamic `import('./scopeMapCore')`) once the Earth scene reaches `scene-ready`, then coordinates the Earth-to-China handoff. All Three.js/GSAP resources are disposed in `destroy()`, including a `renderer?.forceContextLoss()` call, so a host component can safely mount and unmount the map repeatedly without exhausting WebGL context budget.
+
+Never rebuild this rendering logic per-framework. Both shells below are thin adapters that call the same core functions.
+
+## Vue Shell
+
 ```vue
 <template>
-  <div ref="hostEl" class="three-scope-map" />
+  <div ref="host" class="map-mount" />
 </template>
 
 <script setup lang="ts">
-// ThreeScopeMap attribution: 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
-// This attribution is code-only and must not be rendered in the UI unless explicitly requested.
-import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
-import * as THREE from 'three';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { createScopeMap, type ScopeMapHandle } from './core/scopeMapCore';
 
-type MapScope = 'world' | 'country' | 'province' | 'city' | 'district';
+const props = withDefaults(defineProps<{ active?: boolean }>(), { active: true });
+const emit = defineEmits<{ ready: [] }>();
 
-type MapTheme = {
-  primary: string;
-  outline: string;
-  internalLine: string;
-  topFill: string;
-  topOpacity: number;
-  sideTop: string;
-  sideMid: string;
-  sideBottom: string;
-  labelText: string;
-  labelBorder: string;
-  labelGlow: string;
-  scatter: string;
-  ripple: string;
-  flyLine: string;
-  hudRing: string;
-  chaseLightHead: string;
-  chaseLightTail: string;
-};
-
-type TerrainConfig = {
-  elevationScale: number;
-  normalStrength: number;
-  roughness: number;
-  textureOpacity: number;
-  diffuseMap: string;
-  normalMap: string;
-  roughnessMap: string;
-  displacementMap: string;
-};
-
-type CameraViewPreset = {
-  fov: number;
-  position: [number, number, number];
-  target: [number, number, number];
-};
-
-type CameraViewConfig = {
-  default: CameraViewPreset;
-  byScope?: Partial<Record<MapScope, CameraViewPreset>>;
-};
-
-type DrillTarget = {
-  scope: MapScope;
-  regionName: string;
-  code: string;
-  geoJsonPath: string;
-};
-
-const props = defineProps<{
-  scope: MapScope;
-  regionName: string;
-  geoJson: GeoJSON.FeatureCollection;
-  labels: Array<{ name: string; coord: [number, number]; offset?: [number, number, number] }>;
-  scatterPoints: Array<{ name: string; coord: [number, number]; ripple?: boolean }>;
-  flyLines?: Array<{ from: string; to: string }>;
-  theme: MapTheme;
-  terrain: TerrainConfig;
-  cameraView?: CameraViewConfig;
-  cameraStorageKey?: string;
-  enableDrilldown?: boolean;
-  resolveDrillTarget?: (feature: GeoJSON.Feature, currentScope: MapScope) => DrillTarget | undefined;
-  loadGeoJson?: (target: DrillTarget) => Promise<GeoJSON.FeatureCollection>;
-}>();
-
-const emit = defineEmits<{
-  drilldown: [target: DrillTarget];
-  back: [target: DrillTarget | undefined];
-}>();
-
-const hostEl = ref<HTMLDivElement>();
-const drillStack = shallowRef<DrillTarget[]>([]);
-
-let renderer: THREE.WebGLRenderer | undefined;
-let scene: THREE.Scene | undefined;
-let camera: THREE.PerspectiveCamera | undefined;
-let frameId = 0;
-
-function createRenderer() {
-  // Create renderer, camera, lights, root groups, and resize handling.
-  // If props.cameraStorageKey is provided, read localStorage and apply saved camera view after OrbitControls is created.
-}
-
-function buildMap() {
-  // Recompute projection bounds from props.geoJson.
-  // Build top meshes, outer side thickness, internal boundary lines, outer top/bottom outlines.
-  // Apply props.theme and props.terrain; do not hardcode province colors.
-}
-
-function buildLabelsAndPoints() {
-  // Use exported label background asset if available.
-  // Apply scope-aware label scale and point/ripple rules.
-}
-
-function buildEffects() {
-  // HUD ring behind map, fly lines, one outer-contour chase-light segment.
-}
-
-function bindPointerInteraction() {
-  // Raycast feature meshes.
-  // Hover lifts top and side geometry together with no gap.
-  // Click calls handleFeatureClick only when props.enableDrilldown is true.
-  // Reset previous hover cleanly.
-}
-
-function saveCurrentCameraView() {
-  // Persist camera.fov, camera.position, and controls.target.
-  // Support both unified default view and current-scope override.
-}
-
-function resetCameraView() {
-  // Remove either the current-scope override or all saved presets, then apply the resolved fallback view.
-}
-
-async function handleFeatureClick(feature: GeoJSON.Feature) {
-  if (!props.enableDrilldown || !props.resolveDrillTarget || !props.loadGeoJson) return;
-  const target = props.resolveDrillTarget(feature, props.scope);
-  if (!target) return;
-  drillStack.value = [
-    ...drillStack.value,
-    { scope: props.scope, regionName: props.regionName, code: '', geoJsonPath: '' },
-  ];
-  const nextGeoJson = await props.loadGeoJson(target);
-  // Parent component should swap props.geoJson/scope/labels/scatter/flyLines/terrain together.
-  // If this component owns state, dispose the current map, assign nextGeoJson, then rebuild all layers.
-  void nextGeoJson;
-  emit('drilldown', target);
-}
-
-function backDrilldown() {
-  const previous = drillStack.value.at(-1);
-  drillStack.value = drillStack.value.slice(0, -1);
-  emit('back', previous);
-}
-
-function renderLoop() {
-  frameId = requestAnimationFrame(renderLoop);
-  // Animate HUD ring, ripple, fly lines, and chase light.
-  renderer?.render(scene!, camera!);
-}
-
-function disposeMap() {
-  cancelAnimationFrame(frameId);
-  // Dispose geometries, materials, textures, event listeners, renderer.
-}
+const host = ref<HTMLElement>();
+let instance: ScopeMapHandle | undefined;
 
 onMounted(() => {
-  createRenderer();
-  buildMap();
-  buildLabelsAndPoints();
-  buildEffects();
-  bindPointerInteraction();
-  renderLoop();
+  if (!host.value) return;
+  instance = createScopeMap(host.value, {
+    active: props.active,
+    onReady: () => emit('ready'),
+  });
 });
 
-watch(
-  () => [props.scope, props.regionName, props.geoJson, props.theme, props.terrain],
-  () => {
-    disposeMap();
-    createRenderer();
-    buildMap();
-    buildLabelsAndPoints();
-    buildEffects();
-    bindPointerInteraction();
-    renderLoop();
-  },
-  { deep: false },
-);
+watch(() => props.active, (value) => instance?.setActive(value));
 
-onBeforeUnmount(disposeMap);
+onBeforeUnmount(() => {
+  instance?.destroy();
+  instance = undefined;
+});
 </script>
-
-<style scoped>
-.three-scope-map {
-  position: absolute;
-  inset: 0;
-  overflow: visible;
-  pointer-events: auto;
-}
-</style>
 ```
+
+This is the actual `smart-mine-vue/src/components/map/ChinaMap.vue` shell. `EarthView.vue` and `EarthChinaMap.vue` follow the same shape: mount the matching `create*` core function in `onMounted`, forward its callbacks to `emit`, and call `destroy()` in `onBeforeUnmount`.
+
+## React Shell
+
+```tsx
+import { useEffect, useRef } from 'react';
+import { createScopeMap, type ScopeMapHandle } from './core/scopeMapCore';
+
+export default function ChinaMap({
+  active = true,
+  onReady,
+}: {
+  active?: boolean;
+  onReady?: () => void;
+}) {
+  const mount = useRef<HTMLDivElement>(null);
+  const instance = useRef<ScopeMapHandle | null>(null);
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
+  const initialActive = useRef(active);
+
+  useEffect(() => {
+    if (!mount.current) return;
+    instance.current = createScopeMap(mount.current, {
+      active: initialActive.current,
+      onReady: () => onReadyRef.current?.(),
+    });
+    return () => {
+      instance.current?.destroy();
+      instance.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    instance.current?.setActive(active);
+  }, [active]);
+
+  return <div ref={mount} className="map-mount" />;
+}
+```
+
+This is the actual `smart-mine-react/src/components/map/ChinaMap.tsx` shell. It mirrors the Vue shell exactly: mount once in an empty-dependency `useEffect`, store live callback props in a ref to avoid stale closures, and always destroy the instance in the cleanup function — this is what keeps React 18 StrictMode's mount/unmount/mount cycle from creating duplicate canvases or leaking a WebGL context.
 
 ## Implementation Notes
 
-- Keep `scope` explicit; do not infer world/country/province/city/district from feature count alone in rendering code.
+- Keep `scope` explicit inside the core; do not infer world/country/province/city/district from feature count alone in rendering code.
 - Keep projection, camera, geometry scale, and texture config scope-aware.
-- Dispose all Three.js resources when rebuilding after scope/theme changes.
+- Dispose all Three.js resources (including `forceContextLoss()`) when a handle's `destroy()` runs.
 - Keep labels and scatter points data-driven so old province points do not survive a country switch.
-- For drilldown, parent state should update `scope`, `regionName`, `geoJson`, labels, scatter points, fly lines, terrain, and camera in one transaction.
+- For drilldown, the core keeps a drill stack internally and swaps GeoJSON, labels, scatter points, fly lines, terrain, and camera together on click.
+- Only edit rendering logic in `assets/templates/map-core/`; run `python3 <skill>/scripts/sync_map_templates.py` afterward to propagate the change into both runnable templates.
+
+## Next.js 接入
+
+技能不提供 Next.js 模板。要在 Next.js App Router 里使用：
+
+1. 把 `smart-mine-react/src/components/map/`、`src/types/`、`src/assets/`、`src/style.css` 复制进项目。
+2. 地图组件必须只在客户端运行 —— Three.js 与 GSAP 都需要 `window`：
+
+    ```tsx
+    'use client';
+    import dynamic from 'next/dynamic';
+
+    const EarthChinaMap = dynamic(() => import('@/components/map/EarthChinaMap'), { ssr: false });
+
+    export default function MapPage() {
+      return <main className="map-page"><EarthChinaMap /></main>;
+    }
+    ```
+
+3. 贴图与 GeoJSON 用 import 引入（如模板所做），不要改成 `/public` 下的裸路径 —— 核心依赖打包器把它们解析成带 hash 的 URL。
+4. `src/style.css` 里的 `#app` 选择器要改成 Next.js 的根容器选择器（通常是 `body > div:first-child` 或你自己给 layout 加的 id）。
