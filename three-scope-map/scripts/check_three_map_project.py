@@ -56,7 +56,7 @@ EARTH_EFFECT_PATTERNS = {
     "Earth international fly lines": r"flyTrackMaterials|createFlyLines|createInternationalFlyLines",
     "Earth batched world outlines": r"function\s+createWorldOutlines[\s\S]*new\s+THREE\.LineSegments",
     "Earth spherical JD dashed line": r"createChinaJdDashedLines[\s\S]*LineDashedMaterial",
-    "Earth handoff events": r"intro-ready[\s\S]*handoff-start[\s\S]*enter-china",
+    "Earth handoff events": r"onIntroReady[\s\S]*onHandoffStart[\s\S]*onEnterChina",
 }
 
 PRIVATE_OR_DASHBOARD_PATTERNS = {
@@ -204,7 +204,7 @@ def main() -> int:
             else:
                 problems.append(f"Effect check missing: {label}")
 
-        earth_view = root / "src/components/map/EarthView.vue"
+        earth_view = root / "src/components/map/core/earthViewCore.ts"
         earth_sources = [earth_view] if earth_view.exists() else []
         for label, pattern in EARTH_EFFECT_PATTERNS.items():
             if file_contains(earth_sources, pattern):
@@ -213,7 +213,7 @@ def main() -> int:
                 problems.append(f"Earth effect check missing: {label}")
 
         theme_path = root / "src/components/map/mapTheme.ts"
-        earth_theme_ok = file_contains(earth_sources, r"import\s*\{\s*MAP_THEME_PRIMARY\s*\}\s*from\s*['\"]\./mapTheme['\"]")
+        earth_theme_ok = file_contains(earth_sources, r"import\s*\{\s*MAP_THEME_PRIMARY\s*\}\s*from\s*['\"]\.\.?/mapTheme['\"]")
         map_theme_ok = file_contains(map_components, r"import\s*\{[^}]*mapTheme[^}]*\}\s*from\s*['\"]\.\.?/mapTheme['\"]")
         primary_ok = file_contains([theme_path] if theme_path.exists() else [], r"export\s+const\s+MAP_THEME_PRIMARY\s*=")
         if earth_theme_ok and map_theme_ok and primary_ok:
@@ -224,7 +224,7 @@ def main() -> int:
         earth_china_map = root / "src/components/map/EarthChinaMap.vue"
         earth_china_sources = [earth_china_map] if earth_china_map.exists() else []
         isolated_preload_ok = (
-            file_contains(earth_sources, r"emit\(['\"]scene-ready['\"]\)")
+            file_contains(earth_sources, r"onSceneReady")
             and file_contains(earth_sources, r"startIntro")
             and file_contains(earth_china_sources, r':start-intro="chinaReady"')
             and file_contains(earth_china_sources, r"prepareChinaMap[\s\S]*chinaMounted\.value\s*=\s*true")

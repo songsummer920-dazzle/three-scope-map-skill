@@ -1,0 +1,408 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright (c) 2026 宋夏天Dazzle
+ * 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+ * Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
+ *
+ * 本文件是框架无关的渲染核心样式，真源位于 assets/templates/map-core/。
+ * 不要直接编辑模板里的副本；改动后请运行 scripts/sync_map_templates.py。
+ */
+
+.earth-view {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent;
+  opacity: 1;
+  pointer-events: auto;
+  animation: earth-view-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.earth-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 48%, var(--earth-ambient), transparent 33%),
+    var(--earth-background);
+}
+
+.earth-view::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--earth-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--earth-grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
+}
+
+.earth-view canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.dive-atmosphere,
+.dive-cloudscape,
+.dive-cloud-haze,
+.dive-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.dive-atmosphere,
+.dive-cloud-haze,
+.dive-vignette {
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.dive-atmosphere {
+  z-index: 3;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    transparent 0 29%,
+    var(--earth-cloud-glow) 34%,
+    color-mix(in srgb, var(--earth-cloud-light) 46%, transparent) 37%,
+    transparent 44%
+  );
+  mix-blend-mode: screen;
+  transform: scale(0.42);
+}
+
+.dive-cloudscape {
+  z-index: 5;
+  inset: -12%;
+  overflow: hidden;
+  contain: paint;
+  transform: translateZ(0);
+}
+
+.dive-cloudscape::before,
+.dive-cloudscape::after {
+  content: '';
+  position: absolute;
+  inset: -16%;
+  opacity: 0;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.dive-cloudscape::before {
+  background: var(--earth-cloud-mid);
+  -webkit-mask: url('../../assets/textures/map/transition/cloud-sheet.svg') center / 100% 100% no-repeat;
+  mask: url('../../assets/textures/map/transition/cloud-sheet.svg') center / 100% 100% no-repeat;
+  transform: translate3d(-14%, -7%, 0) rotate(7deg) scale(0.72);
+}
+
+.dive-cloudscape::after {
+  background: var(--earth-cloud-body);
+  -webkit-mask: url('../../assets/textures/map/transition/cloud-sheet.svg') center / 100% 100% no-repeat;
+  mask: url('../../assets/textures/map/transition/cloud-sheet.svg') center / 100% 100% no-repeat;
+  transform: translate3d(14%, 8%, 0) rotate(-8deg) scale(0.7);
+  display: none;
+}
+
+.cloud-bank,
+.dive-cloud-texture,
+.dive-cloud-haze {
+  display: none;
+}
+
+.cloud-bank {
+  position: absolute;
+  border-radius: 48% 52% 46% 54% / 58% 43% 57% 42%;
+  opacity: 0;
+  transform-origin: center;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  background:
+    radial-gradient(circle at 7% 66%, var(--earth-cloud-light) 0 7%, var(--earth-cloud-mid) 12%, transparent 25%),
+    radial-gradient(circle at 18% 38%, var(--earth-cloud-mid) 0 12%, var(--earth-cloud-body) 19%, transparent 31%),
+    radial-gradient(circle at 31% 62%, var(--earth-cloud-light) 0 8%, var(--earth-cloud-mid) 14%, transparent 27%),
+    radial-gradient(circle at 43% 31%, var(--earth-cloud-light) 0 7%, var(--earth-cloud-body) 18%, transparent 32%),
+    radial-gradient(circle at 56% 62%, var(--earth-cloud-mid) 0 12%, var(--earth-cloud-body) 20%, transparent 33%),
+    radial-gradient(circle at 68% 34%, var(--earth-cloud-light) 0 8%, var(--earth-cloud-mid) 15%, transparent 29%),
+    radial-gradient(circle at 80% 59%, var(--earth-cloud-light) 0 8%, var(--earth-cloud-body) 19%, transparent 31%),
+    radial-gradient(circle at 92% 39%, var(--earth-cloud-mid) 0 10%, var(--earth-cloud-body) 18%, transparent 30%),
+    radial-gradient(ellipse at 50% 62%, var(--earth-cloud-body) 0 27%, var(--earth-cloud-shadow) 46%, transparent 69%);
+  box-shadow:
+    inset 0 18px 38px var(--earth-cloud-glow),
+    0 -12px 34px color-mix(in srgb, var(--earth-cloud-light) 42%, transparent);
+}
+
+.cloud-bank::before,
+.cloud-bank::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 28% 42%, var(--earth-cloud-light), transparent 34%),
+    radial-gradient(circle at 62% 52%, var(--earth-cloud-mid), transparent 40%),
+    radial-gradient(circle at 78% 30%, var(--earth-cloud-body), transparent 32%);
+}
+
+.cloud-bank::before {
+  inset: -16% 8% 42% -4%;
+  transform: rotate(-7deg);
+  mix-blend-mode: screen;
+  filter: blur(2px);
+}
+
+.cloud-bank::after {
+  inset: 40% -5% -18% 16%;
+  transform: rotate(8deg);
+  opacity: 0.84;
+}
+
+.cloud-bank--far {
+  left: 7%;
+  top: 17%;
+  width: 86%;
+  height: 36%;
+  filter: blur(13px) saturate(0.78) contrast(1.08);
+  transform: translate3d(0, -18%, 0) rotate(-4deg) scale(0.52);
+}
+
+.cloud-bank--left {
+  left: -22%;
+  top: 22%;
+  width: 76%;
+  height: 63%;
+  filter: blur(7px) saturate(0.76) contrast(1.12);
+  transform: translate3d(18%, 6%, 0) rotate(9deg) scale(0.5);
+}
+
+.cloud-bank--right {
+  right: -24%;
+  top: 14%;
+  width: 78%;
+  height: 67%;
+  filter: blur(7px) saturate(0.76) contrast(1.12);
+  transform: translate3d(-18%, 8%, 0) rotate(-8deg) scale(0.48);
+}
+
+.cloud-bank--near-left {
+  left: -30%;
+  bottom: -20%;
+  width: 78%;
+  height: 58%;
+  filter: blur(12px) saturate(0.72) contrast(1.08);
+  transform: translate3d(20%, 18%, 0) rotate(12deg) scale(0.44);
+}
+
+.cloud-bank--near-right {
+  right: -30%;
+  bottom: -16%;
+  width: 82%;
+  height: 62%;
+  filter: blur(13px) saturate(0.72) contrast(1.08);
+  transform: translate3d(-20%, 18%, 0) rotate(-10deg) scale(0.42);
+}
+
+.dive-cloud-texture {
+  position: absolute;
+  inset: 0;
+  opacity: 0.001;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+  background-size: 260px 260px;
+  mix-blend-mode: soft-light;
+  mask-image: radial-gradient(ellipse at 50% 53%, transparent 0 15%, #000 34%, #000 78%, transparent 96%);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.dive-cloud-haze {
+  z-index: 4;
+  inset: -8%;
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 0 18%, color-mix(in srgb, var(--earth-cloud-mid) 34%, transparent) 45%, transparent 72%),
+    linear-gradient(105deg, transparent 10%, color-mix(in srgb, var(--earth-cloud-shadow) 50%, transparent) 46%, transparent 82%);
+  filter: blur(18px);
+}
+
+.dive-vignette {
+  z-index: 6;
+  background: radial-gradient(
+    circle at 50% 48%,
+    transparent 0 23%,
+    rgba(1, 8, 3, 0.08) 46%,
+    rgba(0, 3, 1, 0.42) 82%,
+    rgba(0, 2, 1, 0.58) 100%
+  );
+}
+
+.earth-view.is-transitioning {
+  pointer-events: none;
+}
+
+.earth-view.is-transitioning .dive-atmosphere {
+  animation: atmosphere-dive 2.18s cubic-bezier(0.45, 0, 0.65, 1) both;
+}
+
+.earth-view.is-transitioning .dive-cloudscape::before {
+  animation: cloud-sheet-left-dive 2.18s cubic-bezier(0.4, 0, 0.62, 1) both;
+}
+
+.earth-view.is-transitioning .dive-cloudscape::after {
+  animation: cloud-sheet-right-dive 2.18s cubic-bezier(0.4, 0, 0.62, 1) both;
+}
+
+.earth-view.is-transitioning .cloud-bank--far {
+  animation: cloud-far-dive 2.18s cubic-bezier(0.4, 0, 0.65, 1) both;
+}
+
+.earth-view.is-transitioning .cloud-bank--left {
+  animation: cloud-left-dive 2.18s cubic-bezier(0.4, 0, 0.62, 1) both;
+}
+
+.earth-view.is-transitioning .cloud-bank--right {
+  animation: cloud-right-dive 2.18s cubic-bezier(0.4, 0, 0.62, 1) both;
+}
+
+.earth-view.is-transitioning .cloud-bank--near-left {
+  animation: cloud-near-left-dive 2.18s cubic-bezier(0.42, 0, 0.62, 1) both;
+}
+
+.earth-view.is-transitioning .cloud-bank--near-right {
+  animation: cloud-near-right-dive 2.18s cubic-bezier(0.42, 0, 0.62, 1) both;
+}
+
+.earth-view.is-transitioning .dive-cloud-texture {
+  animation: cloud-texture-dive 2.18s ease-in-out both;
+}
+
+.earth-view.is-transitioning .dive-cloud-haze {
+  animation: cloud-haze-dive 2.18s ease-in-out both;
+}
+
+.earth-view.is-transitioning .dive-vignette {
+  animation: dive-vignette 2.18s ease-in-out both;
+}
+
+.earth-view.is-transitioning::after {
+  animation: earth-grid-dive 2.18s ease-in-out both;
+}
+
+@keyframes atmosphere-dive {
+  0%, 8% { opacity: 0; transform: scale(0.42); }
+  30% { opacity: 0.22; }
+  52% { opacity: 0.72; }
+  76% { opacity: 0.32; transform: scale(3.5); }
+  100% { opacity: 0; transform: scale(5.2); }
+}
+
+@keyframes cloud-sheet-left-dive {
+  0%, 14% { opacity: 0; transform: translate3d(-14%, -7%, 0) rotate(7deg) scale(0.72); }
+  42% { opacity: 0.34; }
+  65% { opacity: 0.78; transform: translate3d(-2%, 1%, 0) rotate(3deg) scale(1.08); }
+  83% { opacity: 0.34; }
+  100% { opacity: 0; transform: translate3d(15%, -6%, 0) rotate(-1deg) scale(1.46); }
+}
+
+@keyframes cloud-sheet-right-dive {
+  0%, 17% { opacity: 0; transform: translate3d(14%, 8%, 0) rotate(-8deg) scale(0.7); }
+  45% { opacity: 0.3; }
+  67% { opacity: 0.74; transform: translate3d(2%, 0, 0) rotate(-3deg) scale(1.06); }
+  84% { opacity: 0.3; }
+  100% { opacity: 0; transform: translate3d(-16%, -5%, 0) rotate(1deg) scale(1.44); }
+}
+
+@keyframes cloud-far-dive {
+  0%, 12% { opacity: 0; transform: translate3d(0, -18%, 0) rotate(-4deg) scale(0.52); }
+  36% { opacity: 0.34; }
+  60% { opacity: 0.74; transform: translate3d(-2%, 4%, 0) rotate(-2deg) scale(1.08); }
+  82% { opacity: 0.28; }
+  100% { opacity: 0; transform: translate3d(-4%, 32%, 0) rotate(1deg) scale(1.72); }
+}
+
+@keyframes cloud-left-dive {
+  0%, 16% { opacity: 0; transform: translate3d(18%, 6%, 0) rotate(9deg) scale(0.5); }
+  38% { opacity: 0.45; }
+  59% { opacity: 0.98; transform: translate3d(6%, -1%, 0) rotate(5deg) scale(1.04); }
+  74% { opacity: 0.78; transform: translate3d(-9%, -4%, 0) rotate(2deg) scale(1.32); }
+  100% { opacity: 0; transform: translate3d(-46%, -13%, 0) rotate(-4deg) scale(1.82); }
+}
+
+@keyframes cloud-right-dive {
+  0%, 18% { opacity: 0; transform: translate3d(-18%, 8%, 0) rotate(-8deg) scale(0.48); }
+  40% { opacity: 0.42; }
+  60% { opacity: 0.98; transform: translate3d(-5%, 0, 0) rotate(-5deg) scale(1.02); }
+  75% { opacity: 0.76; transform: translate3d(10%, 3%, 0) rotate(-2deg) scale(1.3); }
+  100% { opacity: 0; transform: translate3d(48%, -10%, 0) rotate(4deg) scale(1.84); }
+}
+
+@keyframes cloud-near-left-dive {
+  0%, 32% { opacity: 0; transform: translate3d(20%, 18%, 0) rotate(12deg) scale(0.44); }
+  53% { opacity: 0.38; }
+  67% { opacity: 0.9; transform: translate3d(6%, 4%, 0) rotate(8deg) scale(1.1); }
+  82% { opacity: 0.64; }
+  100% { opacity: 0; transform: translate3d(-48%, -24%, 0) rotate(1deg) scale(2.02); }
+}
+
+@keyframes cloud-near-right-dive {
+  0%, 34% { opacity: 0; transform: translate3d(-20%, 18%, 0) rotate(-10deg) scale(0.42); }
+  54% { opacity: 0.36; }
+  68% { opacity: 0.9; transform: translate3d(-5%, 5%, 0) rotate(-7deg) scale(1.08); }
+  83% { opacity: 0.62; }
+  100% { opacity: 0; transform: translate3d(50%, -22%, 0) rotate(-1deg) scale(2.06); }
+}
+
+@keyframes cloud-texture-dive {
+  0%, 24% { opacity: 0; transform: translate3d(-3%, -2%, 0) scale(0.7); }
+  52% { opacity: 0.16; }
+  69% { opacity: 0.42; transform: translate3d(2%, 1%, 0) scale(1.12); }
+  100% { opacity: 0; transform: translate3d(8%, 6%, 0) scale(1.75); }
+}
+
+@keyframes cloud-haze-dive {
+  0%, 22% { opacity: 0; transform: scale(0.7); }
+  52% { opacity: 0.24; }
+  67% { opacity: 0.52; transform: scale(1.1); }
+  86% { opacity: 0.2; }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+
+@keyframes dive-vignette {
+  0%, 34% { opacity: 0; }
+  62% { opacity: 0.38; }
+  82% { opacity: 0.18; }
+  100% { opacity: 0; }
+}
+
+@keyframes earth-grid-dive {
+  0%, 38% { opacity: 1; }
+  66% { opacity: 0.34; }
+  100% { opacity: 0; }
+}
+
+@keyframes earth-view-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+.earth-mount {
+  position: absolute;
+  inset: 0;
+}
