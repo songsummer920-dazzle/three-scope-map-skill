@@ -21,9 +21,9 @@ REQUIRED_ASSETS = (
 )
 
 REQUIRED_EARTH_FILES = (
-    "src/components/map/EarthView.vue",
-    "src/components/map/EarthChinaMap.vue",
-    "src/components/map/ChinaMap.vue",
+    "src/components/map/core/earthViewCore.ts",
+    "src/components/map/core/earthChinaMapCore.ts",
+    "src/components/map/core/scopeMapCore.ts",
     "src/components/map/mapTheme.ts",
     "src/assets/maps/china.json",
     "src/assets/maps/world.json",
@@ -221,14 +221,14 @@ def main() -> int:
         else:
             problems.append("Earth and 3D map are not both connected to mapTheme.ts/MAP_THEME_PRIMARY.")
 
-        earth_china_map = root / "src/components/map/EarthChinaMap.vue"
+        earth_china_map = root / "src/components/map/core/earthChinaMapCore.ts"
         earth_china_sources = [earth_china_map] if earth_china_map.exists() else []
         isolated_preload_ok = (
             file_contains(earth_sources, r"onSceneReady")
             and file_contains(earth_sources, r"startIntro")
-            and file_contains(earth_china_sources, r':start-intro="chinaReady"')
-            and file_contains(earth_china_sources, r"prepareChinaMap[\s\S]*chinaMounted\.value\s*=\s*true")
-            and file_contains(earth_china_sources, r"defineAsyncComponent\(\(\)\s*=>\s*import\(['\"]\./ChinaMap\.vue['\"]\)\)")
+            and file_contains(earth_china_sources, r"setStartIntro\(")
+            and file_contains(earth_china_sources, r"prepareChinaMap[\s\S]*chinaMounted\s*=\s*true")
+            and file_contains(earth_china_sources, r"await\s+import\(['\"]\./scopeMapCore['\"]\)")
             and file_contains(earth_sources, r"world\.earth-render\.json")
             and not file_contains(earth_sources, r"from\s*['\"][^'\"]*/world\.json['\"]")
             and file_contains(map_components, r"waitForPreloadSlice[\s\S]*compileAsync[\s\S]*initTexture")
@@ -236,7 +236,7 @@ def main() -> int:
         static_handoff_ok = (
             file_contains(map_components, r"settleMapForStaticFrame")
             and file_contains(map_components, r"startMapAnimation[\s\S]*stopMapAnimation")
-            and file_contains(earth_china_sources, r':active="mode\s*===\s*[\'"]china[\'"]"')
+            and file_contains(earth_china_sources, r"createScopeMap\([\s\S]*active:\s*false")
         )
         if static_handoff_ok:
             passes.append("Earth handoff uses a static precompiled destination frame before map animation")

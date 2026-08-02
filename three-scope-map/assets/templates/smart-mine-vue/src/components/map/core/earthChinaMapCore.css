@@ -1,0 +1,82 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright (c) 2026 宋夏天Dazzle
+ * 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+ * Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
+ *
+ * 本文件是框架无关的渲染核心样式，真源位于 assets/templates/map-core/。
+ * 不要直接编辑模板里的副本；改动后请运行 scripts/sync_map_templates.py。
+ */
+
+.earth-china-map {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+}
+
+.china-map-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateZ(0) scale(0.78);
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  contain: layout paint;
+  pointer-events: none;
+  transition:
+    opacity 420ms ease,
+    transform 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 620ms;
+}
+
+.china-map-stage.is-handoff {
+  visibility: visible;
+  animation: china-cloud-reveal 1.44s cubic-bezier(0.22, 0.72, 0.18, 1) both;
+}
+
+.china-map-stage:not(.is-active) .map-host {
+  filter: none;
+}
+
+.china-map-stage:not(.is-active) .map-label-layer,
+.china-map-stage:not(.is-active) .map-drill-control,
+.china-map-stage:not(.is-active) .south-sea-inset {
+  display: none;
+}
+
+.china-map-stage.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  pointer-events: auto;
+  animation: none;
+  transition-delay: 0s;
+}
+
+@keyframes china-cloud-reveal {
+  0% {
+    opacity: 0.06;
+    transform: translateZ(0) scale(0.78);
+  }
+  28% {
+    opacity: 0.24;
+    transform: translateZ(0) scale(0.83);
+  }
+  66% {
+    opacity: 0.78;
+    transform: translateZ(0) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateZ(0) scale(1);
+  }
+}
+
+.earth-china-mount {
+  position: absolute;
+  inset: 0;
+}
