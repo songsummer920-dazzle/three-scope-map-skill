@@ -174,9 +174,9 @@ def main() -> int:
     map_components = find_any(
         root,
         [
-            "src/components/map/*ThreeMap.vue",
-            "src/components/map/ZhejiangThreeMap.vue",
-            "src/**/ZhejiangThreeMap.vue",
+            "src/components/map/core/scopeMapCore.ts",
+            "src/components/map/ChinaMap.vue",
+            "src/components/map/ChinaMap.tsx",
         ],
     )
     if map_components:
@@ -214,7 +214,7 @@ def main() -> int:
 
         theme_path = root / "src/components/map/mapTheme.ts"
         earth_theme_ok = file_contains(earth_sources, r"import\s*\{\s*MAP_THEME_PRIMARY\s*\}\s*from\s*['\"]\./mapTheme['\"]")
-        map_theme_ok = file_contains(map_components, r"import\s*\{[^}]*mapTheme[^}]*\}\s*from\s*['\"]\./mapTheme['\"]")
+        map_theme_ok = file_contains(map_components, r"import\s*\{[^}]*mapTheme[^}]*\}\s*from\s*['\"]\.\.?/mapTheme['\"]")
         primary_ok = file_contains([theme_path] if theme_path.exists() else [], r"export\s+const\s+MAP_THEME_PRIMARY\s*=")
         if earth_theme_ok and map_theme_ok and primary_ok:
             passes.append("Shared one-color Earth/3D map theme entry found")
