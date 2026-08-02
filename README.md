@@ -131,10 +131,10 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 
 要求：
 1. 先从这个 GitHub 链接安装或读取 three-scope-map skill。
-2. 检查当前工作目录。
-3. 如果当前目录不是前端项目，直接复制 skill 内置 assets/templates/smart-mine-vue 完整最小项目，不要重新生成一套相似实现。
-4. 安装锁文件指定的依赖，并挂载 EarthChinaMap.vue 作为默认视图。
-5. EarthView.vue、EarthChinaMap.vue、ChinaMap.vue、mapTheme.ts、GeoJSON 和纹理资源必须作为一个整体复制，不得从零重写或删减。
+2. 检查当前工作目录；如果已经存在目标前端项目，从其 package.json 判定框架（react 依赖 → React，vue 依赖 → Vue）。
+3. 如果当前目录不是前端项目：默认复制 skill 内置 assets/templates/smart-mine-vue 完整最小项目；如果我明确要求用 React，改为复制 assets/templates/smart-mine-react 完整最小项目。两者共用同一套 core/ 渲染核心，不要重新生成一套相似实现。
+4. 安装锁文件指定的依赖，并挂载 EarthChinaMap 作为默认视图（Vue 模板是 EarthChinaMap.vue，React 模板是 EarthChinaMap.tsx）。
+5. EarthView、EarthChinaMap、ChinaMap（对应框架的 .vue 或 .tsx 壳）、core/ 渲染核心、mapTheme.ts、GeoJSON 和纹理资源必须作为一个整体复制，不得从零重写或删减。
 6. 页面打开后必须先显示真实 Three.js 地球，再点击中国进入现有中国 3D 地图。
 7. 地球必须保留星空、真实纹理、中国立体高程与侧边厚度、网格交点、扫描光、国际飞线、常态涟漪、大气边缘光和云层下钻。
 8. 中国 3D 地图必须保留挤出厚度、侧边渐变、地形纹理、外/内部边界、标签、hover 抬升、飞线、追光、HUD 底座环、视角保存/恢复和南海线框。
@@ -163,9 +163,9 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 我不懂开发，请你自动完成：
 1. 检查当前项目技术栈和目录结构。
 2. 如果缺少 three 或相关依赖，请安装。
-3. 如果当前项目不是 Vue 项目，请根据现有技术栈给出最小适配实现。
-4. 从 skill 内置模板复制 EarthView.vue、EarthChinaMap.vue、ChinaMap.vue、mapTheme.ts、地图数据和纹理资源，保持其实现一模一样。
-5. 将 EarthChinaMap.vue 接入指定页面或容器，默认先显示地球，再下钻到现有中国 3D 地图。
+3. 探测当前项目的框架：package.json 里有 react 依赖就是 React 项目，有 vue 依赖就是 Vue 项目。React 项目复制 skill 内置 assets/templates/smart-mine-react 的 map 组件与资源，Vue 项目复制 assets/templates/smart-mine-vue 的；两者共用同一套 core/ 渲染核心，不要分别重写。只有当前项目既不是 Vue 也不是 React 时才需要适配——这种情况下正确做法是直接调用框架无关的 createEarthChinaMap(container, opts) 挂载渲染核心，而不是重写渲染逻辑。
+4. 从对应框架模板复制 EarthView、EarthChinaMap、ChinaMap（.vue 或 .tsx 壳）、core/ 渲染核心、mapTheme.ts、地图数据和纹理资源，保持其实现一模一样。
+5. 将 EarthChinaMap（对应框架壳）接入指定页面或容器，默认先显示地球，再下钻到现有中国 3D 地图。
 6. 不得自由重画地球、重写地图材质、替换动画、删减纹理或用简化实现代替模板。
 7. 保留地球星空、中国立体高程、网格扫描、国际飞线、涟漪、云层下钻，以及 3D 地图的厚度、纹理、标签、hover、飞线、追光、底座环和南海线框。
 8. 使用共享主色 #E8FF4F；后续一句话换色时只修改 MAP_THEME_PRIMARY，让地球和 3D 地图统一换色。
@@ -181,7 +181,7 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 ### Specific Task Prompts
 
 ```txt
-Use three-scope-map to install the bundled Earth-to-China Vue template as-is, open directly on Earth, and preserve its full 3D handoff into the China map.
+Use three-scope-map to detect the target framework and install the matching bundled Earth-to-China template (Vue or React) as-is, open directly on Earth, and preserve its full 3D handoff into the China map.
 ```
 
 ```txt

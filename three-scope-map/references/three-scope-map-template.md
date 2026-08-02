@@ -43,7 +43,7 @@ export function createEarthChinaMap(
 ): EarthChinaMapHandle;
 ```
 
-`createEarthChinaMap` internally owns `createEarthView` and lazy-loads `createScopeMap` (via a dynamic `import('./scopeMapCore')`) once the Earth scene reaches `scene-ready`, then coordinates the Earth-to-China handoff. All Three.js/GSAP resources are disposed in `destroy()`, including a `renderer?.forceContextLoss()` call, so a host component can safely mount and unmount the map repeatedly without exhausting WebGL context budget.
+`createEarthChinaMap` internally owns `createEarthView` and lazy-loads `createScopeMap` (via a dynamic `import('./scopeMapCore')`) once the Earth scene reaches `scene-ready`, then coordinates the Earth-to-China handoff. Its own `destroy()` holds no `renderer` reference; it delegates disposal to its two sub-cores (`earth.destroy()` and `chinaMap?.destroy()`), and each of those calls `renderer?.forceContextLoss()` internally. The net effect is the same either way: a host component can safely mount and unmount `EarthChinaMap` repeatedly without exhausting WebGL context budget.
 
 Never rebuild this rendering logic per-framework. Both shells below are thin adapters that call the same core functions.
 
@@ -152,4 +152,4 @@ This is the actual `smart-mine-react/src/components/map/ChinaMap.tsx` shell. It 
     ```
 
 3. 贴图与 GeoJSON 用 import 引入（如模板所做），不要改成 `/public` 下的裸路径 —— 核心依赖打包器把它们解析成带 hash 的 URL。
-4. `src/style.css` 里的 `#app` 选择器要改成 Next.js 的根容器选择器（通常是 `body > div:first-child` 或你自己给 layout 加的 id）。
+4. `src/style.css` 里 `html, body, #app { width: 100%; height: 100%; ... }` 这条规则的 `#app` 部分在 Next.js 下不会命中——App Router 默认 `layout.tsx` 直接把 children 渲染进 `<body>`，不会额外包一层 `#app`。通常无需处理：示例代码里 `.map-page` 自带 `position: fixed; inset: 0`，已经独立解决了铺满视口的问题，不依赖 `#app` 规则。只有当你自己在 layout 里包了一层容器、且该容器需要撑满高度时，才需要按实际的容器选择器补一条等价规则。

@@ -58,7 +58,7 @@ The authoritative implementation lives in `map-core/core/`; the Vue/React files 
 - `earthChinaMapCore.ts` (`createEarthChinaMap`, mounted by `EarthChinaMap.vue` / `EarthChinaMap.tsx`): own the `earth | china` state, lazy-load `scopeMapCore.ts` via a dynamic `import('./scopeMapCore')` once `scene-ready` fires, prepare the inactive destination, release `start-intro` only after its completed static frame exists, reveal that frame during handoff, keep the destination animation inactive until `enter-china`, and unexpose Earth only when the transition completes.
 - `scopeMapCore.ts` (`createScopeMap`, mounted by `ChinaMap.vue` / `ChinaMap.tsx`): the actual China/province/city/district renderer. The framework shell is a thin adapter; it does not duplicate the renderer or own any Three.js state itself.
 - `mapTheme.ts`: remain the only color entry. `MAP_THEME_PRIMARY` feeds both Earth and the 3D map.
-- Every core `destroy()` calls `renderer?.forceContextLoss()` before tearing down, so a shell can be mounted and unmounted repeatedly (React 18 StrictMode's double-invoke included) without leaking WebGL contexts.
+- `scopeMapCore.ts` and `earthViewCore.ts` each call `renderer?.forceContextLoss()` inside their own `destroy()`. `earthChinaMapCore.ts`'s `destroy()` holds no `renderer` of its own; it delegates to `earth.destroy()` and `chinaMap?.destroy()`, which is where those calls actually happen. Net effect: a shell can be mounted and unmounted repeatedly (React 18 StrictMode's double-invoke included) without leaking WebGL contexts.
 
 ## Theme Contract
 
