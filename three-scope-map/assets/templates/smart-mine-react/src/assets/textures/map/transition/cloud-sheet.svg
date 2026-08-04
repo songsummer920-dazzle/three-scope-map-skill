@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760">
+  <defs>
+    <radialGradient id="cloudSoft" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".9"/>
+      <stop offset=".38" stop-color="#fff" stop-opacity=".72"/>
+      <stop offset=".72" stop-color="#fff" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cloudThin" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".62"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="145" cy="425" rx="285" ry="205" fill="url(#cloudSoft)"/>
+  <ellipse cx="372" cy="235" rx="330" ry="185" fill="url(#cloudThin)"/>
+  <ellipse cx="610" cy="480" rx="375" ry="225" fill="url(#cloudSoft)"/>
+  <ellipse cx="855" cy="245" rx="330" ry="190" fill="url(#cloudThin)"/>
+  <ellipse cx="1110" cy="445" rx="300" ry="220" fill="url(#cloudSoft)"/>
+</svg>

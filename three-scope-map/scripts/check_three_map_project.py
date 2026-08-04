@@ -21,9 +21,9 @@ REQUIRED_ASSETS = (
 )
 
 REQUIRED_EARTH_FILES = (
-    "src/components/map/EarthView.vue",
-    "src/components/map/EarthChinaMap.vue",
-    "src/components/map/ChinaMap.vue",
+    "src/components/map/core/earthViewCore.ts",
+    "src/components/map/core/earthChinaMapCore.ts",
+    "src/components/map/core/scopeMapCore.ts",
     "src/components/map/mapTheme.ts",
     "src/assets/maps/china.json",
     "src/assets/maps/world.json",
@@ -56,7 +56,7 @@ EARTH_EFFECT_PATTERNS = {
     "Earth international fly lines": r"flyTrackMaterials|createFlyLines|createInternationalFlyLines",
     "Earth batched world outlines": r"function\s+createWorldOutlines[\s\S]*new\s+THREE\.LineSegments",
     "Earth spherical JD dashed line": r"createChinaJdDashedLines[\s\S]*LineDashedMaterial",
-    "Earth handoff events": r"intro-ready[\s\S]*handoff-start[\s\S]*enter-china",
+    "Earth handoff events": r"onIntroReady[\s\S]*onHandoffStart[\s\S]*onEnterChina",
 }
 
 PRIVATE_OR_DASHBOARD_PATTERNS = {
@@ -117,7 +117,38 @@ def file_contains(files: Iterable[Path], pattern: str) -> bool:
     return False
 
 
-def package_status(root: Path) -> tuple[list[str], list[str]]:
+FRAMEWORK_SHELL_FILES = {
+    "vue": {
+        "src/components/map/EarthView.vue": "createEarthView",
+        "src/components/map/EarthChinaMap.vue": "createEarthChinaMap",
+        "src/components/map/ChinaMap.vue": "createScopeMap",
+    },
+    "react": {
+        "src/components/map/EarthView.tsx": "createEarthView",
+        "src/components/map/EarthChinaMap.tsx": "createEarthChinaMap",
+        "src/components/map/ChinaMap.tsx": "createScopeMap",
+    },
+}
+
+FRAMEWORK_DEPENDENCIES = {
+    "vue": ("vue",),
+    "react": ("react", "react-dom"),
+}
+
+
+def detect_framework(root: Path) -> str:
+    package = read_json(root / "package.json")
+    deps = {}
+    deps.update(package.get("dependencies", {}))
+    deps.update(package.get("devDependencies", {}))
+    if "react" in deps:
+        return "react"
+    if "vue" in deps:
+        return "vue"
+    return "unknown"
+
+
+def package_status(root: Path, framework: str) -> tuple[list[str], list[str]]:
     package_path = root / "package.json"
     if not package_path.exists():
         return ["package.json missing"], []
@@ -127,8 +158,10 @@ def package_status(root: Path) -> tuple[list[str], list[str]]:
     deps.update(package.get("dependencies", {}))
     deps.update(package.get("devDependencies", {}))
 
-    missing = [name for name in ("vue", "vite", "three") if name not in deps]
-    present = [name for name in ("vue", "vite", "three", "@types/three") if name in deps]
+    required = ("vite", "three") + FRAMEWORK_DEPENDENCIES.get(framework, ())
+    optional = ("@types/three",)
+    missing = [name for name in required if name not in deps]
+    present = [name for name in required + optional if name in deps]
     return [f"{name} dependency missing" for name in missing], present
 
 
@@ -160,7 +193,15 @@ def main() -> int:
     elif not root.is_dir():
         problems.append(f"Project path is not a directory: {root}")
 
-    dependency_problems, present_deps = package_status(root)
+    framework = detect_framework(root)
+    if framework == "unknown":
+        problems.append(
+            "Could not detect the target framework; package.json must depend on vue or react."
+        )
+    else:
+        passes.append(f"Target framework detected: {framework}")
+
+    dependency_problems, present_deps = package_status(root, framework)
     problems.extend(dependency_problems)
     if present_deps:
         passes.append(f"Dependencies present: {', '.join(present_deps)}")
@@ -174,9 +215,8 @@ def main() -> int:
     map_components = find_any(
         root,
         [
-            "src/components/map/*ThreeMap.vue",
-            "src/components/map/ZhejiangThreeMap.vue",
-            "src/**/ZhejiangThreeMap.vue",
+            "src/components/map/core/scopeMapCore.ts",
+            *(f"{path}" for path in FRAMEWORK_SHELL_FILES.get(framework, {}) if "ChinaMap" in path and "Earth" not in path),
         ],
     )
     if map_components:
@@ -191,6 +231,18 @@ def main() -> int:
         else:
             problems.append(f"Earth template file missing: {relative_path}")
 
+    for relative_path, factory_name in FRAMEWORK_SHELL_FILES.get(framework, {}).items():
+        path = root / relative_path
+        if not path.exists():
+            problems.append(f"Framework shell missing: {relative_path}")
+        elif file_contains([path], rf"\b{re.escape(factory_name)}\s*\("):
+            passes.append(f"Framework shell found: {relative_path}")
+        else:
+            problems.append(
+                f"Framework shell exists but is not wired: {relative_path} does not call "
+                f"{factory_name}(); it will render blank."
+            )
+
     for asset in REQUIRED_ASSETS:
         if (root / asset).exists():
             passes.append(f"Asset path found: {asset}")
@@ -204,7 +256,7 @@ def main() -> int:
             else:
                 problems.append(f"Effect check missing: {label}")
 
-        earth_view = root / "src/components/map/EarthView.vue"
+        earth_view = root / "src/components/map/core/earthViewCore.ts"
         earth_sources = [earth_view] if earth_view.exists() else []
         for label, pattern in EARTH_EFFECT_PATTERNS.items():
             if file_contains(earth_sources, pattern):
@@ -213,22 +265,22 @@ def main() -> int:
                 problems.append(f"Earth effect check missing: {label}")
 
         theme_path = root / "src/components/map/mapTheme.ts"
-        earth_theme_ok = file_contains(earth_sources, r"import\s*\{\s*MAP_THEME_PRIMARY\s*\}\s*from\s*['\"]\./mapTheme['\"]")
-        map_theme_ok = file_contains(map_components, r"import\s*\{[^}]*mapTheme[^}]*\}\s*from\s*['\"]\./mapTheme['\"]")
+        earth_theme_ok = file_contains(earth_sources, r"import\s*\{\s*MAP_THEME_PRIMARY\s*\}\s*from\s*['\"]\.\.?/mapTheme['\"]")
+        map_theme_ok = file_contains(map_components, r"import\s*\{[^}]*mapTheme[^}]*\}\s*from\s*['\"]\.\.?/mapTheme['\"]")
         primary_ok = file_contains([theme_path] if theme_path.exists() else [], r"export\s+const\s+MAP_THEME_PRIMARY\s*=")
         if earth_theme_ok and map_theme_ok and primary_ok:
             passes.append("Shared one-color Earth/3D map theme entry found")
         else:
             problems.append("Earth and 3D map are not both connected to mapTheme.ts/MAP_THEME_PRIMARY.")
 
-        earth_china_map = root / "src/components/map/EarthChinaMap.vue"
+        earth_china_map = root / "src/components/map/core/earthChinaMapCore.ts"
         earth_china_sources = [earth_china_map] if earth_china_map.exists() else []
         isolated_preload_ok = (
-            file_contains(earth_sources, r"emit\(['\"]scene-ready['\"]\)")
+            file_contains(earth_sources, r"onSceneReady")
             and file_contains(earth_sources, r"startIntro")
-            and file_contains(earth_china_sources, r':start-intro="chinaReady"')
-            and file_contains(earth_china_sources, r"prepareChinaMap[\s\S]*chinaMounted\.value\s*=\s*true")
-            and file_contains(earth_china_sources, r"defineAsyncComponent\(\(\)\s*=>\s*import\(['\"]\./ChinaMap\.vue['\"]\)\)")
+            and file_contains(earth_china_sources, r"setStartIntro\(")
+            and file_contains(earth_china_sources, r"prepareChinaMap[\s\S]*chinaMounted\s*=\s*true")
+            and file_contains(earth_china_sources, r"await\s+import\(['\"]\./scopeMapCore['\"]\)")
             and file_contains(earth_sources, r"world\.earth-render\.json")
             and not file_contains(earth_sources, r"from\s*['\"][^'\"]*/world\.json['\"]")
             and file_contains(map_components, r"waitForPreloadSlice[\s\S]*compileAsync[\s\S]*initTexture")
@@ -236,7 +288,7 @@ def main() -> int:
         static_handoff_ok = (
             file_contains(map_components, r"settleMapForStaticFrame")
             and file_contains(map_components, r"startMapAnimation[\s\S]*stopMapAnimation")
-            and file_contains(earth_china_sources, r':active="mode\s*===\s*[\'"]china[\'"]"')
+            and file_contains(earth_china_sources, r"createScopeMap\([\s\S]*active:\s*false")
         )
         if static_handoff_ok:
             passes.append("Earth handoff uses a static precompiled destination frame before map animation")

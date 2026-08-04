@@ -11,12 +11,3 @@
 <script setup lang="ts">
 import EarthChinaMap from './components/map/EarthChinaMap.vue';
 </script>
-
-<style scoped>
-.map-page {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  background: #000201;
-}
-</style>

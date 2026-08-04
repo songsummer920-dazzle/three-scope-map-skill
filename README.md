@@ -7,7 +7,7 @@
 # Three Scope Map · Earth-to-China 3D Map Skill
 
 A Codex skill for building an exact Three.js Earth entrance and reusable
-multi-level 3D geographic maps for Vue/web projects. The bundled default
+multi-level 3D geographic maps for Vue / React web projects. The bundled default
 experience starts in space, highlights a textured and extruded China on the
 globe, then performs a coordinated 3D handoff into the existing China map and
 continues through province, city, and district/county drilldown.
@@ -24,12 +24,12 @@ continues through province, city, and district/county drilldown.
 > 或原作者官方发布。
 
 This repository intentionally contains only the standalone Earth/3D map skill
-and its runnable minimal Vue template, not the full dashboard project or any
-business-screen content.
+and its runnable minimal Vue and React templates, not the full dashboard
+project or any business-screen content.
 
 ## What It Supports
 
-- A validated one-to-one Vue 3 template that opens directly on the Three.js Earth.
+- A validated one-to-one Vue 3 template and an equivalent React 19 template, both opening directly on the Three.js Earth.
 - Textured spherical Earth rendering with neutral starfield, atmosphere, geographic outlines, fine grid intersections, grid scan, and idle motion.
 - A separately tessellated and extruded China surface with terrain texture, side-wall thickness, inner glow, animated contour light, and Taiwan wall handling.
 - Persistent international fly-line tracks, synchronized moving light segments, and node ripple effects.
@@ -48,6 +48,18 @@ business-screen content.
 - A fixed screen-space South China Sea inset for China scope and a separate spherical dashed representation on Earth.
 - Template integrity, strict project checks, build validation, and browser visual regression guidance.
 
+## Two Templates, One Core
+
+`three-scope-map/assets/templates/smart-mine-vue/` and
+`three-scope-map/assets/templates/smart-mine-react/` are both runnable,
+one-to-one projects that render identically. They share the same
+framework-agnostic rendering core under
+`three-scope-map/assets/templates/map-core/` (`createEarthView`,
+`createScopeMap`, `createEarthChinaMap`); each template only adds a thin
+Vue or React component shell around those factory functions. The skill
+resolves which template to use from the target project's `package.json`
+(`react` dependency -> React, `vue` dependency -> Vue), and defaults to Vue
+when there is no target project yet.
 
 ## Songsummer Earth-to-China Template
 
@@ -55,7 +67,7 @@ The bundled project is the visual and interaction baseline. Tell Codex to copy
 it before adapting data or integrating it into another project:
 
 ```txt
-Use three-scope-map and copy the bundled Songsummer Earth-to-China Vue template first. Keep EarthView.vue, EarthChinaMap.vue, ChinaMap.vue, mapTheme.ts, map data, and texture assets as one unit. Do not recreate or redesign the Earth or 3D map from scratch. Mount EarthChinaMap.vue as the default view, then run the project and verify the full Earth-to-China handoff in a browser.
+Use three-scope-map and copy the bundled Songsummer Earth-to-China template first (Vue by default, or the React template if React is requested/detected). Keep EarthView, EarthChinaMap, ChinaMap (the framework's .vue or .tsx shells), mapTheme.ts, map data, and texture assets as one unit. Do not recreate or redesign the Earth or 3D map from scratch. Mount EarthChinaMap as the default view, then run the project and verify the full Earth-to-China handoff in a browser.
 ```
 
 For one-to-one output on any requested region, keep this sentence in your prompt:
@@ -64,10 +76,11 @@ For one-to-one output on any requested region, keep this sentence in your prompt
 Preserve the bundled Songsummer Earth and 3D map style one-to-one. Do not simplify, reinterpret, or replace its renderer, textures, geometry, motion, labels, fly lines, contour light, camera behavior, South China Sea treatment, or handoff. Only adapt approved GeoJSON, labels, texture scope, fly-line source/targets, drilldown registry, and camera presets.
 ```
 
-The complete runnable template is under:
+The complete runnable templates are under:
 
 ```txt
 three-scope-map/assets/templates/smart-mine-vue/src/
+three-scope-map/assets/templates/smart-mine-react/src/
 ```
 
 ## Install
@@ -80,8 +93,29 @@ cp -R three-scope-map ~/.codex/skills/
 
 Or install it from this GitHub repository with the skill installer if your Codex environment supports GitHub skill installation.
 
-The bundled Vue template requires Node.js `^20.19.0` or `>=22.12.0`. Its
+Both bundled templates require Node.js `^20.19.0` or `>=22.12.0`. Their
 dependency versions are locked for reproducible installation.
+
+## Quick Start
+
+```bash
+cd three-scope-map/assets/templates/smart-mine-vue && npm install && npm run dev
+cd three-scope-map/assets/templates/smart-mine-react && npm install && npm run dev
+```
+
+## Contributing
+
+Core map logic (rendering, theme, data adapter, terrain material, types) has
+a single source of truth: `three-scope-map/assets/templates/map-core/`. Only
+edit code there, then re-sync both runnable templates:
+
+```bash
+python3 three-scope-map/scripts/sync_map_templates.py
+```
+
+Do not hand-edit the `core/` directories inside `smart-mine-vue/` or
+`smart-mine-react/` — they are generated copies and will be overwritten by
+the sync script.
 
 ## Example Prompts
 
@@ -97,10 +131,10 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 
 要求：
 1. 先从这个 GitHub 链接安装或读取 three-scope-map skill。
-2. 检查当前工作目录。
-3. 如果当前目录不是前端项目，直接复制 skill 内置 assets/templates/smart-mine-vue 完整最小项目，不要重新生成一套相似实现。
-4. 安装锁文件指定的依赖，并挂载 EarthChinaMap.vue 作为默认视图。
-5. EarthView.vue、EarthChinaMap.vue、ChinaMap.vue、mapTheme.ts、GeoJSON 和纹理资源必须作为一个整体复制，不得从零重写或删减。
+2. 检查当前工作目录；如果已经存在目标前端项目，从其 package.json 判定框架（react 依赖 → React，vue 依赖 → Vue）。
+3. 如果当前目录不是前端项目：默认复制 skill 内置 assets/templates/smart-mine-vue 完整最小项目；如果我明确要求用 React，改为复制 assets/templates/smart-mine-react 完整最小项目。两者共用同一套 core/ 渲染核心，不要重新生成一套相似实现。
+4. 安装锁文件指定的依赖，并挂载 EarthChinaMap 作为默认视图（Vue 模板是 EarthChinaMap.vue，React 模板是 EarthChinaMap.tsx）。
+5. EarthView、EarthChinaMap、ChinaMap（对应框架的 .vue 或 .tsx 壳）、core/ 渲染核心、mapTheme.ts、GeoJSON 和纹理资源必须作为一个整体复制，不得从零重写或删减。
 6. 页面打开后必须先显示真实 Three.js 地球，再点击中国进入现有中国 3D 地图。
 7. 地球必须保留星空、真实纹理、中国立体高程与侧边厚度、网格交点、扫描光、国际飞线、常态涟漪、大气边缘光和云层下钻。
 8. 中国 3D 地图必须保留挤出厚度、侧边渐变、地形纹理、外/内部边界、标签、hover 抬升、飞线、追光、HUD 底座环、视角保存/恢复和南海线框。
@@ -129,9 +163,9 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 我不懂开发，请你自动完成：
 1. 检查当前项目技术栈和目录结构。
 2. 如果缺少 three 或相关依赖，请安装。
-3. 如果当前项目不是 Vue 项目，请根据现有技术栈给出最小适配实现。
-4. 从 skill 内置模板复制 EarthView.vue、EarthChinaMap.vue、ChinaMap.vue、mapTheme.ts、地图数据和纹理资源，保持其实现一模一样。
-5. 将 EarthChinaMap.vue 接入指定页面或容器，默认先显示地球，再下钻到现有中国 3D 地图。
+3. 探测当前项目的框架：package.json 里有 react 依赖就是 React 项目，有 vue 依赖就是 Vue 项目。React 项目复制 skill 内置 assets/templates/smart-mine-react 的 map 组件与资源，Vue 项目复制 assets/templates/smart-mine-vue 的；两者共用同一套 core/ 渲染核心，不要分别重写。只有当前项目既不是 Vue 也不是 React 时才需要适配——这种情况下正确做法是直接调用框架无关的 createEarthChinaMap(container, opts) 挂载渲染核心，而不是重写渲染逻辑。
+4. 从对应框架模板复制 EarthView、EarthChinaMap、ChinaMap（.vue 或 .tsx 壳）、core/ 渲染核心、mapTheme.ts、地图数据和纹理资源，保持其实现一模一样。
+5. 将 EarthChinaMap（对应框架壳）接入指定页面或容器，默认先显示地球，再下钻到现有中国 3D 地图。
 6. 不得自由重画地球、重写地图材质、替换动画、删减纹理或用简化实现代替模板。
 7. 保留地球星空、中国立体高程、网格扫描、国际飞线、涟漪、云层下钻，以及 3D 地图的厚度、纹理、标签、hover、飞线、追光、底座环和南海线框。
 8. 使用共享主色 #E8FF4F；后续一句话换色时只修改 MAP_THEME_PRIMARY，让地球和 3D 地图统一换色。
@@ -147,7 +181,7 @@ https://github.com/songsummer920-dazzle/three-scope-map-skill
 ### Specific Task Prompts
 
 ```txt
-Use three-scope-map to install the bundled Earth-to-China Vue template as-is, open directly on Earth, and preserve its full 3D handoff into the China map.
+Use three-scope-map to detect the target framework and install the matching bundled Earth-to-China template (Vue or React) as-is, open directly on Earth, and preserve its full 3D handoff into the China map.
 ```
 
 ```txt

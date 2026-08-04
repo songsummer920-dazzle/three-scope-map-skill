@@ -1,0 +1,235 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright (c) 2026 宋夏天Dazzle
+ * 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+ * Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
+ *
+ * 本文件是框架无关的渲染核心样式，真源位于 assets/templates/map-core/。
+ * 不要直接编辑模板里的副本；改动后请运行 scripts/sync_map_templates.py。
+ */
+
+.map-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.map-host {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
+  pointer-events: auto;
+  filter: drop-shadow(0 0 18px var(--map-stage-shadow));
+  animation: mapStageIn 920ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+}
+
+.south-sea-inset {
+  position: absolute;
+  right: 23%;
+  bottom: 7.5%;
+  z-index: 8;
+  width: 78px;
+  min-width: 62px;
+  max-width: 92px;
+  height: auto;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.96);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 460ms ease 150ms,
+    transform 560ms cubic-bezier(0.16, 1, 0.3, 1) 150ms;
+}
+
+.south-sea-inset.is-visible {
+  opacity: 0.9;
+  transform: translateY(0) scale(1);
+}
+
+.south-sea-inset__frame,
+.south-sea-inset__glow,
+.south-sea-inset__line {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.south-sea-inset__frame {
+  stroke: var(--map-accent-soft);
+  stroke-width: 0.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.4;
+}
+
+.south-sea-inset__glow {
+  stroke: var(--map-accent-soft);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.17;
+}
+
+.south-sea-inset__line {
+  stroke: var(--map-accent);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.88;
+}
+
+.map-host canvas,
+.map-host .map-label-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.map-host .map-label-layer {
+  pointer-events: none;
+}
+
+.map-host .map-drill-control {
+  position: absolute;
+  left: 50%;
+  top: 176px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+  color: var(--map-drill-text-alpha);
+  font-size: 14px;
+  line-height: 1;
+  text-shadow: 0 0 10px var(--map-drill-glow);
+  pointer-events: auto;
+}
+
+.map-host .map-drill-control button {
+  height: 26px;
+  border: 1px solid var(--map-drill-border);
+  border-radius: 2px;
+  padding: 0 12px;
+  background: var(--map-drill-background);
+  color: var(--map-drill-text);
+  font: inherit;
+  cursor: pointer;
+  box-shadow: inset 0 0 14px var(--map-drill-box-inner), 0 0 12px var(--map-drill-box-outer);
+}
+
+.map-host .map-drill-control button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.map-host .city-label-anchor {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+.map-host .city-label {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--map-label-width, 51px);
+  height: var(--map-label-height, 30.8px);
+  padding:
+    0
+    var(--map-label-padding-x, 3.8px)
+    var(--map-label-padding-bottom, 8.3px);
+  background-image: var(--map-label-background-image);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  color: var(--map-label-text);
+  font-size: var(--map-label-font-size, 8.7px);
+  line-height: var(--map-label-line-height, 12.2px);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 0 0 8px var(--map-label-text-glow);
+  opacity: 0.86;
+  transform-origin: center bottom;
+  transform: translateX(-50%);
+  transition: width 180ms ease, height 180ms ease, padding 180ms ease, font-size 180ms ease, opacity 180ms ease;
+  white-space: nowrap;
+}
+
+.map-host .city-ripple {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 63px;
+  height: 25px;
+  border: 1px solid var(--map-ripple-border);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--map-ripple-center), var(--map-ripple-middle) 55%, transparent 72%);
+  box-shadow: 0 0 12px var(--map-ripple-glow);
+  transform: translate(-50%, -50%);
+  animation: jinhua-ripple 9s ease-out infinite;
+  pointer-events: none;
+}
+
+.map-host .city-ripple.delay {
+  animation-delay: 4.5s;
+}
+
+.map-host .city-label.is-selected {
+  width: var(--map-label-selected-width, 60.2px);
+  height: var(--map-label-selected-height, 36.3px);
+  padding:
+    0
+    var(--map-label-selected-padding-x, 4.4px)
+    var(--map-label-selected-padding-bottom, 9.7px);
+  font-size: var(--map-label-selected-font-size, 10.3px);
+  line-height: var(--map-label-selected-line-height, 14.4px);
+  opacity: 1;
+}
+
+.map-host .city-label span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
+@keyframes jinhua-ripple {
+  0% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+}
+
+@keyframes mapStageIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.96);
+    filter: blur(7px) drop-shadow(0 0 0 transparent);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) drop-shadow(0 0 18px var(--map-stage-shadow));
+  }
+}
+
+.map-mount {
+  position: absolute;
+  inset: 0;
+}

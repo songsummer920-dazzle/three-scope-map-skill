@@ -15,7 +15,7 @@ Do not move material colors, side gradients, chase-light styling, label images, 
 
 ## Data Adapter Contract
 
-For Vue + Three.js dashboards, prefer a small adapter beside the map component:
+For Vue or React + Three.js dashboards, prefer a small adapter beside the map component (this is `map-core/shared/mapDataAdapter.ts`, shared by both templates):
 
 ```ts
 export type MapScope = 'world' | 'country' | 'province' | 'city' | 'district';
@@ -73,8 +73,8 @@ Preserve the authoritative Earth intro and its existing event timings. Optimize 
 
 1. Warm the Earth scene and postprocessing targets while its WebGL canvas remains hidden; keep the CSS starfield/backdrop visible.
 2. Emit `scene-ready` once after hidden Earth GPU warm-up, and hold the visible intro behind a `start-intro` prop.
-3. Keep the raw high-resolution world GeoJSON as source data, but import the simplified `world.earth-render.json` cache in `EarthView.vue` so first paint does not parse the raw multi-megabyte file.
-4. Define `ChinaMap.vue` as an async component, then mount it immediately from `scene-ready` with `active=false`.
+3. Keep the raw high-resolution world GeoJSON as source data, but import the simplified `world.earth-render.json` cache in `map-core/core/earthViewCore.ts` so first paint does not parse the raw multi-megabyte file.
+4. In `earthChinaMapCore.ts`, dynamically `import('./scopeMapCore')` and call `createScopeMap` immediately from `onSceneReady` with `active: false`, so the destination renderer stays in its own async chunk instead of parsing into the Earth first-paint bundle.
 5. Split inactive destination geometry construction into cooperative idle slices of roughly 4 ms or less. Yield within complex regional features as well as between features.
 6. Load textures, run `compileAsync`, initialize one texture per idle slice, settle all transition materials to their final opacity, and render exactly one complete WebGL frame plus one CSS2D label frame.
 7. When the destination emits `ready`, release `start-intro`; from this point until Earth intro completion, perform no destination initialization or GPU upload.

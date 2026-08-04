@@ -4,15 +4,24 @@ Use this reference only when the user asks for the bundled Earth entrance, its t
 
 ## Copy Contract
 
-Copy these files together without rewriting the renderer:
+Resolve the target framework first (see `SKILL.md` Core Workflow rule 1). Copy these files together without rewriting the renderer:
 
 ```text
-src/components/map/EarthView.vue
-src/components/map/EarthChinaMap.vue
-src/components/map/ChinaMap.vue
+src/components/map/core/earthViewCore.ts
+src/components/map/core/earthViewCore.css
+src/components/map/core/earthChinaMapCore.ts
+src/components/map/core/earthChinaMapCore.css
+src/components/map/core/scopeMapCore.ts
+src/components/map/core/scopeMapCore.css
+src/components/map/EarthView.vue        # or EarthView.tsx for a React target
+src/components/map/EarthChinaMap.vue    # or EarthChinaMap.tsx
+src/components/map/ChinaMap.vue         # or ChinaMap.tsx
 src/components/map/mapTheme.ts
+src/components/map/mapDataAdapter.ts
+src/components/map/mapTerrainMaterial.ts
 src/assets/maps/china.json
 src/assets/maps/world.json
+src/assets/maps/world.earth-render.json
 src/assets/textures/map/china/china-height-legacy.png
 src/assets/textures/map/china/china-normal-legacy.png
 src/assets/textures/map/world/earth-day.jpg
@@ -22,7 +31,7 @@ src/assets/textures/map/world/earth-specular.jpg
 src/types/geo.ts
 ```
 
-Do not shorten `EarthView.vue`, reconstruct it from these notes, rename it to `EarthViewLegacy.vue`, add an `earthVersion` query switch, or keep a competing globe implementation.
+Do not shorten `earthViewCore.ts`, reconstruct it from these notes, rename it to an `EarthViewLegacy` variant, add an `earthVersion` query switch, or keep a competing globe implementation.
 
 ## Preserved Visual Baseline
 
@@ -43,10 +52,13 @@ Never replace these with screenshots, SVG/canvas globes, flat fills, generic gra
 
 ## Component Responsibilities
 
-- `EarthView.vue`: own the globe renderer, textures, shaders, spherical China geometry, intro, idle effects, hover/click raycasting, and cloud dive. Warm the hidden canvas, emit `scene-ready`, wait for `start-intro`, then emit `intro-ready`, `handoff-start`, and `enter-china` at the existing visible-timeline timings.
-- `EarthChinaMap.vue`: own the `earth | china` state, prepare the inactive destination after `scene-ready`, release `start-intro` only after its completed static frame exists, reveal that frame during handoff, keep the destination animation inactive until `enter-china`, and unexpose Earth only when the transition completes.
-- `ChinaMap.vue`: remain a thin adapter around `ZhejiangThreeMap.vue`. Do not duplicate the China renderer.
+The authoritative implementation lives in `map-core/core/`; the Vue/React files below are thin framework shells that call these core factory functions and forward their callbacks as emits/props (see `references/three-scope-map-template.md` for the shell shape).
+
+- `earthViewCore.ts` (`createEarthView`, mounted by `EarthView.vue` / `EarthView.tsx`): own the globe renderer, textures, shaders, spherical China geometry, intro, idle effects, hover/click raycasting, and cloud dive. Warm the hidden canvas, emit `scene-ready` (`onSceneReady`), wait for `start-intro` (`setStartIntro`), then emit `intro-ready`, `handoff-start`, and `enter-china` at the existing visible-timeline timings.
+- `earthChinaMapCore.ts` (`createEarthChinaMap`, mounted by `EarthChinaMap.vue` / `EarthChinaMap.tsx`): own the `earth | china` state, lazy-load `scopeMapCore.ts` via a dynamic `import('./scopeMapCore')` once `scene-ready` fires, prepare the inactive destination, release `start-intro` only after its completed static frame exists, reveal that frame during handoff, keep the destination animation inactive until `enter-china`, and unexpose Earth only when the transition completes.
+- `scopeMapCore.ts` (`createScopeMap`, mounted by `ChinaMap.vue` / `ChinaMap.tsx`): the actual China/province/city/district renderer. The framework shell is a thin adapter; it does not duplicate the renderer or own any Three.js state itself.
 - `mapTheme.ts`: remain the only color entry. `MAP_THEME_PRIMARY` feeds both Earth and the 3D map.
+- `scopeMapCore.ts` and `earthViewCore.ts` each call `renderer?.forceContextLoss()` inside their own `destroy()`. `earthChinaMapCore.ts`'s `destroy()` holds no `renderer` of its own; it delegates to `earth.destroy()` and `chinaMap?.destroy()`, which is where those calls actually happen. Net effect: a shell can be mounted and unmounted repeatedly (React 18 StrictMode's double-invoke included) without leaking WebGL contexts.
 
 ## Theme Contract
 
@@ -60,17 +72,17 @@ Do not hand-replace individual hex/RGB values in Earth shaders. The shared theme
 
 ## Integration Contract
 
-- For a new project, copy the complete `assets/templates/smart-mine-vue/` directory. Its `App.vue` mounts `EarthChinaMap.vue`, so Earth is the first visible view.
-- For an existing project, mount `<EarthChinaMap />` in a positioned container with non-zero width and height.
-- Install `vue`, `three`, `gsap`, and `@types/three`; do not introduce Cesium or Globe.gl.
+- For a new Vue project, copy the complete `assets/templates/smart-mine-vue/` directory. Its `App.vue` mounts `EarthChinaMap.vue`, so Earth is the first visible view. For a new React project, copy `assets/templates/smart-mine-react/` instead; its `App.tsx` mounts `EarthChinaMap.tsx` the same way.
+- For an existing project, mount `<EarthChinaMap />` (Vue) or `<EarthChinaMap />` (React) in a positioned container with non-zero width and height.
+- Vue target: install `vue`, `three`, `gsap`, and `@types/three`. React target: install `react`, `react-dom`, `three`, `gsap`, and `@types/three`. Either way, do not introduce Cesium or Globe.gl.
 - Keep the bundled relative asset paths unless the target build system requires a mechanical alias adjustment.
-- Keep `world.json` as source data, use `world.earth-render.json` for Earth rendering, and retain the async `ChinaMap.vue` import so the destination renderer is not parsed before Earth first paint.
+- Keep `world.json` as source data, use `world.earth-render.json` for Earth rendering, and keep `earthChinaMapCore.ts`'s dynamic `import('./scopeMapCore')` (triggered on `scene-ready`) so the destination renderer chunk is not parsed before Earth first paint.
 - Do not copy dashboard panels, charts, business metrics, Figma frames, absolute paths, local URLs, or temporary chat assets.
 
 ## Required Validation
 
 1. Run `python3 <skill>/scripts/verify_template_integrity.py` before copying.
-2. Run `python3 <skill>/scripts/check_three_map_project.py <target-project> --strict` after integration.
+2. Run `python3 <skill>/scripts/check_three_map_project.py <target-project> --strict` after integration; the script auto-detects Vue vs React from the target `package.json`.
 3. Run the target build.
 4. Open the Vite URL and capture the initial Earth, steady Earth, click handoff, and destination China map.
 5. Repeat with one non-green `MAP_THEME_PRIMARY`; confirm Earth, 3D map, labels, fly lines, walls, scan, atmosphere, and ripples change together while the background stays neutral.

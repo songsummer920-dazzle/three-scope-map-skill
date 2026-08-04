@@ -6,19 +6,31 @@
 -->
 
 <template>
-  <ZhejiangThreeMap :active="props.active" @ready="emit('ready')" />
+  <div ref="host" class="map-mount" />
 </template>
 
 <script setup lang="ts">
-import ZhejiangThreeMap from './ZhejiangThreeMap.vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { createScopeMap, type ScopeMapHandle } from './core/scopeMapCore';
 
-const props = withDefaults(defineProps<{
-  active?: boolean;
-}>(), {
-  active: true,
+const props = withDefaults(defineProps<{ active?: boolean }>(), { active: true });
+const emit = defineEmits<{ ready: [] }>();
+
+const host = ref<HTMLElement>();
+let instance: ScopeMapHandle | undefined;
+
+onMounted(() => {
+  if (!host.value) return;
+  instance = createScopeMap(host.value, {
+    active: props.active,
+    onReady: () => emit('ready'),
+  });
 });
 
-const emit = defineEmits<{
-  ready: [];
-}>();
+watch(() => props.active, (value) => instance?.setActive(value));
+
+onBeforeUnmount(() => {
+  instance?.destroy();
+  instance = undefined;
+});
 </script>

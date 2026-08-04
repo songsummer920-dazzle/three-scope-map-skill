@@ -15,17 +15,27 @@ from pathlib import Path
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
-TEMPLATE_ROOT = SKILL_ROOT / "assets/templates/smart-mine-vue"
+TEMPLATES_ROOT = SKILL_ROOT / "assets/templates"
+TEMPLATE_ROOTS = (
+    TEMPLATES_ROOT / "map-core",
+    TEMPLATES_ROOT / "smart-mine-vue",
+    TEMPLATES_ROOT / "smart-mine-react",
+)
 MANIFEST_PATH = SKILL_ROOT / "assets/template-manifest.json"
 IGNORED_NAMES = {"node_modules", "dist", ".DS_Store"}
 
 
 def template_files() -> list[Path]:
-    return sorted(
-        path
-        for path in TEMPLATE_ROOT.rglob("*")
-        if path.is_file() and not any(part in IGNORED_NAMES for part in path.parts)
-    )
+    files: list[Path] = []
+    for root in TEMPLATE_ROOTS:
+        if not root.exists():
+            continue
+        files.extend(
+            path
+            for path in root.rglob("*")
+            if path.is_file() and not any(part in IGNORED_NAMES for part in path.parts)
+        )
+    return sorted(files)
 
 
 def digest(path: Path) -> str:
@@ -38,7 +48,7 @@ def digest(path: Path) -> str:
 
 def current_manifest() -> dict[str, str]:
     return {
-        path.relative_to(TEMPLATE_ROOT).as_posix(): digest(path)
+        path.relative_to(TEMPLATES_ROOT).as_posix(): digest(path)
         for path in template_files()
     }
 
