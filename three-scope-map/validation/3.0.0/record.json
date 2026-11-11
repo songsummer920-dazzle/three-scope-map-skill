@@ -5,7 +5,7 @@
   "validatedAt": "2026-11-12",
   "source": {
     "algorithm": "sha256-path-content-v1",
-    "sha256": "0341c234eaec889c265ff02082f4b4359a86fc2a8ab96cf98d0ed072598e954a",
+    "sha256": "86eef58861db1ba7a0bc11a1ba2bac5687f280e71ef5dad8901e42dd186ff8f5",
     "files": 301
   },
   "publication": {
@@ -21,14 +21,14 @@
     "date": "2026-11-12"
   },
   "changeScope": {
-    "type": "source-release-documentation-and-metadata",
-    "evidence": "validation/3.0.0/source-publication-scope.json"
+    "type": "documentation-and-licensing-explanation-only",
+    "evidence": "validation/3.0.0/readme-license-review-scope.json"
   },
   "currentRevisionValidationScope": [
-    "publication documentation and citation metadata",
-    "exact documentation/metadata-only source delta",
-    "unchanged runtime code, maps, textures, GIF previews and licenses",
-    "template manifest and public document-link integrity",
+    "README editorial review",
+    "historical-licensing explanation generalization; operative grants and platform resale restrictions unchanged",
+    "exact runtime, maps, textures, geometry, preview media and upstream license byte equality",
+    "template manifests, local documentation links and skill frontmatter",
     "portable source and evidence hashes"
   ],
   "currentRuntimeExecutions": {
@@ -50,7 +50,7 @@
         "files": 295
       },
       "rerunForThisRevision": false,
-      "statusBasis": "Historical verification retained; only publication documentation and metadata changed."
+      "statusBasis": "Historical verification retained; only README content, historical-licensing explanations and validation metadata changed. Runtime inputs remain byte-identical."
     },
     "build": {
       "status": "passed",
@@ -64,7 +64,7 @@
         "files": 295
       },
       "rerunForThisRevision": false,
-      "statusBasis": "Historical verification retained; only publication documentation and metadata changed."
+      "statusBasis": "Historical verification retained; only README content, historical-licensing explanations and validation metadata changed. Runtime inputs remain byte-identical."
     },
     "webgl": {
       "status": "passed",
@@ -78,11 +78,11 @@
         "files": 295
       },
       "rerunForThisRevision": false,
-      "statusBasis": "Historical verification retained; only publication documentation and metadata changed."
+      "statusBasis": "Historical verification retained; only README content, historical-licensing explanations and validation metadata changed. Runtime inputs remain byte-identical."
     },
     "integrity": {
       "status": "passed",
-      "command": "both template manifests; documentation/metadata-only source delta; exact runtime, GIF and license byte equality; public document links; source and evidence hashes; quick_validate.py",
+      "command": "exact baseline SHA-256 comparison; exact licensing-explanation substitutions; both template manifests; local Markdown links; quick_validate.py; portable source and evidence hashes; package_skill_release.py archive verification",
       "templateFiles": {
         "classic": 76,
         "fui": 155
@@ -90,18 +90,18 @@
     }
   },
   "coverageLimits": [
-    "Source release metadata and citation dates are updated for 2026-11-12; runtime code, data, textures, geometry, GIF previews and legal text remain unchanged.",
-    "Full runtime tests and builds were not rerun for this documentation-only revision; retained validation applies to unchanged runtime bytes.",
+    "This revision changes README content, historical-licensing explanations, template hashes and validation metadata. Operative author-owned grants, platform resale restrictions and third-party obligations remain unchanged.",
+    "No browser cases, runtime tests or builds were rerun for this revision; retained verification applies to byte-identical runtime code, maps, textures, geometry and preview media.",
     "Source publication does not confirm unresolved third-party asset redistribution or user-specific commercial-use rights.",
-    "Publication metadata describes the source-release version and date; transport and hosting operation logs are maintained outside the public package."
+    "Hosting and transport operation records are maintained outside the public package."
   ],
   "baseline": {
     "source": {
       "algorithm": "sha256-path-content-v1",
-      "sha256": "a7e867c522d492b05c775ae9ac37feccf595db9a8d828d8539353b4544cccdf9",
+      "sha256": "0341c234eaec889c265ff02082f4b4359a86fc2a8ab96cf98d0ed072598e954a",
       "files": 301
     },
-    "validatedAt": "2026-11-11",
+    "validatedAt": "2026-11-12",
     "checks": {
       "unit": {
         "status": "passed",
@@ -115,7 +115,7 @@
           "files": 295
         },
         "rerunForThisRevision": false,
-        "statusBasis": "Historical verification retained against byte-identical runtime code, styles, textures, geometry and configuration."
+        "statusBasis": "Historical verification retained; only publication documentation and metadata changed."
       },
       "build": {
         "status": "passed",
@@ -129,7 +129,7 @@
           "files": 295
         },
         "rerunForThisRevision": false,
-        "statusBasis": "Historical verification retained against byte-identical runtime code, styles, textures, geometry and configuration."
+        "statusBasis": "Historical verification retained; only publication documentation and metadata changed."
       },
       "webgl": {
         "status": "passed",
@@ -143,18 +143,18 @@
           "files": 295
         },
         "rerunForThisRevision": false,
-        "statusBasis": "Historical verification retained against byte-identical runtime code, styles, textures, geometry and configuration."
+        "statusBasis": "Historical verification retained; only publication documentation and metadata changed."
       },
       "integrity": {
         "status": "passed",
-        "command": "exact six-GIF export and README author-attribution source delta; unchanged complete template manifests; animated GIF metadata, hashes, centering and watermark review; README media/document links",
+        "command": "both template manifests; documentation/metadata-only source delta; exact runtime, GIF and license byte equality; public document links; source and evidence hashes; quick_validate.py",
         "templateFiles": {
           "classic": 76,
           "fui": 155
         }
       }
     },
-    "role": "Previous runtime verification retained against unchanged runtime bytes."
+    "role": "Previous runtime verification retained against byte-identical runtime inputs."
   },
   "evidence": [
     {
@@ -360,6 +360,12 @@
       "kind": "source-scope",
       "sha256": "ad8406849d0cde010c1aa31853d7eaa8133cceafe69676d50233b62a468c38ff",
       "basis": "current-publication-documentation-review"
+    },
+    {
+      "path": "validation/3.0.0/readme-license-review-scope.json",
+      "kind": "source-scope",
+      "sha256": "8cc14f30d7972cbc11029486e0b9f8af7a4ea7eb08b7af13c02578dce8a2b395",
+      "basis": "documentation-and-licensing-explanation-review"
     }
   ]
 }

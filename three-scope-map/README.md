@@ -22,19 +22,15 @@
 
 ## 安装或升级 Skill
 
-解压 ZIP 后，进入本 `three-scope-map/` 目录运行：
-
-安装工具只需 Python **3.9 或更新版本**，无需额外安装 Python 依赖。
+解压 ZIP 后，在 `three-scope-map/` 目录执行；需 Python **3.9 或更新版本**：
 
 ```bash
 python3 scripts/install_skill.py
 ```
 
-默认安装到 `~/.codex/skills/three-scope-map`。若已有旧版本，脚本先把旧 Skill
-完整备份到 skills 目录之外的 `~/.codex/skill-backups/`，再整目录替换；不要用
-`cp -R` 合并升级。旧定制会保留在备份中，不会自动迁回；先比较，再按新版本
-接口迁移。可用 `--source <skill目录>`、`--target <安装目录>`、
-`--backup-dir <外部备份父目录>` 指定位置。
+默认安装到 `~/.codex/skills/three-scope-map`。升级时先完整备份到 skills 目录之外的
+`~/.codex/skill-backups/`，再整目录替换；不要用 `cp -R` 合并升级。旧定制保留在
+备份中，不会自动迁回。自定义位置用 `--source`、`--target` 和 `--backup-dir`。
 
 ## 样式与颜色配置
 
@@ -68,57 +64,52 @@ npm run dev
 
 ## 业务项目接入
 
-两套模板的 `src/App.vue` 均为演示入口；FUI 的样式、颜色、材质和效果按钮用于
-预览能力。业务项目应把组件接入自身布局，按需求配置选定风格，保留原样式代码：
+`src/App.vue` 是演示入口，业务项目应使用所选模板家族的完整组件、数据、纹理和
+辅助模块：3.0 地球使用 `FuiEarth.vue`，2.0 地球使用 `EarthChinaMap.vue`；
+单独行政地图优先使用 `ChinaMap.vue` 宿主。具体入口见
+[FUI README](assets/templates/fui-earth-vue/README.md)和
+[2.0 README](assets/templates/songsummer-earth-vue/README.md)。
 
-- 3.0 地球入口：`src/components/map/FuiEarth.vue`，配套方案在
-  `fuiMapPresentation.ts` 的 `FUI_SCENE_PRESETS` 中。
-- 2.0 地球入口：`src/components/map/EarthChinaMap.vue`。
-- 单独地图：按所选方案接入 `ChinaMap.vue` / `ZhejiangThreeMap.vue`、
-  `VectorMap.vue` 或 `ContourMap.vue`，并保留对应的数据、纹理和辅助模块。
+默认保留「3D 地图 / 2D 地图 / 2D + 3D」切换按钮；只有明确要求隐藏切换或保留
+单一视图时才关闭，仅指定初始 3D 视图不关闭切换。FUI 的 `show-view-switch`
+默认开启。样式、颜色、材质和效果演示工具条只在明确要求时添加；保留下钻、
+返回上级和返回地球。独立 2D 或等高线任务无需加入无关渲染器。
 
-正常接入地球或行政 3D 地图时，默认保留「3D 地图 / 2D 地图 / 2D + 3D」切换按钮；
-仅在明确要求隐藏切换控件或保留单一视图时关闭。仅指定 3D 为初始视图时，
-仍保留模式切换。FUI 的 `EarthChinaMap.vue` 已默认开启 `show-view-switch`，
-业务接入时保持开启；只做地图也优先使用 `ChinaMap.vue` 宿主保留模式切换与地理导航。
-模板、颜色、材质、扫光等演示工具条仍只在明确要求时添加；下钻、返回上级和返回
-地球继续保留。明确的独立 2D 或独立等高线任务无需额外加入无关渲染器。
-两套模板的 [FUI README](assets/templates/fui-earth-vue/README.md) 和
-[2.0 README](assets/templates/songsummer-earth-vue/README.md)说明了具体入口；详细集成见
-[3.0 API](references/v3-api.md)、[FUI](references/fui-earth.md)和
+详细集成见 [3.0 API](references/v3-api.md)、[FUI](references/fui-earth.md)和
 [2.0 模板](references/one-to-one-template.md)。
 
 ## 联网范围与离线部署
 
-默认 2D 和 2D + 3D 底图连接 **OpenFreeMap**，样式、瓦片、字形和图标等资源需要
-联网。行政数据 adapter 随包内置中国和浙江；其他省份及进一步的市、区县下钻
-默认按需请求 `geo.datav.aliyun.com`。随包地球纹理和地理文件可本地加载；默认
-项目仍需联网。
+默认 2D/2D + 3D 使用 **OpenFreeMap** 在线底图，行政数据内置中国和浙江，其他
+省、市及区县按需请求 `geo.datav.aliyun.com`。地球纹理和随包地理文件可本地
+加载，但默认项目仍需联网。
 
-离线或内网部署需在 `src/components/map/vectorMapConfig.ts` /
-`vectorMapProvider.ts` 配置可用底图 provider 及配套资源，并在
-`mapDataAdapter.ts` 提供所需层级的行政数据。保留对应署名与数据条款。
-`npm ci` 需要访问配置的包源或使用已准备的本地依赖缓存。
+离线或内网部署需在 `vectorMapConfig.ts` / `vectorMapProvider.ts` 更换底图及其
+配套资源，并在 `mapDataAdapter.ts` 提供所需行政层级数据。保留对应署名与条款；
+`npm ci` 需要可用包源或本地依赖缓存。
 
 ## 授权、署名与当前状态
 
-自有代码、Skill、模板和文档采用 [Summer Platform Restriction License 1.0](LICENSE)：
-允许学习、内部使用、普通业务项目及客户定制开发、交付；未经作者事先书面许可，
-不得把本项目或其修改版作为可复用地球/地图能力在收费平台、SaaS、API、Skill、
-插件、SDK、组件、模板或资源包中销售或提供付费访问。收费整体中的免费入口、
-托管不交源码、捆绑收费、改名换皮或保留受保护内容的 AI 改写不自动豁免；普通
-业务应用不因收费或订阅制就自动属于禁止范围。完整范围以 [LICENSE](LICENSE) 为准。
+自有代码、Skill、模板和文档采用
+[Summer Platform Restriction License 1.0](LICENSE)，属于带用途限制的源码可用授权。
 
-保留随包 [NOTICE](NOTICE)、[LICENSES/](LICENSES/) 和
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。历史 GPL 已授予的权利继续有效；
-第三方软件、地理数据和素材仍遵循各自条款。本项目是带用途限制的源码可用授权。
+- **允许：** 学习、内部使用、普通商业业务项目及客户定制开发、交付。
+- **未经作者事先书面许可，禁止：** 将本项目或修改版作为可复用的地球/地图能力，
+  在收费平台、SaaS、AI/Agent 平台、API、Skill、插件、SDK、组件、模板或资源包
+  中销售或提供付费访问。收费整体中的免费入口、托管不交源码、捆绑收费及
+  保留受保护内容的改写不自动豁免；普通业务应用不因收费或订阅制就自动属于
+  受限平台。完整范围以 [LICENSE](LICENSE) 为准。
+- 分发源码时保留 [NOTICE](NOTICE)、[LICENSES/](LICENSES/)、
+  [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)和作者署名，明确标注修改版。
+  历史已合法授予的 GPL 权利继续有效，第三方材料遵循各自条款。
 
-自有代码许可不包含第三方地图数据、底图服务、影像或纹理的商业授权。使用者应按
-实际使用、部署和分发场景自行核实上游条款，取得所需许可，并履行署名、费用及
-使用范围要求。公开下载或示例可运行不代表已取得商业授权；第三方许可也不替代
-本项目对受限平台封装及转售要求的书面许可。
+自有代码许可不包含第三方地图数据、底图服务、影像或纹理的商业授权。使用者须按
+实际使用、部署及分发场景取得所需许可并履行署名、费用和使用范围要求。
+当前仍有 [部分素材再分发权利待核实](validation/3.0.0/asset-clearance-current.json)；
+公开下载或示例可运行不代表取得商业或再分发许可，也不替代本项目受限平台用途
+所需的书面许可。详见 [第三方声明](THIRD_PARTY_NOTICES.md)。
 
-分享、教程、衍生及再分发请保留公开作者署名和原项目链接，不要求最终界面常驻水印：
+分享、教程、衍生及再分发请保留以下署名；不要求最终界面常驻水印：
 
 ```text
 Based on three-scope-map-skill by 宋夏天Dazzle.
@@ -127,9 +118,6 @@ Based on three-scope-map-skill by 宋夏天Dazzle.
 Original repository: https://github.com/songsummer920-dazzle/three-scope-map-skill
 ```
 
-当前有 [第三方资产来源及再分发核验未完成](validation/3.0.0/asset-clearance-current.json)，
-来源记录不构成商业使用或再分发授权；使用者的商业使用许可与随包分发权利分别核实。
 本版已完成 macOS + Chromium 本地技术验证，详见
 [验证记录](validation/3.0.0/record.json)。[引用元数据](CITATION.cff)记录版本、作者、
-源码发布日期、仓库地址及 `v3.0.0` 标签的许可 URL。源码发布不代表第三方素材
-的商业使用或再分发授权已经核实完成。
+发布日期和 `v3.0.0` 标签许可 URL。

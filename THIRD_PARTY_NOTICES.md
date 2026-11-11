@@ -95,8 +95,7 @@ files; it does not invent separate original-image credits or additional rights.
 ## Historical licensing
 
 `LICENSES/GPL-3.0-or-later.txt` preserves the previous GPL text verbatim. Previously
-valid GPL grants for earlier copies, including GPL-licensed 3.0 candidates,
-remain valid. Its inclusion does not dual-license this new distribution's
+valid GPL grants for earlier copies remain valid. Its inclusion does not dual-license this new distribution's
 self-authored material under GPL. Third-party GPL-covered material, if separately
 identified or added by a downstream user, continues to require its own applicable
 GPL terms and cannot be relicensed by this custom author-owned grant.

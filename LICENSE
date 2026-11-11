@@ -35,7 +35,7 @@ Applies to the author's own material in the Three Scope Map 3.0.0 distribution.
 
 五、历史版本与已有授权
 本授权是本3.0.0分发版本自有版权内容的新授权，不是对GNU GPL追加限制，也不撤回、缩减或改变任何此前已经有效授予的GPL或其他授权。
-此前按GPL发布的2.0版本，以及已经按GPL提供的3.0候选版等历史副本，仍可依其取得时的有效授权使用。任何人对同一内容已经合法取得的GPL权利，不会因本版本采用新授权而被追溯取消。
+此前已经合法取得的历史副本，仍可依其取得时的有效授权使用。任何人对同一内容已经合法取得的GPL权利，不会因本版本采用新授权而被追溯取消。
 本版本中的“2.0风格”是外观/模板选项名称，不表示作者撤回了旧版本的GPL授权。历史GPL原文保留在LICENSES/GPL-3.0-or-later.txt，仅用于说明历史及明确标识的GPL材料；该副本不表示本3.0.0作者自有内容同时提供GPL选项。
 
 六、终止
@@ -101,8 +101,7 @@ Attribution may be in code or documentation; no permanent application watermark
 is required. Obtain separate written permission for restricted platform resale.
 
 This license does not revoke or narrow any GPL or other rights validly granted
-for historical copies, including previously published 2.0 or GPL-licensed 3.0
-candidates. The included historical GPL text does not offer an alternative GPL
+for historical copies. The included historical GPL text does not offer an alternative GPL
 license for this new distribution's author-owned material. The “2.0 style” name
 is an appearance option, not a revocation of the original 2.0 GPL grant.
 

@@ -27,12 +27,11 @@ platforms. Ordinary business SaaS remains permitted under LICENSE's conditions.
 定制开发合同不构成收费平台授权，普通业务SaaS依LICENSE的条件仍允许使用。
 实际能力和收费安排决定适用范围；署名、技术支持或作者沉默不等于平台许可。
 
-Previously granted GPL and other rights for historical copies remain valid,
-including older 2.0 releases and previously GPL-licensed 3.0 candidates. This is
-not an extra restriction appended to the GPL. Historical GPL text is preserved
+Previously granted GPL and other rights for historical copies remain valid.
+This is not an extra restriction appended to the GPL. Historical GPL text is preserved
 verbatim under LICENSES/. The “2.0 style” option in this distribution does not
 change the licenses of previously obtained copies.
-历史已授予的GPL等权利继续有效，包括旧2.0及此前按GPL发布的3.0候选副本。
+历史已合法授予的GPL等权利继续有效。
 本授权不是给GPL追加限制；本包的“2.0风格”选项不改变旧副本授权。
 
 Keep LICENSE, NOTICE, applicable third-party notices, source license markers

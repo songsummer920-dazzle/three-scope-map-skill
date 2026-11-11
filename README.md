@@ -99,17 +99,8 @@ same map materials without adding an Earth entrance.
 
 ```txt
 整体改成 #2AF7FF。
-```
-
-```txt
 在现有 2D 底图上叠加 3D 地图，保留下钻和返回。
-```
-
-```txt
 把地图范围从浙江切到江苏，保留配色和交互。
-```
-
-```txt
 增加独立等高线模式，使用真实 DEM。
 ```
 
@@ -140,24 +131,15 @@ Both templates require Node.js `^20.19.0` or `>=22.12.0` and include dependency 
 Each template already includes `LICENSE`, `NOTICE`, `LICENSES/` and
 `THIRD_PARTY_NOTICES.md`; preserve them with the project.
 
-From a copied template or generated project:
+Build a generated project with `npm run build`.
 
-```bash
-npm ci
-npm run build
-npm run dev
-```
-
-Both templates' `src/App.vue` files are demonstration shells. The FUI shell
-includes style and effect buttons for previewing capabilities. In a business
-project, integrate `FuiEarth.vue`, `EarthChinaMap.vue` or the selected map component
-into the business layout. Earth and administrative-3D integrations retain the
-`3D 地图 / 2D 地图 / 2D + 3D` selector by default, including business layouts.
-Hide it only on an explicit request to remove switching or keep a single view.
-Style, color, material and effect demo controls remain opt-in; preserve the
-selected renderer's style code and geographic navigation. Explicit standalone
-2D or contour tasks do not need unrelated renderers. See each template's README
-for entry points.
+Both templates' `src/App.vue` files demonstrate the available styles and effects.
+Integrate the selected family's Earth or `ChinaMap.vue` host into business layouts.
+Keep the `3D 地图 / 2D 地图 / 2D + 3D` selector by default; hide it only on an
+explicit request to remove switching or keep a single view. Geographic drilldown,
+back and Earth-return controls remain available. Style, color, material and effect
+toolbars are opt-in. Standalone 2D or contour tasks do not need unrelated renderers.
+See the template READMEs for component entry points.
 
 ## Network and data / 联网范围
 
@@ -182,83 +164,49 @@ Further documentation:
 
 ## Version status
 
-3.0.0 source release: **2026-11-12**. Local technical verification is complete.
-Bundled geographic data and legacy textures still have unresolved upstream reuse
-rights; see the [current asset review](three-scope-map/validation/3.0.0/asset-clearance-current.json).
-The author-owned code license does not include commercial rights to third-party
-maps, basemap services, imagery or textures. Users must check upstream terms and
-obtain any permissions required for their own use, deployment or redistribution,
-including attribution, fees and usage limits. Public download or a working demo
-does not establish those rights. User-specific commercial authorization and the
-right to distribute assets in this bundle are separate checks; provenance
-records grant neither. Third-party permission does not replace the written
-permission required for this project's restricted platform resale.
-Citation metadata records version 3.0.0, the release date, public author attribution
-and the license URL for the `v3.0.0` tag. Source publication does not establish
-commercial or redistribution rights for third-party assets.
+**3.0.0 source release: 2026-11-12.** Local technical verification used macOS
+and Chromium; other operating systems, browsers and physical GPUs have not been
+verified. See the [validation record](three-scope-map/validation/3.0.0/record.json)
+and [citation metadata](CITATION.cff).
 
-Clean installs, builds and WebGL regressions were tested on macOS with Chromium.
-Other operating systems, browsers and physical GPUs have not been verified.
-Detailed evidence and performance measurements are in the
-[3.0 validation record](three-scope-map/validation/3.0.0/record.json).
+Some bundled geographic data and legacy textures still have unresolved upstream
+reuse rights. See the [current asset review](three-scope-map/validation/3.0.0/asset-clearance-current.json)
+and [third-party notices](THIRD_PARTY_NOTICES.md). The author-owned code license
+does not grant commercial or redistribution rights to third-party materials.
+Users must obtain the permissions required for their own use, deployment or
+redistribution; a public download or working demo does not establish those
+rights. Source publication does not clear the bundle's unresolved asset rights.
 
 ## License and attribution / 授权与署名
 
-3.0 自有代码、Skill 指令、模板和文档采用
-[Summer Platform Restriction License 1.0](LICENSE)。
+3.0 自有代码、Skill、模板和文档采用
+[Summer Platform Restriction License 1.0](LICENSE)，属于带用途限制的源码可用授权，
+不宣称为 GPL 或 OSI 开源许可证。
 
-- **允许：** 个人学习、教育、企业内部使用、普通商业项目、客户定制开发及交付。
+- **允许：** 学习、企业内部使用、普通商业业务项目及客户定制开发、交付，并可为
+  开发、部署、维护等服务收费；不包括下述受限平台用途。
 - **未经作者事先书面许可，禁止：** 将本项目全部、部分或修改版作为可复用的
-  地球/地图能力，封装、集成或托管到自有或第三方收费平台、SaaS、
-  低代码/可视化搭建平台、AI/Agent 平台、API，或作为 Skill、插件、SDK、组件、
-  模板、资源包出售或提供付费访问；独立销售的渲染、展示组件同样包括在内。
-- **收费方式：** 收费整体中的免费入口、试用、基础额度或部分免费功能均不
-  自动豁免；会员、订阅、付费积分、按次收费、费用并入其他服务、捆绑销售及
-  安排关联方或合作方代收同一服务费用，都按实际提供的能力和收费安排判断。
-- **源码及改写：** 仅在服务器运行、不交付源码或只返回渲染结果，不自动豁免。
-  改名、换皮、拆分、换语言/框架或AI辅助改写后，仍含本项目受保护内容或构成
-  对其改编的，继续适用限制。
-- **普通业务应用：** 地图仅承载自身具体业务信息或操作，不向使用者提供通用
-  地球/地图开发、生成、调用、嵌入或复用能力的，不因收费、多租户或订阅制就
-  自动属于禁止范围。普通业务查询、缩放、筛选、标注及报表操作依LICENSE使用。
-- **客户定制：** 普通业务项目可以收费开发及交付；为客户建设、交付、运营或
-  维护受限收费平台，不因单独签约、一次性交付或收开发服务费而获得豁免。
-- **署名与许可：** 署名、原项目链接、公开可下载、一般技术答复或作者未提出
-  异议，均不单独构成平台许可。书面许可须明确允许相应主体开展受限用途，
-  不因委托开发或项目交付自动取得转授权。符合许可的分享和源码分发须保留
-  授权、署名及适用声明；不要求在最终界面常驻水印。
-- **适用范围：** 这是带用途限制的源码可用授权。历史已授予的 GPL 权利继续
-  有效，第三方软件和素材遵循各自原有条款。完整授权以 [LICENSE](LICENSE) 为准。
+  地球/地图能力，封装、集成或托管到收费平台、SaaS、低代码/可视化平台、
+  AI/Agent 平台、API，或作为 Skill、插件、SDK、组件、模板、资源包销售及提供
+  付费访问。独立销售的渲染、展示组件同样适用。
+- **限制不因以下方式自动豁免：** 托管但不交源码、收费整体中的免费功能、捆绑
+  收费、代收费用、改名换皮，或改写后仍保留受保护内容。普通业务应用不因收费
+  或订阅制就自动成为受限平台；完整判断标准以 [LICENSE](LICENSE) 为准。
+- **保留署名和许可：** 分发源码时保留 [LICENSE](LICENSE)、[NOTICE](NOTICE)、
+  [LICENSES/](LICENSES/) 和 [第三方声明](THIRD_PARTY_NOTICES.md)，明确标注修改版。
+  历史已合法授予的 GPL 权利继续有效，第三方材料仍遵循各自条款。
 
-The author's own material in this distribution uses
-[Summer Platform Restriction License 1.0](LICENSE), a source-available license
-with a platform-resale restriction; it is not GPL or OSI-approved open source.
+The 3.0 author-owned material uses a source-available license with a platform-resale
+restriction. Ordinary business use and client-specific delivery are permitted;
+paid reusable Earth/map platforms and resource offerings require prior written
+author permission. Hosted use, bundling and renamed or modified distributions do
+not automatically avoid that requirement. The complete scope is defined by
+[LICENSE](LICENSE); it does not revoke historical GPL grants or replace
+third-party terms.
 
-- Personal, educational, internal and ordinary commercial projects, including
-  client-specific development and delivery, are permitted.
-- **Prior written permission is required to sell the Skill, templates or reusable
-  map capability through paid platforms, SaaS, APIs, plugins, SDKs, component or
-  template libraries, subscriptions or paid downloads.** Renaming and bundling
-  do not remove this restriction. An ordinary business application is not
-  prohibited merely because it uses a map and is sold.
-- Free tiers within a paid offering, hosted use without source delivery,
-  bundled fees, arranged third-party fee collection and rewrites retaining
-  protected content do not automatically avoid the restriction. Custom-client
-  contracts do not authorize restricted platforms. Ordinary business SaaS is
-  permitted under LICENSE's conditions; author silence is not platform permission.
-- Free sharing, tutorials and demonstrations are permitted with attribution.
-  Retain the license and notices when distributing source, identify modified
-  versions, and do not imply official authorship or endorsement. No permanent
-  application watermark is required.
-- Historical GPL grants remain valid. Third-party software, geographic data and
-  imagery retain their own terms; this license grants no additional rights to them.
-
-Retain [LICENSE](LICENSE), [NOTICE](NOTICE), [LICENSES/](LICENSES/),
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), source attribution and applicable
-asset metadata when copying or distributing the templates.
-
-This is the original repository by **宋夏天Dazzle**. Use the following attribution
-for forks, derivatives, tutorials and redistribution:
+This is the original repository by **宋夏天Dazzle**. Retain this attribution in
+code or documentation for forks, derivatives, tutorials and redistribution;
+no permanent application watermark is required:
 
 ```txt
 Based on three-scope-map-skill by 宋夏天Dazzle.
@@ -266,6 +214,3 @@ Based on three-scope-map-skill by 宋夏天Dazzle.
 公众号：送你整个夏天
 Original repository: https://github.com/songsummer920-dazzle/three-scope-map-skill
 ```
-
-Attribution may be placed in code or documentation. Citation metadata is available
-in [CITATION.cff](CITATION.cff).
