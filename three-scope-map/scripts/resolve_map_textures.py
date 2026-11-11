@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
 # Copyright (c) 2026 宋夏天Dazzle
 """Validate or generate terrain texture sets for Three.js dashboard maps.
 

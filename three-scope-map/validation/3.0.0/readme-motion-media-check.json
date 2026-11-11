@@ -1,0 +1,134 @@
+{
+  "status": "passed",
+  "watermark": "©宋夏天Dazzle",
+  "watermarkStyle": {
+    "layout": "diagonal-staggered-tile",
+    "opacity": 0.12549019607843137,
+    "angleDegrees": 20,
+    "fontSize": 16,
+    "centerMark": {
+      "orientationDegrees": 0,
+      "position": "center",
+      "fontSize": 17,
+      "opacity": 0.8,
+      "transparency": 0.2,
+      "alpha": 204
+    }
+  },
+  "centeringReview": "passed for the complete exported clips",
+  "assets": [
+    {
+      "path": "assets/readme/entity-earth-watermarked.gif",
+      "sha256": "0cc7e6141cf7a8bc49e076540810d2058684562d2bb039b704823264fea23008",
+      "width": 640,
+      "height": 400,
+      "frames": 64,
+      "durationSeconds": 8.0,
+      "bytes": 7028542,
+      "loop": 0,
+      "watermark": "©宋夏天Dazzle",
+      "watermarkVisuallyReviewed": true,
+      "centeringVisuallyReviewed": true,
+      "origin": "actual-runtime-capture-frames"
+    },
+    {
+      "path": "assets/readme/hologram-dots-watermarked.gif",
+      "sha256": "af2624c66c51d173bf8a3d79d95695221a5497cdf2a0dac78b633d723ba80aca",
+      "width": 640,
+      "height": 400,
+      "frames": 64,
+      "durationSeconds": 8.0,
+      "bytes": 5344992,
+      "loop": 0,
+      "watermark": "©宋夏天Dazzle",
+      "watermarkVisuallyReviewed": true,
+      "centeringVisuallyReviewed": true,
+      "origin": "actual-runtime-capture-frames"
+    },
+    {
+      "path": "assets/readme/hologram-hex-watermarked.gif",
+      "sha256": "d8f303c498c93bf94de97df495b83e1e8375b293f8f1924629b856c6fa5c8542",
+      "width": 640,
+      "height": 400,
+      "frames": 64,
+      "durationSeconds": 8.0,
+      "bytes": 5415752,
+      "loop": 0,
+      "watermark": "©宋夏天Dazzle",
+      "watermarkVisuallyReviewed": true,
+      "centeringVisuallyReviewed": true,
+      "origin": "actual-runtime-capture-frames"
+    },
+    {
+      "path": "assets/readme/terrain-glass-map-watermarked.gif",
+      "sha256": "88743e0e392f956860d480326299499900f382d098a85447ed3e01bd80185269",
+      "width": 640,
+      "height": 400,
+      "frames": 64,
+      "durationSeconds": 8.0,
+      "bytes": 3944413,
+      "loop": 0,
+      "watermark": "©宋夏天Dazzle",
+      "watermarkVisuallyReviewed": true,
+      "centeringVisuallyReviewed": true,
+      "origin": "actual-runtime-capture-frames"
+    },
+    {
+      "path": "assets/readme/smooth-glass-map-watermarked.gif",
+      "sha256": "2cecb2ec0a7657b676a0e35f89d96597d9d95c30bf666e3203d8a7ed5818fe3e",
+      "width": 640,
+      "height": 400,
+      "frames": 64,
+      "durationSeconds": 8.0,
+      "bytes": 4599133,
+      "loop": 0,
+      "watermark": "©宋夏天Dazzle",
+      "watermarkVisuallyReviewed": true,
+      "centeringVisuallyReviewed": true,
+      "origin": "actual-runtime-capture-frames"
+    },
+    {
+      "path": "assets/readme/map-overlay-watermarked.gif",
+      "sha256": "a9671a15c9b8f3440c8d6dce8faedd84e81f815319398b9de21aacdb1caace65",
+      "width": 640,
+      "height": 400,
+      "frames": 7,
+      "durationSeconds": 8.0,
+      "bytes": 237756,
+      "loop": 0,
+      "watermark": "©宋夏天Dazzle",
+      "watermarkVisuallyReviewed": true,
+      "centeringVisuallyReviewed": true,
+      "origin": "actual-runtime-capture-frames"
+    }
+  ],
+  "recordingMethod": "actual runtime capture frames; framing and watermark are applied only to documentation exports",
+  "gifChecks": [
+    "valid non-static multi-frame GIF",
+    "looping playback",
+    "dimensions, duration and hashes",
+    "full-clip framing review",
+    "half-sized horizontal center watermark at 80% opacity and retained faint tiled watermark visual review",
+    "README references resolve"
+  ],
+  "runtimeSourceModifiedForRecording": false,
+  "opacityRepresentation": "The center watermark is composited into captured frames at alpha 204/255 (80% opacity). The exported GIF is a flattened image, not an alpha-channel file.",
+  "centeringMeasurements": {
+    "fixedOverlaySourceFramesChecked": 96,
+    "fixedOverlayCenterVariationPixels": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "underlyingBasemapReferenceUnchanged": true,
+    "retained3DRepresentativeCenterVariationPixels": {
+      "x": 1.5,
+      "y": 5
+    }
+  },
+  "readmePlaybackReview": {
+    "status": "passed",
+    "imagesLoaded": 6,
+    "animated": true,
+    "errors": []
+  }
+}

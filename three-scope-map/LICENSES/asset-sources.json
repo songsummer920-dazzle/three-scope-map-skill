@@ -1,0 +1,135 @@
+{
+  "status": "verified-byte-provenance",
+  "upstream": "mrdoob/three.js",
+  "tag": "r176",
+  "tagObject": {
+    "sha": "cdd07a5b9901f1ae6ec37faf0ab4bcb4e2381639",
+    "type": "tag",
+    "url": "https://api.github.com/repos/mrdoob/three.js/git/tags/cdd07a5b9901f1ae6ec37faf0ab4bcb4e2381639"
+  },
+  "assets": [
+    {
+      "upstreamFile": "earth_atmos_2048.jpg",
+      "localFile": "earth-day.jpg",
+      "sourceUrl": "https://raw.githubusercontent.com/mrdoob/three.js/r176/examples/textures/planets/earth_atmos_2048.jpg",
+      "sha256": "2faa400d1eade3bc44caf6750d1b772bd9bbb6d87362c02bc7c3304e78fa0a9d",
+      "bytes": 512606,
+      "fuiByteIdentical": true,
+      "classicByteIdentical": true,
+      "upstreamGitBlobSha1": "4275ab0836b482e4fbe1d5081976f3f2ffb41ffa",
+      "gitBlobSha1Verified": true
+    },
+    {
+      "upstreamFile": "earth_normal_2048.jpg",
+      "localFile": "earth-normal.jpg",
+      "sourceUrl": "https://raw.githubusercontent.com/mrdoob/three.js/r176/examples/textures/planets/earth_normal_2048.jpg",
+      "sha256": "3fc43e9639c34e8223c4a871e3bdf5b2d52ee79f7e89ce3f28cba45d4cac031a",
+      "bytes": 336774,
+      "fuiByteIdentical": true,
+      "classicByteIdentical": true,
+      "upstreamGitBlobSha1": "5bf40df630d9ae7cb8ae026c930b8f3421bbec54",
+      "gitBlobSha1Verified": true
+    },
+    {
+      "upstreamFile": "earth_specular_2048.jpg",
+      "localFile": "earth-specular.jpg",
+      "sourceUrl": "https://raw.githubusercontent.com/mrdoob/three.js/r176/examples/textures/planets/earth_specular_2048.jpg",
+      "sha256": "2df48906732d7a458b2d0a7cdec51a829262307c6bdee4cfdf079a4dd7c71c69",
+      "bytes": 223421,
+      "fuiByteIdentical": true,
+      "classicByteIdentical": true,
+      "upstreamGitBlobSha1": "06e03a3bfc7fe64f711175fe2c66bfb76b61cd0d",
+      "gitBlobSha1Verified": true
+    },
+    {
+      "upstreamFile": "earth_lights_2048.png",
+      "localFile": "earth-lights.png",
+      "sourceUrl": "https://raw.githubusercontent.com/mrdoob/three.js/r176/examples/textures/planets/earth_lights_2048.png",
+      "sha256": "3cc6972d1d5b6310f33ea6ef4cc14a38f1dd141a91d26888206889327d983d7b",
+      "bytes": 734910,
+      "fuiByteIdentical": true,
+      "classicByteIdentical": true,
+      "upstreamGitBlobSha1": "8c470501ad9999888fff0bbaf774b2edf2715d82",
+      "gitBlobSha1Verified": true
+    }
+  ],
+  "licenseBasis": {
+    "repositoryLicense": "MIT",
+    "licenseUrl": "https://github.com/mrdoob/three.js/blob/r176/LICENSE",
+    "retainedText": "LICENSES/third-party/three-MIT.txt"
+  },
+  "scope": "Verified exact upstream bytes and repository-level license provenance; this record does not invent image-specific credits or grant rights beyond upstream terms.",
+  "administrativeGeography": {
+    "status": "exact-source-verified; reuse-rights-unresolved",
+    "responsibility": {
+      "commercialUseAuthorization": "user-or-deployer",
+      "bundleRedistributionClearance": "distributor",
+      "sourceDocumentation": "project-maintainer"
+    },
+    "datasets": [
+      {
+        "path": "assets/templates/fui-earth-vue/src/assets/maps/china.json",
+        "sha256": "99adfeded5223848bbe37a0a12f8023e11ee12161c7800521c27db42fdeac275",
+        "sourceUrl": "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json",
+        "exactByteMatch": true,
+        "bytes": 582522,
+        "termsUrl": "https://datav.aliyun.com/portal/school/atlas/atlas_publish",
+        "status": "source-verified; provider learning/exchange restriction; commercial redistribution not established"
+      },
+      {
+        "path": "assets/templates/songsummer-earth-vue/src/assets/maps/china.json",
+        "sha256": "99adfeded5223848bbe37a0a12f8023e11ee12161c7800521c27db42fdeac275",
+        "sourceUrl": "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json",
+        "exactByteMatch": true,
+        "bytes": 582522,
+        "termsUrl": "https://datav.aliyun.com/portal/school/atlas/atlas_publish",
+        "status": "source-verified; provider learning/exchange restriction; commercial redistribution not established"
+      },
+      {
+        "path": "assets/templates/fui-earth-vue/src/assets/maps/zhejiang.json",
+        "sha256": "cec7357565596254570b9a1a2d81759931a80622b9085af212dd96c11f08e43f",
+        "sourceUrl": "https://geojson.cn/api/china/1.6.3/330000.json",
+        "exactByteMatch": true,
+        "bytes": 410809,
+        "termsUrl": "https://geojson.cn/about",
+        "status": "source-verified; provider learning/research restriction; commercial redistribution not established"
+      },
+      {
+        "path": "assets/templates/songsummer-earth-vue/src/assets/maps/zhejiang.json",
+        "sha256": "cec7357565596254570b9a1a2d81759931a80622b9085af212dd96c11f08e43f",
+        "sourceUrl": "https://geojson.cn/api/china/1.6.3/330000.json",
+        "exactByteMatch": true,
+        "bytes": 410809,
+        "termsUrl": "https://geojson.cn/about",
+        "status": "source-verified; provider learning/research restriction; commercial redistribution not established"
+      }
+    ],
+    "coordinateNote": "GeoJSON.CN 1.6+ declares GCJ-02; the original geometry and runtime handling have not been changed by this provenance audit."
+  },
+  "unresolvedThirdPartyAssets": {
+    "status": "pending-upstream-rights-verification",
+    "responsibility": {
+      "commercialUseAuthorization": "user-or-deployer",
+      "bundleRedistributionClearance": "distributor",
+      "sourceDocumentation": "project-maintainer"
+    },
+    "paths": 16,
+    "uniqueContents": 8,
+    "scope": "Bundled administrative geometry and legacy terrain/relief materials; author-owned code license does not clear third-party rights."
+  },
+  "derivedPhotographicRelief": {
+    "status": "verified-derived-source",
+    "asset": "src/assets/textures/map/world/earth-relief-photographic.jpg",
+    "sha256": "a9951b259d452ae657a1e778e43be16776548875ed821f77989b67fa5bf72c6a",
+    "sourcePage": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/",
+    "sourceRaster": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/topography/gebco_08_rev_elev_21600x10800.jpg",
+    "credit": "Jesse Allen, NASA Earth Observatory; GEBCO, British Oceanographic Data Centre",
+    "reuseBasis": {
+      "scope": "NASA-published imagery and its derived image texture; no blanket grant for original GEBCO grid data",
+      "policyUrl": "https://science.nasa.gov/earth/faq/",
+      "policy": "NASA permits reuse and republication of most Earth-site imagery, including commercial reuse, unless a separate copyright notice applies; preserve source credit."
+    },
+    "rebuildPerformed": false
+  },
+  "commercialUseNotice": "The author-owned code grant does not license third-party maps, services, imagery or textures. Users/deployers must obtain permissions required for their actual use and redistribution. Source records do not establish permission, and bundle redistribution clearance remains separate."
+}

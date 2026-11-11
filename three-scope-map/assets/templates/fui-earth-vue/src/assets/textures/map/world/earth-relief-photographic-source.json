@@ -1,0 +1,27 @@
+{
+  "purpose": "Recovered photographic Earth optical baseline; keep independent from the map/hologram atlas",
+  "upstreamBuild": "index-B5OGPSPW.js",
+  "sourceAsset": "earth-relief-qtq92uYj.jpg",
+  "sha256": "a9951b259d452ae657a1e778e43be16776548875ed821f77989b67fa5bf72c6a",
+  "width": 4096,
+  "height": 2048,
+  "channels": {
+    "R": "east tangent normal, encoded around 0.5",
+    "G": "north tangent normal, encoded around 0.5",
+    "B": "normalized terrain elevation"
+  },
+  "colorSpace": "NoColorSpace",
+  "note": "Preserved historical geographic data asset. It is not the later RGBA atlas and must not be substituted with it.",
+  "source": "NASA Earth Observatory / GEBCO rendered imagery",
+  "sourcePage": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/",
+  "sourceRaster": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/topography/gebco_08_rev_elev_21600x10800.jpg",
+  "credit": "Jesse Allen, NASA Earth Observatory; GEBCO, British Oceanographic Data Centre",
+  "processingProvenance": "Recorded download and multiscale RGB normal/elevation generation; retained production output identified by its content-derived asset name, size and SHA-256. This audit did not regenerate or substitute the image.",
+  "reuseBasis": {
+    "scope": "NASA-published imagery and its derived image texture; no blanket grant for original GEBCO grid data",
+    "policyUrl": "https://science.nasa.gov/earth/faq/",
+    "policy": "NASA permits reuse and republication of most Earth-site imagery, including commercial reuse, unless a separate copyright notice applies; preserve source credit."
+  },
+  "reviewStatus": "verified-derived-source",
+  "rebuildPerformed": false
+}

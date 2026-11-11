@@ -1,0 +1,7 @@
+test_included_vector_renderer_still_requires_its_provider (__main__.OptionalViewValidationTests) ... ok
+test_real_3d_integration_does_not_need_an_unrequested_view_picker (__main__.OptionalViewValidationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.922s
+
+OK

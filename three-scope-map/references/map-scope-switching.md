@@ -154,42 +154,7 @@ type TerrainMaterialConfig = {
 
 Use lower `elevationScale` for country/world maps than province maps because the visible extent is larger.
 
-Suggested defaults:
-
-```ts
-const terrainByScope = {
-  province: {
-    elevationScale: 0.9,
-    normalStrength: 0.7,
-    roughness: 0.86,
-    textureOpacity: 0.34,
-  },
-  country: {
-    elevationScale: 0.42,
-    normalStrength: 0.48,
-    roughness: 0.9,
-    textureOpacity: 0.28,
-  },
-  world: {
-    elevationScale: 0.18,
-    normalStrength: 0.32,
-    roughness: 0.92,
-    textureOpacity: 0.24,
-  },
-  city: {
-    elevationScale: 0.72,
-    normalStrength: 0.6,
-    roughness: 0.88,
-    textureOpacity: 0.3,
-  },
-  district: {
-    elevationScale: 0.58,
-    normalStrength: 0.52,
-    roughness: 0.9,
-    textureOpacity: 0.26,
-  },
-};
-```
+Use the selected template's existing per-scope terrain configuration. If a new geographic extent needs adjustment, tune the material roles above rather than replacing the template with a generic set of constants.
 
 Texture QA:
 
@@ -202,54 +167,7 @@ Texture QA:
 
 ## Geometry And Visual Scaling
 
-Use scope-aware visual constants:
-
-```ts
-const geometryByScope = {
-  province: {
-    extrusionDepth: 0.5,
-    outerLineWidth: 1.8,
-    internalLineWidth: 0.7,
-    hoverLift: 0.12,
-    labelScale: 0.5,
-    activeLabelScale: 0.7,
-  },
-  country: {
-    extrusionDepth: 0.22,
-    outerLineWidth: 1.4,
-    internalLineWidth: 0.45,
-    hoverLift: 0.06,
-    labelScale: 0.42,
-    activeLabelScale: 0.58,
-  },
-  world: {
-    extrusionDepth: 0.1,
-    outerLineWidth: 1.0,
-    internalLineWidth: 0.32,
-    hoverLift: 0.035,
-    labelScale: 0.34,
-    activeLabelScale: 0.48,
-  },
-  city: {
-    extrusionDepth: 0.34,
-    outerLineWidth: 1.4,
-    internalLineWidth: 0.5,
-    hoverLift: 0.075,
-    labelScale: 0.4,
-    activeLabelScale: 0.56,
-  },
-  district: {
-    extrusionDepth: 0.24,
-    outerLineWidth: 1.15,
-    internalLineWidth: 0.34,
-    hoverLift: 0.045,
-    labelScale: 0.34,
-    activeLabelScale: 0.5,
-  },
-};
-```
-
-Tune these after visual QA; they are starting points, not immutable values.
+Reuse the template's scope-aware extrusion, outline, hover-lift and label settings. Country/world views generally need shallower depth and lower label density than province/city views. Adjust framing and scale for the requested geography, then verify that top, side walls, outlines and hit targets still move together.
 
 ## Component API Recommendation
 

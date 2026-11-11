@@ -1,0 +1,121 @@
+Summer Platform Restriction License 1.0
+License identifier: LicenseRef-Summer-Platform-Restriction-1.0
+Copyright (c) 2026 宋夏天Dazzle
+Applies to the author's own material in the Three Scope Map 3.0.0 distribution.
+中文正文为准；English explanation follows.
+
+一、适用范围
+本授权仅适用于版权由宋夏天Dazzle持有、并在本3.0.0分发版本中按本授权提供的代码、Skill指令、模板及文档（统称“本作品”）。这是带用途限制的源码可用授权，不是GNU GPL，也不宣称是符合OSI定义的开源许可证。
+第三方依赖、地图数据、照片、字体、图标及其他第三方资源不适用本授权，其权利和义务以各自原有许可证、版权说明及服务条款为准，参见THIRD_PARTY_NOTICES.md。
+
+二、允许的使用
+在遵守本授权的前提下，作者授予你全球范围、非独占、免许可费的权利：
+1. 下载、运行、研究、复制和修改本作品，用于个人学习、教育、企业内部使用、普通商业项目和客户定制开发。
+2. 将本作品用于具体业务应用、网站、大屏或其他最终项目，并向客户交付该项目及其必要源码；可以为你的项目开发、设计、部署、维护和其他独立服务收费。
+3. 免费分享本作品或修改版，发布演示、教程、截图和视频，但须遵守第三条及署名要求。
+前述允许均以不实施第四条所列受限平台化使用为前提。普通业务应用，包括收费网站、SaaS、大屏及客户定制项目，其地图仅用于承载该应用自身的具体业务信息或业务操作，且不向使用者提供通用的地球/地图开发、生成、调用、嵌入或复用能力的，不因应用收费、面向多个客户或采用订阅制就自动属于第四条禁止范围。地图的查看、缩放、筛选及服务于该应用自身业务的标注或报表操作，不单独构成上述通用能力。
+普通商业项目及客户定制开发、交付的允许，不包括为客户建设、交付、运营或维护第四条所述受限收费平台或可复用产品。按客户要求开发、单独签约、一次性交付或收取开发服务费，均不构成对该受限用途的许可。
+
+三、署名与分发条件
+分发本作品、修改版或包含本作品的项目源码时，应保留本LICENSE、NOTICE、适用的第三方声明、原作者署名、源代码中的许可证标识和版权注释；应明确标注修改内容或修改版身份，不得冒充原作者或官方发布。
+署名可以放在代码、README、项目文档、关于页面或发布说明中。本授权不要求在最终应用界面强制添加水印或常驻署名。
+原始来源：https://github.com/songsummer920-dazzle/three-scope-map-skill
+作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天。
+本授权不授予作者姓名、商标或标识的商业背书权。
+
+四、未经书面许可禁止的平台封装及转售
+未经作者事先书面许可，不得将本作品的全部、部分或修改版作为可复用的地球/地图能力，对外收费提供。可复用能力包括供其他使用者开发、生成、编辑、配置、调用、嵌入、导出或再次使用的地球/地图工具、场景、组件、模板或资源；独立销售的渲染、展示组件也包括在内。以下情形均在禁止范围内：
+1. 将前述内容封装、集成、嵌入、托管或重新发布到自有或第三方平台，包括SaaS、低代码/可视化搭建平台、AI/Agent平台、地图生成或调用服务、API及其他面向使用者提供上述能力的产品或服务。
+2. 将前述内容作为Skill、插件、SDK、组件、模板、资源包、素材库或其修改版销售、提供付费下载、付费授权或付费访问。本条不以交付源码、向使用者安装软件或单独收取本作品费用为前提；仅在服务器运行、远程调用或返回生成/渲染结果，不因此获得豁免。
+3. 收费包括订阅、会员、按次调用、可付费取得的积分或其他权益、付费下载或授权、捆绑销售，以及将费用并入其他产品或服务。上述可复用能力作为收费产品或服务整体的一部分提供时，即使入口、试用、基础额度或部分功能免费，或未单独列价，仍适用本条。
+4. 不得通过改名、换皮、重新打包、分拆功能、合同或收费主体，以及安排关联方、合作方或其他主体代收同一产品或服务的费用等方式规避本条。以实际向使用者提供的能力及收费安排判断，不以产品名称、页面标注或合同名义判断。
+5. 经人工或AI辅助改写、转换语言、迁移框架、拆分或与其他代码组合后，仍包含本作品受著作权保护的内容或构成对该内容改编的版本，继续适用本条；不因修改比例、更换技术栈、删除署名或版权标识而当然免除授权义务。
+免费展示、免费教程和第二条明确允许的普通业务应用及客户定制交付，依各自条件使用；不得以这些名称包装本条所述受限用途。需要开展受限用途的，应按第八条取得明确书面授权；本分发包、普通项目使用许可或一般技术支持均不构成该授权。
+本条仅限制使用作者享有版权的本作品，不限制未使用其受保护内容的独立实现，不将软件著作权保护扩大到思想、处理过程、操作方法或数学概念，也不影响依法不能排除的权利、历史有效授权及第三方材料各自的授权。
+
+五、历史版本与已有授权
+本授权是本3.0.0分发版本自有版权内容的新授权，不是对GNU GPL追加限制，也不撤回、缩减或改变任何此前已经有效授予的GPL或其他授权。
+此前按GPL发布的2.0版本，以及已经按GPL提供的3.0候选版等历史副本，仍可依其取得时的有效授权使用。任何人对同一内容已经合法取得的GPL权利，不会因本版本采用新授权而被追溯取消。
+本版本中的“2.0风格”是外观/模板选项名称，不表示作者撤回了旧版本的GPL授权。历史GPL原文保留在LICENSES/GPL-3.0-or-later.txt，仅用于说明历史及明确标识的GPL材料；该副本不表示本3.0.0作者自有内容同时提供GPL选项。
+
+六、终止
+第四条所述未经许可的平台化使用，自实施时即不在本授权授予的范围内，不以作者事先通知或提出异议为前提。发生违约使用时，应停止相应使用及向外提供的访问、分发或服务；如需继续，应先取得作者明确书面许可。停止违规或补回署名不自动构成许可，也不当然免除已经发生的责任。本条不影响适用法律另行赋予的权利、抗辩或救济。
+
+七、按现状提供
+在适用法律允许的范围内，本作品按现状提供，不作适销性、特定用途适用性、不侵权或数据准确性的保证。作者不对因使用或无法使用本作品产生的损失承担责任，但适用法律不允许排除或限制的责任除外。
+
+八、保留权利与单独授权
+未明确授予的权利由作者保留。第四条所称书面许可，是作者或其有权授权代表通过能够留存、查证的书面文件或电子记录，明确允许相关主体开展该条所述受限用途的授权，具体以其约定的主体、产品、用途及其他范围为准。
+除另有明确约定外，不因关联关系、委托开发、项目交付或取得源码而推定获得平台许可、转授权或许可转让。保留署名、提供原项目链接、公开可下载、部分功能免费、一般技术答复或作者未提出异议，均不单独构成该许可；未及时维权也不当然代表放弃权利。
+单独书面授权仅在其明确约定的范围内替代本授权的相应条款；第三方材料的授权只能由相应权利人授予。
+
+English explanation (the Chinese text above controls)
+
+This source-available, use-restricted license covers only the author's own
+material supplied under this license in the Three Scope Map 3.0.0 distribution.
+It is not the GNU GPL and is not represented as an OSI-approved open-source
+license. Third-party software, geographic data, imagery and other resources
+retain their own terms; this license grants no additional rights to them.
+
+Personal, educational, internal and ordinary commercial projects, modifications,
+and client-specific development/delivery are permitted without a license fee.
+You may charge for independent development, design, deployment and maintenance.
+A business application, including a paid or multi-tenant SaaS, using the map only
+for its own concrete business information or operations and without exposing
+general reusable Earth/map capability to its users is not prohibited merely
+because it charges fees or subscriptions. Its own business viewing, zooming,
+filtering, annotation and reporting do not alone constitute a general reusable
+Earth/map capability. This exception does not authorize building, delivering,
+operating or maintaining a restricted paid platform for a client, even under a
+custom-development contract, one-time delivery or development-service fee.
+Free demonstrations, tutorials and sharing remain permitted subject to
+attribution and the restrictions below.
+
+Without the author's prior written permission, you may not package, embed,
+host, rebrand, redistribute or offer all or part of this work or modifications
+as reusable Earth/map capability for development, generation, editing,
+configuration, access, embedding, export or reuse, including separately sold
+rendering/display components. This covers paid platforms, SaaS, low-code builders,
+AI/agent platforms, APIs, Skills, plugins, SDKs, components, templates and resources.
+The restriction applies without source delivery or installation on a user's
+device, including server-side hosting, remote calls and returned generated or
+rendered results. Subscriptions, membership, usage fees, purchasable credits,
+paid downloads/licensing, bundled sales and fees included in another service
+are covered. When the capability forms part of a paid offering, a free entry,
+trial, basic quota, free features or lack of separate pricing does not exempt it.
+Splitting functions, contracts or collection of fees across related parties,
+partners or arranged intermediaries does not avoid the restriction. Actual
+capability and charging arrangements control, not product labels or contract names.
+Human or AI-assisted rewrites, language/framework changes, splitting or combining
+code remain subject to the terms where they retain protected content or adapt
+it; modification percentages or removing attribution do not alone exempt a use.
+These terms do not restrict independent implementations that do not use the
+protected content, and do not extend software copyright to ideas, processes,
+methods or mathematical concepts. Statutory rights that cannot be excluded,
+valid historical grants and separate third-party rights are unaffected.
+
+Retain LICENSE, NOTICE, applicable third-party notices, author attribution and
+source license/copyright markers when distributing this work or its source.
+Identify modified versions and do not claim official status or endorsement.
+Attribution may be in code or documentation; no permanent application watermark
+is required. Obtain separate written permission for restricted platform resale.
+
+This license does not revoke or narrow any GPL or other rights validly granted
+for historical copies, including previously published 2.0 or GPL-licensed 3.0
+candidates. The included historical GPL text does not offer an alternative GPL
+license for this new distribution's author-owned material. The “2.0 style” name
+is an appearance option, not a revocation of the original 2.0 GPL grant.
+
+Unpermitted restricted use is outside this grant when it occurs; prior notice
+is not a prerequisite. Cease the noncompliant use and related access,
+distribution or service. Stopping use or restoring attribution does not itself
+grant permission or waive accrued liability; applicable rights and remedies remain.
+Separate permission must be a retainable, verifiable written or electronic
+authorization from the author or an authorized representative that expressly
+covers the restricted use, subject to its named entity, product and scope.
+Affiliation, custom development, project/source delivery, attribution, public
+availability, free features, general technical replies or silence do not alone
+grant platform rights, sublicensing or transfer, or waive reserved rights.
+The work is provided as-is, without warranties or liability to the extent
+permitted by applicable law. Unstated rights are reserved; third-party rights
+are unaffected.

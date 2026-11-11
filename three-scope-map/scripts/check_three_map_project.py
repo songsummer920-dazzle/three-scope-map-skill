@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
 # Copyright (c) 2026 宋夏天Dazzle
 """Project readiness checks for the three-scope-map skill.
 
@@ -182,7 +182,7 @@ def main() -> int:
     if map_components:
         passes.append("Three map component found")
     else:
-        problems.append("Three map component missing; copy assets/templates/smart-mine-vue/src first.")
+        problems.append("Three map component missing; copy assets/templates/songsummer-earth-vue/src first.")
 
     for relative_path in REQUIRED_EARTH_FILES:
         path = root / relative_path
@@ -213,7 +213,7 @@ def main() -> int:
                 problems.append(f"Earth effect check missing: {label}")
 
         theme_path = root / "src/components/map/mapTheme.ts"
-        earth_theme_ok = file_contains(earth_sources, r"import\s*\{\s*MAP_THEME_PRIMARY\s*\}\s*from\s*['\"]\./mapTheme['\"]")
+        earth_theme_ok = file_contains(earth_sources, r"import\s*\{[^}]*MAP_THEME_PRIMARY[^}]*\}\s*from\s*['\"]\./mapTheme['\"]")
         map_theme_ok = file_contains(map_components, r"import\s*\{[^}]*mapTheme[^}]*\}\s*from\s*['\"]\./mapTheme['\"]")
         primary_ok = file_contains([theme_path] if theme_path.exists() else [], r"export\s+const\s+MAP_THEME_PRIMARY\s*=")
         if earth_theme_ok and map_theme_ok and primary_ok:
@@ -221,12 +221,38 @@ def main() -> int:
         else:
             problems.append("Earth and 3D map are not both connected to mapTheme.ts/MAP_THEME_PRIMARY.")
 
+        muted_theme_ok = (
+            file_contains([theme_path] if theme_path.exists() else [], r"deriveThemeHsl")
+            and file_contains([theme_path] if theme_path.exists() else [], r"mutedSaturation")
+            and file_contains(earth_sources, r"uSurfaceRecolorAmount")
+            and file_contains(earth_sources, r"uPlainTone[\s\S]*uPlateauTone[\s\S]*uDrylandTone")
+            and file_contains(earth_sources, r"themedDaySurface")
+            and not file_contains(earth_sources, r"vec3\s+plainTone\s*=\s*vec3\(surfaceLuma")
+        )
+        if muted_theme_ok:
+            passes.append("Achromatic theme and Earth regional surface recolor pipeline found")
+        else:
+            problems.append(
+                "Theme pipeline must keep gray/near-gray muted and derive Earth regional surface tones from the shared theme."
+            )
+
         earth_china_map = root / "src/components/map/EarthChinaMap.vue"
         earth_china_sources = [earth_china_map] if earth_china_map.exists() else []
+        fui_parallel_intro = (
+            (root / "src/components/map/FuiEarth.vue").exists()
+            and (root / "src/components/map/fuiEarthTheme.ts").exists()
+            and file_contains(earth_china_sources, r':start-intro="true"')
+            and file_contains(earth_china_sources, r"chinaMounted\s*=\s*ref\(props\.initialMode\s*===\s*[\'\"]china[\'\"]\)")
+            # Both the hidden frame and compile batch must finish before ready.
+            # Consuming programs in that frame may precede the KHR completion wait.
+            and file_contains(earth_sources, r"(?:await shaderPrime[\s\S]*warmComposer\.render|warmComposer\.render[\s\S]*await shaderPrime)[\s\S]*scenePrepared\s*=\s*true")
+            and file_contains(earth_china_sources, r"pendingChinaEntry[\s\S]*onChinaReady")
+        )
+        intro_policy_ok = fui_parallel_intro or file_contains(earth_china_sources, r':start-intro="chinaReady"')
         isolated_preload_ok = (
             file_contains(earth_sources, r"emit\(['\"]scene-ready['\"]\)")
             and file_contains(earth_sources, r"startIntro")
-            and file_contains(earth_china_sources, r':start-intro="chinaReady"')
+            and intro_policy_ok
             and file_contains(earth_china_sources, r"prepareChinaMap[\s\S]*chinaMounted\.value\s*=\s*true")
             and file_contains(earth_china_sources, r"defineAsyncComponent\(\(\)\s*=>\s*import\(['\"]\./ChinaMap\.vue['\"]\)\)")
             and file_contains(earth_sources, r"world\.earth-render\.json")
@@ -245,25 +271,82 @@ def main() -> int:
                 "Earth handoff must reveal a static precompiled destination frame and keep map animation inactive until enter-china."
             )
         if isolated_preload_ok:
-            passes.append("Earth visible intro is isolated from destination preload")
+            passes.append("FUI Earth has first-frame priority; destination warms without blocking its intro" if fui_parallel_intro else "Earth visible intro is isolated from destination preload")
         else:
             problems.append(
-                "Earth visible intro must start only after the inactive destination static frame is ready."
+                "Earth intro must follow the original destination gate or the validated FUI own-frame/parallel-destination readiness policy."
             )
 
-        south_sea_svg_ok = file_contains(
-            map_components,
-            r"southSeaInsetMinWidth\s*=\s*62[\s\S]*southSeaInsetMaxWidth\s*=\s*92[\s\S]*updateSouthSeaInsetSize",
-        )
-        if south_sea_svg_ok:
-            passes.append("South China Sea SVG camera-distance clamp found: 62-92px")
+        fui_inset = (root / "src/components/map/fuiEarthTheme.ts").exists()
+        inset_base = r"southSeaInsetMinWidth\s*=\s*62[\s\S]*southSeaInsetMaxWidth\s*=\s*92"
+        if fui_inset:
+            south_sea_svg_ok = file_contains(map_components, inset_base) and file_contains(
+                map_components,
+                r"function updateSouthSeaInsetLayout\(\)[\s\S]*getHostSize\(\)[\s\S]*southSeaInsetLayoutKey[\s\S]*MathUtils\.clamp\(height[\s\S]*layoutCamera",
+            )
+            if south_sea_svg_ok:
+                passes.append("FUI South China Sea inset has container-only layout and a fixed default-view anchor: 62-92px")
+            else:
+                problems.append("FUI South China Sea inset must stay fixed during orbit/zoom and use container-responsive width clamped to 62-92px.")
         else:
-            problems.append("South China Sea SVG must follow camera distance and remain clamped to 62-92px.")
+            south_sea_svg_ok = file_contains(map_components, inset_base + r"[\s\S]*updateSouthSeaInsetSize")
+            if south_sea_svg_ok:
+                passes.append("South China Sea SVG camera-distance clamp found: 62-92px")
+            else:
+                problems.append("South China Sea SVG must follow camera distance and remain clamped to 62-92px.")
 
         if file_contains(source_files, r"EarthViewLegacy|earthVersion"):
             problems.append("Legacy/query-switch Earth fork detected; the bundled exact EarthView must be the only default entrance.")
         else:
             passes.append("Single authoritative Earth entrance check passed")
+
+        vector_map = root / "src/components/map/VectorMap.vue"
+        vector_config = root / "src/components/map/vectorMapConfig.ts"
+        vector_provider = root / "src/components/map/vectorMapProvider.ts"
+        vector_theme = root / "src/components/map/vectorMapTheme.ts"
+        vector_diagnostics = root / "src/components/map/vectorMapDiagnostics.ts"
+        vector_worker = root / "src/components/map/maplibreWorker.ts"
+        navigation_model = root / "src/components/map/mapNavigation.ts"
+        package_json = root / "package.json"
+        # Bundled optional renderers do not require a view picker in a 3D-only
+        # integration. Validate their implementation, not button copy or locale.
+        vector_included = any(path.exists() for path in (
+            vector_map, vector_config, vector_provider, vector_theme,
+            vector_diagnostics, vector_worker,
+        )) or file_contains(source_files, r"<VectorMap\b|from\s*['\"][^'\"]*VectorMap\.vue['\"]")
+        map_2d_ok = (
+            vector_map.exists()
+            and vector_config.exists()
+            and vector_provider.exists()
+            and vector_theme.exists()
+            and vector_diagnostics.exists()
+            and vector_worker.exists()
+            and navigation_model.exists()
+            and file_contains([vector_config], r"VectorMapProviderConfig")
+            and file_contains([vector_config], r"style-url")
+            and file_contains([vector_config], r"raster")
+            and file_contains([vector_config], r"vector-tiles")
+            and file_contains([vector_config], r"pmtiles")
+            and file_contains([vector_config], r"VectorMapPalette[\s\S]*roadMajor[\s\S]*labelHalo")
+            and file_contains([vector_config], r"WGS84\s*['\"]\s*\|\s*['\"]GCJ02\s*['\"]\s*\|\s*['\"]BD09")
+            and file_contains([vector_provider], r"projectGeoDataForProvider")
+            and file_contains([vector_theme], r"VectorMapLayerRole[\s\S]*classifyVectorMapLayer[\s\S]*compileVectorMapTheme")
+            and file_contains([vector_diagnostics], r"__SUMMER_MAP_2D_DIAGNOSTICS__")
+            and file_contains([vector_map], r"styleLoaded")
+            and file_contains([vector_map], r"firstIdle")
+            and file_contains([vector_map], r"basemapSourceLoaded")
+            and file_contains([vector_worker], r"maplibre-gl-worker\.mjs[\s\S]*MapLibreWorker")
+            and file_contains([package_json], r"maplibre-gl")
+            and file_contains([package_json], r"pmtiles")
+        )
+        if not vector_included:
+            passes.append("3D-only project: no optional vector renderer requested")
+        elif map_2d_ok:
+            passes.append("Included vector provider, semantic theme, coordinate boundary, navigation and runtime diagnostics found")
+        else:
+            problems.append(
+                "An included or referenced 2D renderer requires the complete provider adapter, semantic theme compiler, coordinate boundary, navigation, worker and runtime diagnostics."
+            )
 
         for label, pattern in PRIVATE_OR_DASHBOARD_PATTERNS.items():
             if file_contains(source_files, pattern):
@@ -277,7 +360,9 @@ def main() -> int:
         else:
             passes.append(".map-host fixed-size check passed")
 
-        if file_contains(source_files, r"setupSvgFallback|map-svg-fallback|<svg[\s>][\s\S]{0,600}(geo|map|boundary)"):
+        # Restrict geometry detection to the SVG itself. Looking past </svg>
+        # misclassifies decorative HUDs followed by a map component or binding.
+        if file_contains(source_files, r"setupSvgFallback|map-svg-fallback|<svg\b[^>]*>(?:(?!</svg>)[\s\S]){0,600}(geo|map|boundary)"):
             problems.append("SVG/image fallback map detected; one-to-one delivery must render real Three.js.")
         else:
             passes.append("No SVG fallback map detected")

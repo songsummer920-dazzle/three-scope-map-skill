@@ -1,0 +1,29 @@
+{
+  "source": "NASA Earth Observatory / GEBCO",
+  "credit": "Jesse Allen, NASA Earth Observatory; GEBCO, British Oceanographic Data Centre",
+  "page": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/",
+  "raster": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/topography/gebco_08_rev_elev_21600x10800.jpg",
+  "input_size": [
+    21600,
+    10800
+  ],
+  "output_size": [
+    4096,
+    2048
+  ],
+  "input_elevation_m": [
+    0,
+    6400
+  ],
+  "channels": {
+    "r": "east tangent normal * .5 + .5",
+    "g": "north tangent normal * .5 + .5",
+    "b": "normalized elevation",
+    "a": "signed range-scale curvature * .5 + .5"
+  },
+  "color_space": "linear / NoColorSpace",
+  "processing": "Lossless RGBA PNG. Float32 elevation smoothed at 1/3/10 pixels on an 8K working raster; weighted geographic gradients .80/.72/.20 with strength 72 and latitude correction. R/G normal, B smoothed height, A medium-minus-broad curvature. Each float data channel is resampled independently to 4K and quantized once; curvature is never interpreted as opacity. Narrow ridges are balanced with coherent ranges; shader footprint filtering limits fine specular noise. No generated artwork, screenshots, or procedural terrain noise.",
+  "source_sha256": "aeecb1d0ae367f836e95f5fec8edcacf37df423f07f9ecaa1739debab8985b58",
+  "output_file": "earth-relief.png",
+  "output_sha256": "ac9cd92fcb809139dfe78785648653af95865550585e8d5c41654f0428ea5b20"
+}

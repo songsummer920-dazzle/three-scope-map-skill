@@ -1,0 +1,25 @@
+2D vector map project check: <verification-workspace>/projects/fui
+
+PASS
+  - Vue, Vite, MapLibre, and PMTiles dependencies found
+  - 2D contract file found: src/components/map/VectorMap.vue
+  - 2D contract file found: src/components/map/vectorMapConfig.ts
+  - 2D contract file found: src/components/map/vectorMapProvider.ts
+  - 2D contract file found: src/components/map/vectorMapTheme.ts
+  - 2D contract file found: src/components/map/vectorMapDiagnostics.ts
+  - 2D contract file found: src/components/map/maplibreWorker.ts
+  - 2D contract file found: src/components/map/mapNavigation.ts
+  - Contract check passed: Replaceable provider source types
+  - Contract check passed: Provider coordinate systems
+  - Contract check passed: Provider-boundary projection and request handling
+  - Contract check passed: Semantic layer theme compiler
+  - Contract check passed: Browser runtime diagnostics contract
+  - Contract check passed: Native rotation and pitch interaction
+  - Contract check passed: Responsive control inset variables
+  - Contract check passed: Complete MapLibre worker entry
+  - Privacy check passed: absolute local path
+  - Privacy check passed: local preview URL
+  - Privacy check passed: chat temporary path
+
+BLOCKERS
+  - None

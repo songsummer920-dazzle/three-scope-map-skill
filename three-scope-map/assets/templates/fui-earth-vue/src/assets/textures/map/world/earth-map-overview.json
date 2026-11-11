@@ -1,0 +1,63 @@
+{
+  "geographic_bounds": [
+    60,
+    -10,
+    150,
+    65
+  ],
+  "method": "Native pixel crop; no resampling or channel conversion. Photograph crop is lossless PNG of decoded source RGB.",
+  "textures": {
+    "photograph": {
+      "source": "earth-photographic.jpg",
+      "source_sha256": "f3d1d146e4d503afba7019542593d0d6826015a9795e09bb556671202b59641c",
+      "file": "earth-map-photograph.png",
+      "pixel_box": [
+        3600,
+        375,
+        4950,
+        1500
+      ],
+      "source_size": [
+        5400,
+        2700
+      ],
+      "size": [
+        1350,
+        1125
+      ],
+      "uv_bounds": [
+        0.6666666666666666,
+        0.4444444444444444,
+        0.25,
+        0.4166666666666667
+      ],
+      "pixel_verified": true
+    },
+    "relief": {
+      "source": "earth-relief.png",
+      "source_sha256": "ac9cd92fcb809139dfe78785648653af95865550585e8d5c41654f0428ea5b20",
+      "file": "earth-map-relief.png",
+      "pixel_box": [
+        2730,
+        284,
+        3755,
+        1138
+      ],
+      "source_size": [
+        4096,
+        2048
+      ],
+      "size": [
+        1025,
+        854
+      ],
+      "uv_bounds": [
+        0.66650390625,
+        0.4443359375,
+        0.250244140625,
+        0.4169921875
+      ],
+      "pixel_verified": true
+    }
+  }
+}

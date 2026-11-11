@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FUI Earth · Three Scope Map</title>
+    <style>
+      html,body{margin:0;background:#060b10;color:#8ac8ed}
+      .fui-boot{position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:24px;font:12px/1.5 system-ui;letter-spacing:.16em}
+      .fui-boot i{width:76px;height:76px;border:1px solid #315366;border-top-color:#8ac8ed;border-left-color:#8ac8ed;border-radius:50%;animation:fui-boot-spin 2s linear infinite}
+      @keyframes fui-boot-spin{to{transform:rotate(360deg)}}
+      @media(prefers-reduced-motion:reduce){.fui-boot i{animation:none}}
+    </style>
+  </head>
+  <body>
+    <div id="app"><div class="fui-boot" role="status"><i aria-hidden="true"></i><span>正在加载场景</span></div></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

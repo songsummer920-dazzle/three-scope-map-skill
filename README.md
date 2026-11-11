@@ -1,203 +1,264 @@
-## 效果预览
+# Three Scope Map 3.0 · Earth and Geographic Map Skill
 
-<p align="center">
-  <img src="./3d-map-theme-green.gif" alt="3D Map Green Theme" width="48%">
-  <img src="./3d-map-theme-blue.gif" alt="3D Map Blue Theme" width="48%">
-</p>
-# Three Scope Map · Earth-to-China 3D Map Skill
+A geographic visualization skill with runnable Vue templates for Three.js Earth,
+administrative 3D maps, MapLibre 2D maps, 2D + 3D overlays, and contour terrain.
 
-A Codex skill for building an exact Three.js Earth entrance and reusable
-multi-level 3D geographic maps for Vue/web projects. The bundled default
-experience starts in space, highlights a textured and extruded China on the
-globe, then performs a coordinated 3D handoff into the existing China map and
-continues through province, city, and district/county drilldown.
+> **3.0 授权提示：未经作者事先书面许可，不得将本项目的 Skill、代码、模板、
+> 组件或其修改版封装、集成或托管到自有或第三方平台，作为可复用的地球/地图
+> 能力对外收费提供。** 收费整体中的免费功能、会员订阅、付费积分、按次调用、
+> 捆绑或安排其他主体代收费用，均适用限制；不交源码、改名换皮或AI辅助改写后
+> 仍含本项目受保护内容的，不自动获得豁免。
+> 普通业务项目及客户定制开发、交付可按 [LICENSE](LICENSE) 使用；以定制开发
+> 名义建设收费地图平台仍须另行获得书面许可。
 
-> **Original project notice:** This repository is the original public source of
-> `three-scope-map-skill` by **宋夏天Dazzle**. Forks, derivative works,
-> tutorials, public showcases, and redistributed versions must retain the
-> original attribution and must not imply that modified versions are original
-> or official releases by the original author.
->
-> **原始项目声明：** 本仓库是 **宋夏天Dazzle** 发布的
-> `three-scope-map-skill` 原始公开来源。任何 fork、二创、教程、
-> 公开展示或再分发版本都必须保留原作者署名，不得暗示修改版是完全原创
-> 或原作者官方发布。
+## 效果预览 / Motion previews
 
-This repository intentionally contains only the standalone Earth/3D map skill
-and its runnable minimal Vue template, not the full dashboard project or any
-business-screen content.
+作者全平台ID：宋夏天Dazzle  
+公众号：送你整个夏天
 
-## What It Supports
+以下动图录制自内置模板的实际运行效果，支持循环播放。
 
-- A validated one-to-one Vue 3 template that opens directly on the Three.js Earth.
-- Textured spherical Earth rendering with neutral starfield, atmosphere, geographic outlines, fine grid intersections, grid scan, and idle motion.
-- A separately tessellated and extruded China surface with terrain texture, side-wall thickness, inner glow, animated contour light, and Taiwan wall handling.
-- Persistent international fly-line tracks, synchronized moving light segments, and node ripple effects.
-- A cloud/atmosphere dive and real 3D camera push from Earth into the existing China map.
-- Province, country, city, district, and world map scopes.
-- Real GeoJSON-driven Three.js 3D map geometry.
-- Dark HUD/B-end visualization style.
-- One-sentence theme changes through one shared primary color for both Earth and every 3D map scope.
-- Terrain texture configuration: diffuse, height/displacement, normal, roughness.
-- Labels, scatter points, ripple effects, fly lines, hover lift, HUD base ring, and outer-contour chase light.
-- Hierarchical drilldown for every non-terminal scope: world -> country -> province -> city -> district.
-- Data adapter pattern for local seed data, network fallback, cache, request de-duplication, and hover prefetch.
-- GeoJSON preprocessing for smoother runtime rendering.
-- Chunked map rebuild and Three.js resource disposal for reduced click jank.
-- User camera angle save/reset with unified defaults and optional per-scope overrides.
-- A fixed screen-space South China Sea inset for China scope and a separate spherical dashed representation on Earth.
-- Template integrity, strict project checks, build validation, and browser visual regression guidance.
+| 地球效果 | 地图效果 |
+| --- | --- |
+| **3.0 实体地球** | **地形玻璃 3D 地图** |
+| ![3.0 实体地球](three-scope-map/assets/readme/entity-earth-watermarked.gif) | ![地形玻璃 3D 地图](three-scope-map/assets/readme/terrain-glass-map-watermarked.gif) |
+| **点阵全息地球 · 蜂窝扫描** | **纯玻璃 3D 地图** |
+| ![点阵全息地球 · 蜂窝扫描](three-scope-map/assets/readme/hologram-dots-watermarked.gif) | ![纯玻璃 3D 地图](three-scope-map/assets/readme/smooth-glass-map-watermarked.gif) |
+| **蜂窝全息地球 · 网格扫描** | **2D + 3D 地理叠加** |
+| ![蜂窝全息地球 · 网格扫描](three-scope-map/assets/readme/hologram-hex-watermarked.gif) | ![2D + 3D 地理叠加](three-scope-map/assets/readme/map-overlay-watermarked.gif) |
 
+## Install or upgrade / 安装与升级
 
-## Songsummer Earth-to-China Template
+The installation and project-copy tools require Python **3.9 or newer** and use
+only the Python standard library.
 
-The bundled project is the visual and interaction baseline. Tell Codex to copy
-it before adapting data or integrating it into another project:
-
-```txt
-Use three-scope-map and copy the bundled Songsummer Earth-to-China Vue template first. Keep EarthView.vue, EarthChinaMap.vue, ChinaMap.vue, mapTheme.ts, map data, and texture assets as one unit. Do not recreate or redesign the Earth or 3D map from scratch. Mount EarthChinaMap.vue as the default view, then run the project and verify the full Earth-to-China handoff in a browser.
-```
-
-For one-to-one output on any requested region, keep this sentence in your prompt:
-
-```txt
-Preserve the bundled Songsummer Earth and 3D map style one-to-one. Do not simplify, reinterpret, or replace its renderer, textures, geometry, motion, labels, fly lines, contour light, camera behavior, South China Sea treatment, or handoff. Only adapt approved GeoJSON, labels, texture scope, fly-line source/targets, drilldown registry, and camera presets.
-```
-
-The complete runnable template is under:
-
-```txt
-three-scope-map/assets/templates/smart-mine-vue/src/
-```
-
-## Install
-
-Copy the `three-scope-map` folder into your Codex skills directory:
+Run from this repository root, or from the directory containing the extracted
+`three-scope-map/` folder:
 
 ```bash
-cp -R three-scope-map ~/.codex/skills/
+python3 three-scope-map/scripts/install_skill.py
 ```
 
-Or install it from this GitHub repository with the skill installer if your Codex environment supports GitHub skill installation.
+默认安装到 `~/.codex/skills/three-scope-map`。升级时，脚本先将旧 Skill 完整备份到
+skills 目录之外的 `~/.codex/skill-backups/`，再整目录替换，避免合并残留旧文件。
+旧版本的定制保留在备份中，不会自动迁回；需要时先比较，再按新版本接口迁移。
+不要用 `cp -R` 向已有 Skill 目录合并升级。
 
-The bundled Vue template requires Node.js `^20.19.0` or `>=22.12.0`. Its
-dependency versions are locked for reproducible installation.
+自定义位置可使用 `--source <skill-folder>`、`--target <destination>` 和
+`--backup-dir <external-backup-parent>`。ZIP 内的
+[中文快速说明](three-scope-map/README.md)可独立阅读。
 
-## Example Prompts
+## Choose a style and color
 
-### No Existing Project Prompt
+| Request | Earth and matching 3D map |
+| --- | --- |
+| `用 2.0 风格` | Classic Earth and classic 3D map. |
+| `用 3.0 实体地球` | Photographic FUI Earth and textured terrain-glass map. |
+| `用 3.0 全息地球` | Regular-dot hologram Earth and smooth-glass map. Request a honeycomb globe explicitly to change its texture. |
 
-Use this when the current folder is empty or is not yet a frontend project:
+New Earth or administrative-3D projects default to **3.0 entity Earth / 实体地球**, with an amber palette.
+Hologram projects start with a glacier-blue palette. Existing projects keep their
+current style and color unless a change is requested.
 
-```txt
-这是我要使用的 skill：
-https://github.com/songsummer920-dazzle/three-scope-map-skill
+Specify a color by name or HEX value. Recoloring preserves the selected style,
+materials, geographic data and navigation.
+Entity and hologram Earth both support grid or honeycomb scans independently of
+the globe texture: `扫光改成蜂窝扫描` retains the current dot/hex pattern.
 
-请你自动完成全部操作，我不懂开发。
+### Create a project
 
-要求：
-1. 先从这个 GitHub 链接安装或读取 three-scope-map skill。
-2. 检查当前工作目录。
-3. 如果当前目录不是前端项目，直接复制 skill 内置 assets/templates/smart-mine-vue 完整最小项目，不要重新生成一套相似实现。
-4. 安装锁文件指定的依赖，并挂载 EarthChinaMap.vue 作为默认视图。
-5. EarthView.vue、EarthChinaMap.vue、ChinaMap.vue、mapTheme.ts、GeoJSON 和纹理资源必须作为一个整体复制，不得从零重写或删减。
-6. 页面打开后必须先显示真实 Three.js 地球，再点击中国进入现有中国 3D 地图。
-7. 地球必须保留星空、真实纹理、中国立体高程与侧边厚度、网格交点、扫描光、国际飞线、常态涟漪、大气边缘光和云层下钻。
-8. 中国 3D 地图必须保留挤出厚度、侧边渐变、地形纹理、外/内部边界、标签、hover 抬升、飞线、追光、HUD 底座环、视角保存/恢复和南海线框。
-9. 使用共享主色 #E8FF4F；如果之后只给一句新颜色，必须仅修改 MAP_THEME_PRIMARY，并让地球与所有 3D 地图层级同步换色。
-10. 除区县级外，每个地图层级都要支持下钻，默认链路为中国 -> 省 -> 市 -> 区县。
-11. 地图组件填满父容器，不要把 .map-host 写死成 1920px x 1080px；如果需要 16:9，由外层容器控制。
-12. 不要加入完整大屏、业务面板、图表、指标数据、个人路径、临时文件或预览地址。
-13. 运行 scripts/verify_template_integrity.py，必须通过模板完整性检查。
-14. 运行 scripts/check_three_map_project.py <项目目录> --strict，并修复所有非环境限制类 blocker。
-15. 运行 npm run build，并通过 Vite dev server 做真实浏览器检查。
-16. 浏览器验收必须覆盖：地球首屏、中国立体表面、台湾侧墙、球面南海虚线、网格扫描、国际飞线、地球到中国地图的 3D 衔接、各级下钻和返回上级。
-17. 不要用截图、SVG、CSS 或 2D 平面 GeoJSON 替代 Three.js 地图；WebGL 真不可用时必须说明具体原因。
-18. 完成后启动项目并告诉我本地访问地址；能自动判断的内容不要反复询问。
+Create a complete, runnable FUI project in a new or empty directory:
+
+```bash
+python3 three-scope-map/scripts/create_map_project.py ./my-map
+cd my-map
+npm ci
+npm run dev
 ```
 
-### Existing Project Prompt
+`--preset fui` is the default; `--preset classic` selects the complete 2.0 family.
+The script refuses a non-empty destination, copies the complete template and its
+license notices, and does not install packages or access npm automatically.
 
-Use this when the current folder is already an app or website:
+Natural-language invocation:
 
 ```txt
-这是我要使用的 skill：
-https://github.com/songsummer920-dazzle/three-scope-map-skill
-
-请你自动安装或读取这个 three-scope-map skill，并把 3D 地图能力接入当前项目。
-
-我不懂开发，请你自动完成：
-1. 检查当前项目技术栈和目录结构。
-2. 如果缺少 three 或相关依赖，请安装。
-3. 如果当前项目不是 Vue 项目，请根据现有技术栈给出最小适配实现。
-4. 从 skill 内置模板复制 EarthView.vue、EarthChinaMap.vue、ChinaMap.vue、mapTheme.ts、地图数据和纹理资源，保持其实现一模一样。
-5. 将 EarthChinaMap.vue 接入指定页面或容器，默认先显示地球，再下钻到现有中国 3D 地图。
-6. 不得自由重画地球、重写地图材质、替换动画、删减纹理或用简化实现代替模板。
-7. 保留地球星空、中国立体高程、网格扫描、国际飞线、涟漪、云层下钻，以及 3D 地图的厚度、纹理、标签、hover、飞线、追光、底座环和南海线框。
-8. 使用共享主色 #E8FF4F；后续一句话换色时只修改 MAP_THEME_PRIMARY，让地球和 3D 地图统一换色。
-9. 地图组件填满父容器，不要写死 1920px x 1080px；16:9 缩放由现有外层容器负责。
-10. 除区县级外，每个层级都要支持下钻；地图数据加载、缓存和预取不能改变既有视觉样式。
-11. 不要修改当前项目中与地图无关的面板、图表、业务数据和页面资源。
-12. 运行 scripts/verify_template_integrity.py 和 scripts/check_three_map_project.py <项目目录> --strict，并修复所有 blocker。
-13. 运行 npm run build，再通过 Vite dev server 做真实浏览器验收，覆盖地球首屏、3D 衔接、各级下钻和返回。
-14. 不要用截图、SVG、CSS 或 2D 平面 GeoJSON 替代 Three.js 地图；WebGL 真不可用时必须说明具体原因。
-15. 完成后运行项目并告诉我本地访问地址。
+使用 three-scope-map，创建一个 3.0 实体地球项目，整体蓝色。
 ```
 
-### Specific Task Prompts
+### Change an existing project
 
 ```txt
-Use three-scope-map to install the bundled Earth-to-China Vue template as-is, open directly on Earth, and preserve its full 3D handoff into the China map.
+使用 three-scope-map，把当前地图换成 3.0 全息风格，保留主色和数据。
+```
+
+The matching 3D map follows the chosen Earth style. Map-only projects can use the
+same map materials without adding an Earth entrance.
+
+### More examples
+
+```txt
+整体改成 #2AF7FF。
 ```
 
 ```txt
-Use three-scope-map to build a dark HUD-style Three.js Zhejiang province map with city boundaries, labels, fly lines, hover lift, and chase light.
+在现有 2D 底图上叠加 3D 地图，保留下钻和返回。
 ```
 
 ```txt
-Use three-scope-map to switch this 3D map from Zhejiang to Jiangsu while keeping the same visual style.
+把地图范围从浙江切到江苏，保留配色和交互。
 ```
 
 ```txt
-Use three-scope-map to add China -> province -> city -> district drilldown and optimize click performance.
+增加独立等高线模式，使用真实 DEM。
 ```
 
-```txt
-Use three-scope-map to change MAP_THEME_PRIMARY to #2AF7FF so the Earth and every 3D map scope derive one unified color system.
+## Features
+
+- **Earth entrances:** classic, photographic and holographic styles, with HUD,
+  lighting, animated scans and Earth-to-map navigation.
+- **Administrative 3D maps:** terrain-glass and smooth-glass surfaces, extruded
+  geometry, province boundaries, reflections and region selection.
+- **2D maps and overlays:** MapLibre basemaps, standalone renderer switching,
+  and geographic 3D overlays sharing the basemap camera and WebGL context.
+- **Contour terrain:** an independent terrain mode built from elevation data.
+- **Geographic navigation:** world, country, province, city and district/county
+  levels, subject to available administrative data. China scope includes a fixed
+  screen-space South China Sea inset.
+- **Theme control:** one primary color across Earth, maps, HUD and interaction
+  effects, with separate controls for map materials and scan effects.
+
+## Templates and integration
+
+| Style | Complete Vue template |
+| --- | --- |
+| 3.0 entity / hologram | [fui-earth-vue](three-scope-map/assets/templates/fui-earth-vue/README.md) |
+| 2.0 classic | [songsummer-earth-vue](three-scope-map/assets/templates/songsummer-earth-vue/README.md) |
+
+Use the complete template, including its data, textures, helpers and configuration.
+Both templates require Node.js `^20.19.0` or `>=22.12.0` and include dependency lockfiles.
+Each template already includes `LICENSE`, `NOTICE`, `LICENSES/` and
+`THIRD_PARTY_NOTICES.md`; preserve them with the project.
+
+From a copied template or generated project:
+
+```bash
+npm ci
+npm run build
+npm run dev
 ```
 
-```txt
-Use three-scope-map to add user camera angle save/reset controls with unified default and per-scope override support.
-```
+Both templates' `src/App.vue` files are demonstration shells. The FUI shell
+includes style and effect buttons for previewing capabilities. In a business
+project, integrate `FuiEarth.vue`, `EarthChinaMap.vue` or the selected map component
+into the business layout. Earth and administrative-3D integrations retain the
+`3D 地图 / 2D 地图 / 2D + 3D` selector by default, including business layouts.
+Hide it only on an explicit request to remove switching or keep a single view.
+Style, color, material and effect demo controls remain opt-in; preserve the
+selected renderer's style code and geographic navigation. Explicit standalone
+2D or contour tasks do not need unrelated renderers. See each template's README
+for entry points.
 
+## Network and data / 联网范围
 
-## Notes
+The default 2D and 2D + 3D basemap uses **OpenFreeMap** online, including its style,
+tiles, glyphs and sprites. The administrative data adapter bundles China and
+Zhejiang; other provinces and deeper city/district drilldown load from
+`geo.datav.aliyun.com` on demand. Earth textures and the bundled geographic files
+are local assets, but the default project is not a fully offline map.
 
-- Confirm GeoJSON and texture data licenses before using them in commercial projects.
-- Generated fallback textures are useful for development, but replace them with approved terrain assets when final accuracy matters.
-- Performance improvements reduce main-thread jank but cannot guarantee zero stutter on every device.
-- The template uses `world.earth-render.json` for Earth first paint while retaining the raw world data separately.
-- Theme changes must not tint the neutral black starfield or replace the bundled texture/material hierarchy.
-- The repository contains no full dashboard, mining-screen panels, business metrics, or private project data.
+For an offline or internal-network deployment, configure an available basemap
+provider and its supporting resources in `vectorMapConfig.ts` /
+`vectorMapProvider.ts`, and supply the required administrative levels through
+`mapDataAdapter.ts`. Retain each provider's attribution and applicable data terms.
+`npm ci` also needs access to the configured package registry or a prepared local cache.
 
-## License
+Further documentation:
 
-This project is licensed under **GPL-3.0-or-later**. If you copy, modify, fork,
-redistribute, publish a derivative skill, or package this code into another
-project, keep the license and source attribution with your distribution.
+- [3.0 API and capability matrix](three-scope-map/references/v3-api.md)
+- [2D + 3D overlay integration](three-scope-map/references/map-3d-overlay.md)
+- [Performance and validation](three-scope-map/references/performance-pipeline.md)
+- [Changelog](CHANGELOG.md)
 
-Required files and notices to preserve:
+## Version status
 
-- `LICENSE`
-- `NOTICE`
-- `CITATION.cff`
-- Source-code attribution comments and SPDX headers
-- Third-party GeoJSON or texture metadata and license notices
+3.0.0 source release: **2026-11-12**. Local technical verification is complete.
+Bundled geographic data and legacy textures still have unresolved upstream reuse
+rights; see the [current asset review](three-scope-map/validation/3.0.0/asset-clearance-current.json).
+The author-owned code license does not include commercial rights to third-party
+maps, basemap services, imagery or textures. Users must check upstream terms and
+obtain any permissions required for their own use, deployment or redistribution,
+including attribution, fees and usage limits. Public download or a working demo
+does not establish those rights. User-specific commercial authorization and the
+right to distribute assets in this bundle are separate checks; provenance
+records grant neither. Third-party permission does not replace the written
+permission required for this project's restricted platform resale.
+Citation metadata records version 3.0.0, the release date, public author attribution
+and the license URL for the `v3.0.0` tag. Source publication does not establish
+commercial or redistribution rights for third-party assets.
 
-## Attribution / 二创署名
+Clean installs, builds and WebGL regressions were tested on macOS with Chromium.
+Other operating systems, browsers and physical GPUs have not been verified.
+Detailed evidence and performance measurements are in the
+[3.0 validation record](three-scope-map/validation/3.0.0/record.json).
 
-When using, modifying, redistributing, forking, publishing tutorials based on,
-or creating derivative skills from this project, credit the original source:
+## License and attribution / 授权与署名
+
+3.0 自有代码、Skill 指令、模板和文档采用
+[Summer Platform Restriction License 1.0](LICENSE)。
+
+- **允许：** 个人学习、教育、企业内部使用、普通商业项目、客户定制开发及交付。
+- **未经作者事先书面许可，禁止：** 将本项目全部、部分或修改版作为可复用的
+  地球/地图能力，封装、集成或托管到自有或第三方收费平台、SaaS、
+  低代码/可视化搭建平台、AI/Agent 平台、API，或作为 Skill、插件、SDK、组件、
+  模板、资源包出售或提供付费访问；独立销售的渲染、展示组件同样包括在内。
+- **收费方式：** 收费整体中的免费入口、试用、基础额度或部分免费功能均不
+  自动豁免；会员、订阅、付费积分、按次收费、费用并入其他服务、捆绑销售及
+  安排关联方或合作方代收同一服务费用，都按实际提供的能力和收费安排判断。
+- **源码及改写：** 仅在服务器运行、不交付源码或只返回渲染结果，不自动豁免。
+  改名、换皮、拆分、换语言/框架或AI辅助改写后，仍含本项目受保护内容或构成
+  对其改编的，继续适用限制。
+- **普通业务应用：** 地图仅承载自身具体业务信息或操作，不向使用者提供通用
+  地球/地图开发、生成、调用、嵌入或复用能力的，不因收费、多租户或订阅制就
+  自动属于禁止范围。普通业务查询、缩放、筛选、标注及报表操作依LICENSE使用。
+- **客户定制：** 普通业务项目可以收费开发及交付；为客户建设、交付、运营或
+  维护受限收费平台，不因单独签约、一次性交付或收开发服务费而获得豁免。
+- **署名与许可：** 署名、原项目链接、公开可下载、一般技术答复或作者未提出
+  异议，均不单独构成平台许可。书面许可须明确允许相应主体开展受限用途，
+  不因委托开发或项目交付自动取得转授权。符合许可的分享和源码分发须保留
+  授权、署名及适用声明；不要求在最终界面常驻水印。
+- **适用范围：** 这是带用途限制的源码可用授权。历史已授予的 GPL 权利继续
+  有效，第三方软件和素材遵循各自原有条款。完整授权以 [LICENSE](LICENSE) 为准。
+
+The author's own material in this distribution uses
+[Summer Platform Restriction License 1.0](LICENSE), a source-available license
+with a platform-resale restriction; it is not GPL or OSI-approved open source.
+
+- Personal, educational, internal and ordinary commercial projects, including
+  client-specific development and delivery, are permitted.
+- **Prior written permission is required to sell the Skill, templates or reusable
+  map capability through paid platforms, SaaS, APIs, plugins, SDKs, component or
+  template libraries, subscriptions or paid downloads.** Renaming and bundling
+  do not remove this restriction. An ordinary business application is not
+  prohibited merely because it uses a map and is sold.
+- Free tiers within a paid offering, hosted use without source delivery,
+  bundled fees, arranged third-party fee collection and rewrites retaining
+  protected content do not automatically avoid the restriction. Custom-client
+  contracts do not authorize restricted platforms. Ordinary business SaaS is
+  permitted under LICENSE's conditions; author silence is not platform permission.
+- Free sharing, tutorials and demonstrations are permitted with attribution.
+  Retain the license and notices when distributing source, identify modified
+  versions, and do not imply official authorship or endorsement. No permanent
+  application watermark is required.
+- Historical GPL grants remain valid. Third-party software, geographic data and
+  imagery retain their own terms; this license grants no additional rights to them.
+
+Retain [LICENSE](LICENSE), [NOTICE](NOTICE), [LICENSES/](LICENSES/),
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), source attribution and applicable
+asset metadata when copying or distributing the templates.
+
+This is the original repository by **宋夏天Dazzle**. Use the following attribution
+for forks, derivatives, tutorials and redistribution:
 
 ```txt
 Based on three-scope-map-skill by 宋夏天Dazzle.
@@ -206,62 +267,5 @@ Based on three-scope-map-skill by 宋夏天Dazzle.
 Original repository: https://github.com/songsummer920-dazzle/three-scope-map-skill
 ```
 
-Do not remove `LICENSE`, `NOTICE`, `CITATION.cff`, code attribution comments, or
-documentation attribution sections from modified versions. Do not imply that
-forks, tutorials, packaged distributions, or derivative skills are official
-releases by the original author unless you have explicit permission.
-
-The attribution is intended for comments, metadata, README, documentation,
-release notes, tutorial pages, or marketplace descriptions. It is not rendered
-in generated UI unless explicitly requested.
-
-## Attribution and Misrepresentation Notice / 署名与禁止误导声明
-
-If you modify, fork, redistribute, publish tutorials based on, publicly
-showcase, or create derivative skills/projects from this repository, you must
-preserve the original author attribution and clearly mark your version as
-modified from this project.
-
-You must not remove `LICENSE`, `NOTICE`, `CITATION.cff`, README attribution
-sections, SPDX headers, or source-code attribution comments.
-
-You must not misrepresent the origin of this project, imply that a modified
-version is your original work, or imply that a fork, derivative, tutorial,
-packaged distribution, or derivative skill is an official release by the
-original author without explicit permission.
-
-Required attribution:
-
-```txt
-Based on three-scope-map-skill by 宋夏天Dazzle
-作者全平台ID：宋夏天Dazzle
-公众号：送你整个夏天
-Original repository: https://github.com/songsummer920-dazzle/three-scope-map-skill
-```
-
-中文说明：
-
-如果你基于本项目进行修改、二创、fork、分发、教程录制、公开展示、
-插件/skill 发布或衍生项目发布，必须保留原作者署名，并明确标注
-你的版本是基于本项目修改而来。
-
-不得删除 `LICENSE`、`NOTICE`、`CITATION.cff`、README 署名说明、SPDX 头信息
-或源码中的作者署名注释。
-
-不得误导他人认为该项目或其二创版本是你的完全原创作品；未经明确许可，
-不得暗示二创版本、教程、分发包或衍生 skill 是原作者官方发布。
-
-必须保留署名：
-
-```txt
-基于 three-scope-map-skill 修改
-作者全平台ID：宋夏天Dazzle
-公众号：送你整个夏天
-原始仓库：https://github.com/songsummer920-dazzle/three-scope-map-skill
-```
-
-## Citation
-
-GitHub can read `CITATION.cff` and show citation metadata for this repository.
-For papers, articles, tutorials, courseware, or public demos, cite the original
-repository and author information above.
+Attribution may be placed in code or documentation. Citation metadata is available
+in [CITATION.cff](CITATION.cff).

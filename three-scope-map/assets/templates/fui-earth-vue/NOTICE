@@ -1,0 +1,47 @@
+Three Scope Map 3.0.0 — Author and License Notice
+Copyright (c) 2026 宋夏天Dazzle
+
+作者全平台ID：宋夏天Dazzle
+公众号：送你整个夏天
+Original source / 原始来源：
+https://github.com/songsummer920-dazzle/three-scope-map-skill
+
+This distribution's author-owned code, Skill instructions, templates and
+associated documentation use LicenseRef-Summer-Platform-Restriction-1.0; read
+LICENSE for the complete terms. Personal, internal, educational and ordinary
+commercial projects and client-specific delivery are permitted within LICENSE.
+Reusable Earth/map capability in a paid platform, SaaS, API, Skill, plugin, SDK,
+component/template library or resource offering requires prior written permission.
+Free tiers within a paid offering, subscriptions, membership, purchasable credits,
+bundling, arranged third-party fee collection and hosted use without source
+delivery are covered. Rewriting or combining code does not alone exempt retained
+protected content. Custom-development contracts do not authorize restricted
+platforms. Ordinary business SaaS remains permitted under LICENSE's conditions.
+
+本分发版自有代码、Skill指令、模板和文档按LICENSE中的新授权提供。
+允许个人、内部、教育及符合LICENSE条件的普通商业项目与客户定制交付。
+未经作者事先书面许可，不得将可复用的地球/地图能力封装到自有或第三方
+收费平台、SaaS、API、Skill、插件、SDK、组件/模板库或资源包中提供。
+收费整体中的免费功能、订阅、会员、付费积分、捆绑、安排其他主体代收费用，
+以及不交源码的托管服务均适用限制；改写或组合后仍含受保护内容的不自动豁免。
+定制开发合同不构成收费平台授权，普通业务SaaS依LICENSE的条件仍允许使用。
+实际能力和收费安排决定适用范围；署名、技术支持或作者沉默不等于平台许可。
+
+Previously granted GPL and other rights for historical copies remain valid,
+including older 2.0 releases and previously GPL-licensed 3.0 candidates. This is
+not an extra restriction appended to the GPL. Historical GPL text is preserved
+verbatim under LICENSES/. The “2.0 style” option in this distribution does not
+change the licenses of previously obtained copies.
+历史已授予的GPL等权利继续有效，包括旧2.0及此前按GPL发布的3.0候选副本。
+本授权不是给GPL追加限制；本包的“2.0风格”选项不改变旧副本授权。
+
+Keep LICENSE, NOTICE, applicable third-party notices, source license markers
+and author attribution with redistributed copies/source, and clearly identify
+modified versions. Do not imply official authorship or endorsement. Attribution
+may be in code, README or documentation; a visible application watermark is not
+required unless the application owner independently requests one.
+
+Third-party dependencies, maps, photographs and other assets retain their
+original rights and terms. This license does not grant rights to third-party
+material or override applicable upstream conditions. See THIRD_PARTY_NOTICES.md
+and the per-asset metadata; preserve them when copying generated projects.

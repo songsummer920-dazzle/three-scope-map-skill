@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-11",
+  "status": "exact-provider-provenance-verified-redistribution-not-cleared",
+  "publicationClearance": "hold-third-party-redistribution",
+  "resolutionOwner": "integration-maintainer",
+  "scope": "Administrative geography selected during integration; this evidence does not assert author ownership of third-party data.",
+  "verificationMethod": {
+    "kind": "read-only-exact-byte-comparison",
+    "method": "Downloaded the official provider response into memory, calculated SHA-256 and compared every byte with each bundled file; parsed JSON and feature arrays also matched.",
+    "networkResponsesSavedInThisRecord": false,
+    "bundledGeometryModified": false
+  },
+  "assets": [
+    {
+      "id": "china-provinces-datav",
+      "bundledPaths": [
+        "assets/templates/fui-earth-vue/src/assets/maps/china.json",
+        "assets/templates/songsummer-earth-vue/src/assets/maps/china.json"
+      ],
+      "provider": "Alibaba Cloud DataV.GeoAtlas",
+      "originalProviderDeclaredByPage": "Amap open platform",
+      "sourceUrl": "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json",
+      "sourceInformationUrl": "https://datav.aliyun.com/portal/school/atlas/atlas_publish",
+      "bytes": 582522,
+      "sha256": "99adfeded5223848bbe37a0a12f8023e11ee12161c7800521c27db42fdeac275",
+      "exactByteMatch": true,
+      "parsedJsonMatch": true,
+      "providerTermsEvidence": {
+        "url": "https://datav.aliyun.com/portal/school/atlas/atlas_publish",
+        "shortQuote": "仅供学习交流使用",
+        "summary": "The official GeoAtlas page identifies the source as Amap and limits the displayed dataset to learning and exchange. Public API access is not recorded as permission to redistribute it commercially."
+      },
+      "redistributionPermission": "not-established; provider page states a learning/exchange limitation",
+      "coordinateSystem": "not-established-by-current-evidence",
+      "coordinateReview": "Do not infer a WGS84 grant or coordinate declaration from the GeoJSON format or from the existing integration configuration.",
+      "requiredAction": "Replace with a verified reusable dataset after geometry/navigation validation, or obtain explicit applicable permission from the rights holder."
+    },
+    {
+      "id": "zhejiang-cities-geojson-cn",
+      "bundledPaths": [
+        "assets/templates/fui-earth-vue/src/assets/maps/zhejiang.json",
+        "assets/templates/songsummer-earth-vue/src/assets/maps/zhejiang.json"
+      ],
+      "provider": "GeoJSON.CN",
+      "version": "1.6.3",
+      "originalProviderDeclaredByPage": "Tencent Maps API for versions 1.6.0 and later",
+      "sourceUrl": "https://geojson.cn/api/china/1.6.3/330000.json",
+      "sourceInformationUrl": "https://geojson.cn/data/atlas/china",
+      "bytes": 410809,
+      "sha256": "cec7357565596254570b9a1a2d81759931a80622b9085af212dd96c11f08e43f",
+      "exactByteMatch": true,
+      "parsedJsonMatch": true,
+      "retainedMetadata": {
+        "version": "1.6.3",
+        "date": "2025-12-14T16:22:46.839Z",
+        "copyright": "Copyright (c) 2025 GeoJSON.CN",
+        "copyrightUrl": "https://geojson.cn"
+      },
+      "providerTermsEvidence": {
+        "url": "https://geojson.cn/about",
+        "shortQuote": "仅供学习研究使用",
+        "summary": "The provider states that site data is collected from the web for learning and research. The dataset page offers free API access to some levels, but this is not an affirmative commercial redistribution grant."
+      },
+      "redistributionPermission": "not-established; official site states a learning/research limitation",
+      "coordinateSystem": "GCJ-02",
+      "coordinateEvidence": {
+        "url": "https://geojson.cn/data/atlas/china",
+        "shortQuote": "GCJ-02 国测局坐标",
+        "summary": "The provider identifies version 1.6.0 and later as GCJ-02, whereas the administrative adapter currently treats bundled inputs as WGS84. A replacement or coordinate-policy change requires alignment validation."
+      },
+      "requiredAction": "Replace with a verified reusable city-level dataset after geometry/navigation validation, or obtain explicit applicable permission from the rights holder."
+    }
+  ],
+  "alternativeCandidates": [
+    {
+      "provider": "geoBoundaries gbOpen",
+      "metadataUrl": "https://www.geoboundaries.org/api/current/gbOpen/CHN/ADM1/",
+      "apiDocumentationUrl": "https://www.geoboundaries.org/api.html",
+      "boundaryId": "CHN-ADM1-43563684",
+      "yearRepresented": "2019",
+      "units": 34,
+      "sourceDeclaredByMetadata": "geoBoundaries, Wikimedia Commons",
+      "sourceLicenseDeclaredByMetadata": "Public Domain",
+      "geoBoundariesDistributionPolicy": "gbOpen is described by its official API documentation as CC-BY 4.0 compliant, with attribution required.",
+      "dataUrl": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/CHN/ADM1/geoBoundaries-CHN-ADM1.geojson",
+      "assessment": "Province-level candidate only. Not byte-identical to the current dataset; administrative identifiers, geometry detail, islands/inset, bounds and Earth caches require verification before substitution.",
+      "replacementPerformed": false
+    },
+    {
+      "provider": "geoBoundaries gbOpen",
+      "metadataUrl": "https://www.geoboundaries.org/api/current/gbOpen/CHN/ADM2/",
+      "boundaryId": "CHN-ADM2-17275852",
+      "yearRepresented": "2017",
+      "units": 2391,
+      "canonicalLevelDeclaredByMetadata": "County Level",
+      "sourceDeclaredByMetadata": "National Administration of Surveying, Mapping and Geoinformation of China, Revolutionary GIS",
+      "sourceLicenseDeclaredByMetadata": "Open Data Commons Public Domain Dedication and License (PDDL) v1.0",
+      "dataUrl": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/CHN/ADM2/geoBoundaries-CHN-ADM2.geojson",
+      "assessment": "Not a drop-in replacement for the Zhejiang prefecture/city collection: the official metadata describes county-level units. Aggregation, administrative mapping and up-to-date boundary checks would be required.",
+      "replacementPerformed": false
+    },
+    {
+      "provider": "Natural Earth",
+      "termsUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "sourceLicenseDeclaredByProvider": "Public Domain",
+      "licenseSummary": "The official terms allow modification, electronic dissemination and commercial use of the provider vector and raster data.",
+      "assessment": "A reusable boundary-source candidate; no exact geometry match or city-level replacement has been verified in this review. Terms evidence alone is not evidence of equivalent map coverage.",
+      "replacementPerformed": false
+    }
+  ],
+  "conclusions": [
+    "Original sources are established by exact byte evidence.",
+    "A source URL or a wrapper repository software license does not clear the provider data restrictions.",
+    "Do not mark these administrative assets cleared for the distributed commercial-capable bundle solely on the basis of free API access.",
+    "Keep current geometry and visual behavior while the integration maintainer resolves permission or validates an explicitly licensed replacement.",
+    "No geometry, runtime code or canonical release record was modified by this research task."
+  ]
+}

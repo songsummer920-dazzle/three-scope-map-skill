@@ -78,7 +78,7 @@ textureScope: 'country'
 python3 <skill>/scripts/resolve_map_textures.py --dir src/assets/textures/map/china --scope country --theme '#E8FF4F' --generate-missing
 ```
 
-8. Reduce extrusion depth, hover lift, and internal boundary width using `map-scope-switching.md` starting values.
+8. Use the template's country-scope extrusion, hover lift and internal boundary settings; see `map-scope-switching.md`.
 9. Recompute outer contour and chase-light path for the full China outline only.
 10. Retune camera to frame the whole national boundary without clipping side thickness or labels.
 
@@ -113,7 +113,7 @@ textureScope: 'world'
 python3 <skill>/scripts/resolve_map_textures.py --dir src/assets/textures/map/world --scope world --theme '#E8FF4F' --generate-missing
 ```
 
-8. Reduce extrusion depth, hover lift, internal boundary width, and label scale using `map-scope-switching.md` world starting values.
+8. Use the template's world-scope extrusion, hover lift, boundary and label settings; see `map-scope-switching.md`.
 9. Choose a projection suitable for the dashboard design and recompute projection bounds.
 10. Retune camera to frame the entire world map without clipping side thickness or labels.
 11. Reconsider chase light: use only if a single outer land-contour segment reads clearly; otherwise disable or ask whether to highlight a region.
@@ -183,8 +183,8 @@ python3 <skill>/scripts/recolor_label_asset.py '#2AF7FF' src/assets/figma/map-la
 rg '#E8FF4F|#D4F56A|232,255,79|212,245,106' src/components/map src/assets
 ```
 
-5. Replace only map-related hardcoded colors. Do not change unrelated app modules or static assets unless requested.
-6. Verify dark top surface, side gradient, labels, scatter/ripple, fly lines, HUD ring, and chase light.
+4. Replace only map-related hardcoded colors. Do not change unrelated app modules or static assets unless requested.
+5. Verify dark top surface, side gradient, labels, scatter/ripple, fly lines, HUD ring, and chase light.
 
 ## Texture Only
 

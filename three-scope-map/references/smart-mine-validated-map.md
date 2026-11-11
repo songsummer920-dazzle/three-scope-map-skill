@@ -1,6 +1,6 @@
-# Validated 3D Map Preset
+# Classic 2.0 Map Preset
 
-Use this reference when recreating or migrating the validated 3D Zhejiang map style from this project. It captures the map-specific fixes and decisions from the iterative restoration work.
+Use this reference for the classic 2.0 administrative map template. Its default palette and camera are shown below; theme changes continue to use the shared color workflow. For 3.0 terrain-glass or smooth-glass maps, use the FUI references instead.
 
 ## Style Identity
 
@@ -46,7 +46,7 @@ type TerrainMaterialConfig = {
 };
 ```
 
-Current validated behavior:
+Terrain contract:
 
 - Use `diffuseMap`, `normalMap`, `roughnessMap`, and `displacementMap` where available.
 - Clamp texture UVs to the map bounds.
@@ -58,7 +58,7 @@ Current validated behavior:
 
 Use the exported label-background image/SVG when available.
 
-Validated label rules:
+Label rules:
 
 - Default label frame: image at `0.5x`, text `10px`.
 - Hover/selected label frame: image at `0.7x`, text `14px`.
@@ -67,7 +67,7 @@ Validated label rules:
 - Only intentional data points should render.
 - If the user requests a single ripple, only that point should ripple.
 
-Validated ripple source rules:
+Ripple source rules:
 
 - Country scope: ripple follows 北京市, matching the China-level fly-line source.
 - Province scope: ripple follows the province capital, so Zhejiang defaults to 杭州市.
@@ -108,7 +108,7 @@ type CameraViewPreset = {
 };
 ```
 
-Validated default from this project:
+Classic built-in camera:
 
 ```ts
 const cameraViewConfig = {
@@ -167,15 +167,14 @@ Fly-line rules:
 
 ## Chase Light
 
-Validated chase-light rules:
+Chase-light rules:
 
 - One line segment globally, not multiple segments.
 - White head with transparent tail.
 - Runs on the complete current outer contour, from a point back to the same point in a loop.
 - Do not apply chase light to internal city/prefecture boundaries.
 - Smooth the path before rendering; avoid pixelated turns and noisy multi-line artifacts.
-- Keep the line narrow enough to avoid white flooding. In this project the final requested width was about `0.6x` of the earlier wide version.
-- Preserve the bundled segmented-ribbon construction exactly: one sanitized silhouette loop, independent subdivided quads, the validated fixed width/segment constants, additive blending, disabled depth test/write, and a per-vertex alpha tail. Do not generalize it into a wide continuous strip or additional contour bands.
+- Preserve the bundled segmented-ribbon construction exactly: one sanitized silhouette loop, independent subdivided quads, the bundled fixed width/segment constants, additive blending, disabled depth test/write, and a per-vertex alpha tail. Do not generalize it into a wide continuous strip or additional contour bands.
 
 If the light appears to jump around:
 
@@ -192,7 +191,7 @@ If the light appears to jump around:
 
 ## Performance Pattern
 
-Use the project-validated pattern:
+For asynchronous map rebuilds:
 
 - Data adapter owns initial data, cache, request de-duplication, and hover prefetch.
 - Click waits one animation frame before heavy work.
@@ -202,9 +201,9 @@ Use the project-validated pattern:
 - Dispose old geometries and materials after swapping.
 - Use a build-version token so an older async build cannot overwrite a newer map state.
 
-This reduces click jank but does not guarantee zero stutter on low-end devices. For public skill reuse, pair it with GeoJSON preprocessing and optional LOD.
+Pair chunked rebuilding with GeoJSON preprocessing and optional LOD; low-end devices may still have long frames.
 
-## Common Bugs From This Project
+## Troubleshooting
 
 - Stray green dot: usually an inactive scatter/ripple/label-anchor visual still being rendered. Remove the unintended object, not the intended source ripple.
 - Hover gap: top geometry lifted but side-wall gradient stayed at base height. Animate both together.

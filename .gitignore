@@ -3,3 +3,13 @@ node_modules/
 dist/
 .env
 .env.*
+
+# Local tooling and generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.impeccable/
+dist-*/
+*.bak
+*.tmp
+*.swp

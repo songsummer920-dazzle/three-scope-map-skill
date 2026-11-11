@@ -1,6 +1,6 @@
-# Three.js Province Map Style
+# Classic Province Map Style
 
-Use this reference when implementing the center province map or migrating the Zhejiang style to another province. If the user asks to switch to all-China or world scope, also read `map-scope-switching.md`.
+Use this reference for the classic 2.0 province renderer and its scope migrations. For country or world scope, also read `map-scope-switching.md`; FUI materials use their own reference.
 
 ## Data Inputs
 
@@ -46,7 +46,7 @@ For province, city, and district maps, apply terrain textures through the actual
 
 ## Chase Light Geometry
 
-Reuse the bundled approved narrow segmented-ribbon implementation for the outer-contour chase light. It must use one smoothed outer silhouette, subdivide every edge into independent short quads, keep the validated fixed ribbon width and segment length, use one additive shader with depth test/write disabled, and animate only the per-vertex alpha tail. Do not create a generic wide ribbon, an unsanitized continuous triangle strip, multiple contour bands, or a filled glow surface; those variants can self-intersect or sort incorrectly and produce large white triangular flashes. If the bundled implementation cannot be reused in another renderer, use short animated `THREE.Line` segments as the safe fallback.
+Reuse the bundled narrow segmented-ribbon implementation for the outer-contour chase light. It must use one smoothed outer silhouette, subdivide every edge into independent short quads, keep the bundled fixed ribbon width and segment length, use one additive shader with depth test/write disabled, and animate only the per-vertex alpha tail. Do not create a generic wide ribbon, an unsanitized continuous triangle strip, multiple contour bands, or a filled glow surface; those variants can self-intersect or sort incorrectly and produce large white triangular flashes. If the bundled implementation cannot be reused in another renderer, use short animated `THREE.Line` segments as the safe fallback.
 
 ## Theme Color Switching
 
@@ -107,6 +107,8 @@ When applying a new theme:
 
 - Change only `MAP_THEME_PRIMARY` through `apply_map_theme.py`; do not manually replace individual shader/CSS/material colors.
 - Confirm canvas-generated textures, sprite materials, line materials, shader uniforms, CSS custom properties, and CSS label colors still consume `mapTheme` roles.
+- Treat HSL hue as undefined when saturation is zero. Black, white, and gray inputs must produce achromatic role colors; near-gray inputs must keep proportionally low saturation instead of being promoted to vivid red or another arbitrary hue.
+- On Earth, preserve the natural satellite grade only for the default green. Non-default themes must use satellite luminance and theme-derived regional terrain tones so western highlands, drylands, plains, and forests do not retain fixed green.
 - Keep the CSS label pointer triangle and glow on the shared accent roles.
 - Keep unrelated panel colors unchanged unless the user asks for the whole dashboard theme to change.
 - After applying, verify top surface remains dark, outer thickness still has visible gradient, internal boundaries remain thin, and labels stay readable.
@@ -116,7 +118,7 @@ When applying a new theme:
 - Build real 3D geometry from GeoJSON polygons.
 - Top surface should be dark and slightly transparent only where the outer side gradient should read through.
 - Internal district/city boundaries should not show independent side thickness.
-- Outer province side thickness uses a vertical green gradient.
+- Outer province side thickness uses the theme-derived vertical gradient, green in the classic default palette.
 - Top outer outline and bottom outer outline should align with thickness start and end.
 - Internal boundary stroke is thinner than province outer outline.
 - Avoid vertical stray lines and interior glowing dots unless they are intentional data marks.
@@ -138,8 +140,8 @@ Use `diffuseMap`, `normalMap`, `roughnessMap`, and `displacementMap` where suppo
 
 ## Camera And Interaction
 
-- Initial view should match the Figma/reference angle before enabling free mouse control.
-- Enable pointer controls if requested, but start from the approved camera pose.
+- Initial view should use the template camera preset or the supplied design angle.
+- Retain pointer controls and the selected initial camera pose.
 - Hovering a city/prefecture should:
   - highlight only the hovered block
   - lift top and side geometry together, with no gap between surface and thickness
@@ -149,7 +151,7 @@ Use `diffuseMap`, `normalMap`, `roughnessMap`, and `displacementMap` where suppo
 ## Labels And Scatter Points
 
 - Use exported Figma label background when available.
-- Default labels must respond to camera distance. At the approved country camera, use approximately `51 x 31px`; allow a restrained `42–68px` width range as the camera zooms.
+- Default labels must respond to camera distance. At the classic built-in country camera, use approximately `51 x 31px`; allow a restrained `42–68px` width range as the camera zooms.
 - Hovered/selected labels should be approximately `1.18x` the current default label size, rather than jumping to a fixed oversized frame.
 - Scale frame, text, padding, and line height together. Do not resize only the SVG background.
 - Keep every current-scope geographic label visible at all camera distances; reduce overlap through camera-responsive sizing rather than density-based hiding.

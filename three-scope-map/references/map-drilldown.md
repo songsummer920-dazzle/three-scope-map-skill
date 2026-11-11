@@ -31,7 +31,7 @@ type DrillStackItem = DrillTarget & {
 | `city` | district/county | `district` | terminal district boundary or lower-level source if available |
 | `district` | boundary | `district` | terminal; show selected state, do not recurse unless data is explicitly available |
 
-For a one-to-one validated style map, keep the same visual preset at every level. Drilldown changes the GeoJSON, labels, scatter/ripple source, fly-line endpoints, chase-light outer contour, terrain texture scope, and camera preset; it does not change the map's validated style.
+Keep the selected visual preset at every drilldown level. Drilldown changes the GeoJSON, labels, scatter/ripple source, fly-line endpoints, chase-light outer contour, terrain texture scope, and camera preset; it does not select a different map style.
 
 ## Data Resolution
 
@@ -113,7 +113,7 @@ function resolveDrillTarget(currentScope: MapScope, feature: GeoJSON.Feature): D
 
 For world maps, maintain a manual registry for countries whose national subdivision datasets are available. Do not pretend every country can be downloaded from the China administrative source.
 
-For one-to-one generation requests targeting a specific place, the registry must include that requested place before delivery. Examples: China needs province data; a selected province needs city data; a selected city needs district/county data.
+For projects targeting a specific place, the registry must include that requested place before delivery. Examples: China needs province data; a selected province needs city data; a selected city needs district/county data.
 
 ## Visual Continuity
 

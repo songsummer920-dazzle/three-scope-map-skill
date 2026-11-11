@@ -1,10 +1,12 @@
-# Exact Earth View Entrance
+# Classic Earth entrance
 
-Use this reference only when the user asks for the bundled Earth entrance, its transition, or synchronized theming. The source file is authoritative; this document is not a recipe for recreating it.
+This reference describes the original green `songsummer-earth-vue` preset. For the FUI blue-gray globe with silver China, warm lights, and orbital HUD, use [fui-earth.md](fui-earth.md) and its separate template. Do not combine the two presets' Earth renderer/theme files.
+
+Use this reference for an explicitly selected classic/2.0 Earth entrance, its transition or synchronized theming, or for maintaining an existing classic project. New Earth or administrative-3D projects without a requested style default to the 3.0 photographic FUI pairing in [fui-earth.md](fui-earth.md). The source file is authoritative; this document is not a recipe for recreating it.
 
 ## Copy Contract
 
-Copy these files together without rewriting the renderer:
+For a new explicitly classic/2.0 project, copy the complete `assets/templates/songsummer-earth-vue/` family. The Earth-specific dependencies below must stay together; this is not a complete standalone-project file list. Do not rewrite the renderer:
 
 ```text
 src/components/map/EarthView.vue
@@ -13,6 +15,7 @@ src/components/map/ChinaMap.vue
 src/components/map/mapTheme.ts
 src/assets/maps/china.json
 src/assets/maps/world.json
+src/assets/maps/world.earth-render.json
 src/assets/textures/map/china/china-height-legacy.png
 src/assets/textures/map/china/china-normal-legacy.png
 src/assets/textures/map/world/earth-day.jpg
@@ -22,11 +25,11 @@ src/assets/textures/map/world/earth-specular.jpg
 src/types/geo.ts
 ```
 
-Do not shorten `EarthView.vue`, reconstruct it from these notes, rename it to `EarthViewLegacy.vue`, add an `earthVersion` query switch, or keep a competing globe implementation.
+Reuse `EarthView.vue` and its resource/effect helpers together rather than creating a second globe renderer.
 
-## Preserved Visual Baseline
+## Visual baseline
 
-The approved Earth source includes all of the following as one composed effect:
+The classic Earth combines all of the following as one composed effect:
 
 - Real Earth day, normal, specular, and city-light textures under a dark green grade.
 - Fine spherical latitude/longitude grid with intersection dots and scan-linked highlights.
@@ -56,16 +59,18 @@ Apply user color requests with:
 python3 <skill>/scripts/apply_map_theme.py '#2AF7FF' <target-project> --no-backup
 ```
 
-Do not hand-replace individual hex/RGB values in Earth shaders. The shared theme keeps the approved relative luminance, saturation, dark-surface contrast, scan hierarchy, fly-line hierarchy, wall depth, and label readability. Keep the space background neutral black.
+Do not hand-replace individual hex/RGB values in Earth shaders. The shared theme keeps the shared relative luminance, saturation, dark-surface contrast, scan hierarchy, fly-line hierarchy, wall depth, and label readability. Keep the space background neutral black.
+
+The default `#9fc53a` theme preserves the natural satellite and regional terrain grade exactly. For every non-default theme, the day texture contributes luminance and detail but not its original green/brown hue. China plain, plateau, dryland, forest, and northeast tones must come from the shared theme roles. Black, white, and gray themes stay achromatic; low-saturation colors stay muted instead of inheriting HSL hue `0` as red.
 
 ## Integration Contract
 
-- For a new project, copy the complete `assets/templates/smart-mine-vue/` directory. Its `App.vue` mounts `EarthChinaMap.vue`, so Earth is the first visible view.
-- For an existing project, mount `<EarthChinaMap />` in a positioned container with non-zero width and height.
+- For a new explicitly classic/2.0 project, copy the complete `assets/templates/songsummer-earth-vue/` directory. Its `App.vue` mounts `EarthChinaMap.vue`, so Earth is the first visible view.
+- For an existing classic project, mount `<EarthChinaMap />` in a positioned container with non-zero width and height.
 - Install `vue`, `three`, `gsap`, and `@types/three`; do not introduce Cesium or Globe.gl.
 - Keep the bundled relative asset paths unless the target build system requires a mechanical alias adjustment.
 - Keep `world.json` as source data, use `world.earth-render.json` for Earth rendering, and retain the async `ChinaMap.vue` import so the destination renderer is not parsed before Earth first paint.
-- Do not copy dashboard panels, charts, business metrics, Figma frames, absolute paths, local URLs, or temporary chat assets.
+- Copy only the geographic template and its dependencies; keep unrelated project content and machine-specific configuration outside the integration.
 
 ## Required Validation
 
@@ -73,7 +78,7 @@ Do not hand-replace individual hex/RGB values in Earth shaders. The shared theme
 2. Run `python3 <skill>/scripts/check_three_map_project.py <target-project> --strict` after integration.
 3. Run the target build.
 4. Open the Vite URL and capture the initial Earth, steady Earth, click handoff, and destination China map.
-5. Repeat with one non-green `MAP_THEME_PRIMARY`; confirm Earth, 3D map, labels, fly lines, walls, scan, atmosphere, and ripples change together while the background stays neutral.
+5. Repeat with one vivid non-green and one gray/near-gray `MAP_THEME_PRIMARY`; confirm Earth, China regional terrain, 3D map, labels, fly lines, walls, scan, atmosphere, and ripples change together while the background stays neutral and no fixed green terrain remains.
 6. Inspect Earth `*_JD`: confirm it is a spherical dashed line layer and does not appear in surface fill or wall geometry.
 7. Confirm the visible Earth intro begins only after destination preload is complete, then during handoff confirm the destination is a fully rendered static frame and that its continuous animation begins only after Earth fade/postprocessing finishes.
 8. Confirm world outlines are batched into `THREE.LineSegments`; separate `LineLoop` objects for every world ring are a performance blocker.

@@ -1,0 +1,45 @@
+{
+  "earth-photographic.jpg": {
+    "source": "NASA Earth Observatory / Blue Marble Next Generation, July 2004 topography composite",
+    "credit": "Reto Stöckli, NASA Earth Observatory / NASA Goddard Space Flight Center",
+    "page": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography/",
+    "raster": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography/july/world.topo.200407.3x5400x2700.jpg",
+    "dimensions": [
+      5400,
+      2700
+    ],
+    "color_space": "sRGB",
+    "processing": "JPEG re-encoding, no generated image or geometry; sampled as luminance and recolored per FUI skin",
+    "sha256": "f3d1d146e4d503afba7019542593d0d6826015a9795e09bb556671202b59641c"
+  },
+  "earth-clouds.jpg": {
+    "source": "NASA Earth Observatory / Blue Marble MODIS cloud composite",
+    "credit": "NASA / Reto Stöckli, with enhancements by Robert Simmon",
+    "page": "https://visibleearth.nasa.gov/images/57747/blue-marble-clouds/77558l",
+    "raster": "https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_2048.jpg",
+    "dimensions": [
+      2048,
+      1024
+    ],
+    "color_space": "linear opacity / NoColorSpace",
+    "processing": "JPEG re-encoding; faint cloud optical layer, separate from geographic terrain",
+    "sha256": "1cc4c5087aa368bea57c436af7287f0aad49802fd5b368904e26b6ad8f10bef3"
+  },
+  "earth-night-detail.png": {
+    "source": "NASA Earth Observatory Black Marble 2016 grayscale, VIIRS DNB",
+    "credit": "NASA Earth Observatory; Joshua Stevens; Suomi NPP VIIRS; Miguel Román (NASA GSFC)",
+    "page": "https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/",
+    "raster": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/144000/144897/BlackMarble_2016_3km_gray.jpg",
+    "input_dimensions": [
+      13500,
+      6750
+    ],
+    "dimensions": [
+      4096,
+      2048
+    ],
+    "color_space": "sRGB emission",
+    "processing": "Lanczos resample to 4K; black level 8/255 removed, remaining range scaled linearly. No generated lights. Original skin retains its original night map.",
+    "sha256": "2d37970793cf62769f6efbd825428b0aa1dbc20b5254c9e58246b830bf87346b"
+  }
+}

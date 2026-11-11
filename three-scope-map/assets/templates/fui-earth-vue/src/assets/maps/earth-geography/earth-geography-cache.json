@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "source": {
+    "worldSha256": "2b6d4909eca0c860dfbcea001bd55ef8505b8b7c248eaa9a11df8abbe8bb7437",
+    "chinaSha256": "206cf7fd5acba4bb08d9586899acc144cea2b29d9e93ff70f93895c5e5ffde77"
+  },
+  "outlines": {
+    "radius": 2.012,
+    "vertices": 291142,
+    "bytes": 3493704,
+    "sha256": "b58b92679f02fb142bb0c84ed477eb0556200965ea27183dca90d5a0e66153f3",
+    "gzipBytes": 1483055,
+    "gzipSha256": "b110a255df0fa2104522ff801cb96d6ef088d79a710bb66eb1693eacbde7fa51",
+    "builderSha256": "1a184f7636569f71ed90f991cfe0ab8216b0b32ce38743f186e55b5a1dbf17a8"
+  },
+  "hologram": {
+    "width": 3072,
+    "height": 1536,
+    "bytes": 18874368,
+    "sha256": "a9aa470914812950ebbb65207aabd9b13d84d91e8fbf4130585b2bff4b88ff3d",
+    "gzipBytes": 433336,
+    "gzipSha256": "2cdb1bc49eb55169eb3314a277bcace23054f9f94a97f4966840157f5e71dbb9",
+    "builderSha256": "0065db33cf82afc7b15993a9c55adeede322277c50d3685fef5de32e0f0c7a9e",
+    "roundTripExact": true
+  }
+}

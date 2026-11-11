@@ -1,4 +1,4 @@
 interface:
   display_name: "Three Scope Map"
-  short_description: "Build exact Earth-to-China Three.js maps with shared one-color theming"
-  default_prompt: "Use $three-scope-map to copy the bundled exact Earth-to-China Vue template, mount it as the default view, and preserve its renderer, assets, motion, drilldown, and shared one-color theme without redesigning it."
+  short_description: "Build reusable 3D, 2D, contour, FUI Earth, or hybrid maps"
+  default_prompt: "Use $three-scope-map to select the right independent renderer, preserve shared drilldown state, and build a validated reusable geographic map."

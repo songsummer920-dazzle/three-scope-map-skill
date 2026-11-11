@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "responsibility": {
+    "commercialUseAuthorization": "user-or-deployer",
+    "bundleRedistributionClearance": "distributor",
+    "sourceDocumentation": "project-maintainer"
+  },
+  "thirdPartyPermissionNotIncludedInOwnCodeGrant": true,
+  "sourceRecordsDoNotGrantRights": true,
+  "bundleRightsHoldNotCleared": true,
+  "ownPlatformResaleRestrictionPreserved": true,
+  "frontmatterValidator": "passed",
+  "templateManifests": {
+    "classic": 76,
+    "fui": 155
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "status": "verified-byte-provenance",
+  "upstream": "mrdoob/three.js",
+  "tag": "r176",
+  "tagObject": {
+    "sha": "cdd07a5b9901f1ae6ec37faf0ab4bcb4e2381639",
+    "type": "tag",
+    "url": "https://api.github.com/repos/mrdoob/three.js/git/tags/cdd07a5b9901f1ae6ec37faf0ab4bcb4e2381639"
+  },
+  "assets": [
+    {
+      "upstreamFile": "earth_atmos_2048.jpg",
+      "localFile": "earth-day.jpg",
+      "sourceUrl": "https://raw.githubusercontent.com/mrdoob/three.js/r176/examples/textures/planets/earth_atmos_2048.jpg",
+      "sha256": "2faa400d1eade3bc44caf6750d1b772bd9bbb6d87362c02bc7c3304e78fa0a9d",
+      "bytes": 512606,
+      "fuiByteIdentical": true,
+      "classicByteIdentical": true,
+      "upstreamGitBlobSha1": "4275ab0836b482e4fbe1d5081976f3f2ffb41ffa",
+      "gitBlobSha1Verified": true
+    },
+    {
+      "upstreamFile": "earth_normal_2048.jpg",
+      "localFile": "earth-normal.jpg",
+      "sourceUrl": "https://raw.githubusercontent.com/mrdoob/three.js/r176/examples/textures/planets/earth_normal_2048.jpg",
+      "sha256": "3fc43e9639c34e8223c4a871e3bdf5b2d52ee79f7e89ce3f28cba45d4cac031a",
+      "bytes": 336774,
+      "fuiByteIdentical": true,
+      "classicByteIdentical": true,
+      "upstreamGitBlobSha1": "5bf40df630d9ae7cb8ae026c930b8f3421bbec54",
+      "gitBlobSha1Verified": true
+    },
+    {
+      "upstreamFile": "earth_specular_2048.jpg",
+      "localFile": "earth-specular.jpg",
+      "sourceUrl": "https://raw.githubusercontent.com/mrdoob/three.js/r176/examples/textures/planets/earth_specular_2048.jpg",
+      "sha256": "2df48906732d7a458b2d0a7cdec51a829262307c6bdee4cfdf079a4dd7c71c69",
+      "bytes": 223421,
+      "fuiByteIdentical": true,
+      "classicByteIdentical": true,
+      "upstreamGitBlobSha1": "06e03a3bfc7fe64f711175fe2c66bfb76b61cd0d",
+      "gitBlobSha1Verified": true
+    },
+    {
+      "upstreamFile": "earth_lights_2048.png",
+      "localFile": "earth-lights.png",
+      "sourceUrl": "https://raw.githubusercontent.com/mrdoob/three.js/r176/examples/textures/planets/earth_lights_2048.png",
+      "sha256": "3cc6972d1d5b6310f33ea6ef4cc14a38f1dd141a91d26888206889327d983d7b",
+      "bytes": 734910,
+      "fuiByteIdentical": true,
+      "classicByteIdentical": true,
+      "upstreamGitBlobSha1": "8c470501ad9999888fff0bbaf774b2edf2715d82",
+      "gitBlobSha1Verified": true
+    }
+  ],
+  "licenseBasis": {
+    "repositoryLicense": "MIT",
+    "licenseUrl": "https://github.com/mrdoob/three.js/blob/r176/LICENSE",
+    "retainedText": "LICENSES/third-party/three-MIT.txt"
+  },
+  "scope": "Verified exact upstream bytes and repository-level license provenance; this record does not invent image-specific credits or grant rights beyond upstream terms."
+}

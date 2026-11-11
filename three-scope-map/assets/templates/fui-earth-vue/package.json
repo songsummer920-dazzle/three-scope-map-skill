@@ -1,0 +1,34 @@
+{
+  "name": "three-scope-map-fui-earth",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "prebuild": "node scripts/fui-earth-cache.mjs . --check",
+    "test": "node scripts/run-regression.mjs",
+    "build:regression": "node scripts/fui-earth-cache.mjs . --check && vue-tsc --noEmit && vite build --mode regression --config vite.regression.config.ts"
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.33.0",
+    "gsap": "^3.15.0",
+    "maplibre-gl": "^6.3.0",
+    "pmtiles": "^4.5.0",
+    "polygon-clipping": "0.15.7",
+    "three": "^0.176.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@types/three": "^0.176.0",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6",
+    "vue-tsc": "^3.3.8",
+    "esbuild": "0.28.1"
+  }
+}

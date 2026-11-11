@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "researchedAt": "2026-11-11",
+  "status": "research-complete-six-textures-unresolved-one-source-found",
+  "scope": "seven unique retained texture contents; duplicate template paths share these contents",
+  "sourceAcquisition": "bundled third-party material selected during integration; provenance review is maintained by the project",
+  "assets": [
+    {
+      "path": "src/assets/textures/map/terrain-diffuse.jpg",
+      "sha256": "429315865fd89c150272592f6d93def174c6f69804a565ff08e53627a885579b",
+      "bytes": 905179,
+      "size": [
+        1024,
+        1024
+      ],
+      "status": "pending-exact-source-and-applicable-redistribution-permission"
+    },
+    {
+      "path": "src/assets/textures/map/terrain-height.jpg",
+      "sha256": "df925d6e5eca6ef893f6cfe8d7c4346a42895f646ef782ded7161235bfab9d5e",
+      "bytes": 281182,
+      "size": [
+        1024,
+        1024
+      ],
+      "status": "pending-exact-source-and-applicable-redistribution-permission"
+    },
+    {
+      "path": "src/assets/textures/map/terrain-normal.jpg",
+      "sha256": "a6556e1220c6e6c822e68ceeb9589719e4db8c87340199657cc705fea6ecf391",
+      "bytes": 1059194,
+      "size": [
+        1024,
+        1024
+      ],
+      "status": "pending-exact-source-and-applicable-redistribution-permission"
+    },
+    {
+      "path": "src/assets/textures/map/terrain-roughness.jpg",
+      "sha256": "b37dfff29fff10a219bfe73886940625df63b345289ea6b71ec5f6ddadc8adcb",
+      "bytes": 439748,
+      "size": [
+        1024,
+        1024
+      ],
+      "status": "pending-exact-source-and-applicable-redistribution-permission"
+    },
+    {
+      "path": "src/assets/textures/map/china/china-height-legacy.png",
+      "sha256": "18d2e2cdac2d3c69f931aa8751852f9672f1105a4b9a0ae98cfe727dc7075795",
+      "bytes": 124808,
+      "size": [
+        1024,
+        585
+      ],
+      "status": "pending-exact-source-and-applicable-redistribution-permission"
+    },
+    {
+      "path": "src/assets/textures/map/china/china-normal-legacy.png",
+      "sha256": "c5d83cb15df253557bf9bd7f4235fc5a5ef3abd773986722bbde21af7ad05dfd",
+      "bytes": 432312,
+      "size": [
+        1024,
+        585
+      ],
+      "status": "pending-exact-source-and-applicable-redistribution-permission"
+    },
+    {
+      "path": "src/assets/textures/map/world/earth-relief-photographic.jpg",
+      "sha256": "a9951b259d452ae657a1e778e43be16776548875ed821f77989b67fa5bf72c6a",
+      "bytes": 1759009,
+      "size": [
+        4096,
+        2048
+      ],
+      "status": "verified-derived-source",
+      "permissionBasis": "NASA-published-imagery-reuse-policy",
+      "rebuildPerformed": false
+    }
+  ],
+  "historicalChecks": [
+    {
+      "group": "legacy terrain four-map PBR set",
+      "finding": "Present in one-to-one template commit 2d1941e and reintroduced from retained assets in f21dd7d. Embedded EXIF names Substance Designer but provides no creator, asset ID or source URL. This establishes file history, not a redistribution grant.",
+      "commits": [
+        "2d1941e30810e1ec62bab31065da14e106237f58",
+        "f21dd7d55ff3f40f264f622bcddfec467c66e714"
+      ]
+    },
+    {
+      "group": "legacy China elevation pair",
+      "finding": "Added by e187120. Retained generation summary on 2026-07-14 describes generating 1024x585 regional height/normal maps by cropping the NASA Visible Earth-derived Earth dry elevation PNG. No exact pixel reconstruction or retained transform receipt has yet connected those generated files to the present hashes.",
+      "commit": "e187120a355990edf009ce2d74bc1d95f88b3a3a",
+      "candidateSourcePage": "https://commons.wikimedia.org/wiki/File:Earth_dry_elevation.png",
+      "sourcePageLicense": "PD-NASA designation on file page; this is not yet an exact source relation for the retained pair"
+    },
+    {
+      "group": "preserved photographic relief",
+      "finding": "Actual historical agent execution downloaded the NASA-published topography JPEG and generated the RGB normal/elevation atlas, followed by multiscale refinement. The 2026-10-16T08:35:52.684Z production build emitted earth-relief-qtq92uYj.jpg. A retained production asset with that exact basename is byte-identical to the current earth-relief-photographic.jpg, verified by full SHA-256. The final-pixel generator has not been independently rerun.",
+      "historicalExecutionDatesUTC": [
+        "2026-10-16T06:04:05.596Z",
+        "2026-10-16T06:30:38.745Z",
+        "2026-10-16T06:31:33.937Z",
+        "2026-10-16T08:35:52.684Z"
+      ],
+      "sourceRaster": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/topography/gebco_08_rev_elev_21600x10800.jpg",
+      "sourcePage": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/",
+      "sourceCredit": "Jesse Allen, NASA Earth Observatory, using GEBCO data produced by British Oceanographic Data Centre",
+      "processingEvidence": {
+        "initialWorkGrid": [
+          8192,
+          4096
+        ],
+        "initialEncoding": "R/G normalized east/north slope around 0.5; B elevation",
+        "initialSlopeStrength": 48,
+        "latitudeFloor": 0.15,
+        "initialJpegOptions": {
+          "quality": 96,
+          "subsampling": 0,
+          "optimize": true
+        },
+        "laterDownsample": [
+          4096,
+          2048
+        ],
+        "laterJpegOptions": {
+          "quality": 94,
+          "subsampling": 0,
+          "optimize": true
+        },
+        "subsequentMultiscaleGradientWeights": [
+          0.3,
+          1.6,
+          0.9
+        ],
+        "subsequentMediumBroadScales": [
+          8,
+          24
+        ],
+        "warning": "These stages are execution provenance, not a claimed complete recipe for the final preserved JPEG."
+      },
+      "sourceStatus": "verified-derived-source",
+      "retainedProductionAsset": {
+        "basename": "earth-relief-qtq92uYj.jpg",
+        "bytes": 1759009,
+        "sha256": "a9951b259d452ae657a1e778e43be16776548875ed821f77989b67fa5bf72c6a",
+        "currentAssetByteIdentical": true
+      },
+      "permissionBasis": {
+        "status": "nasa-published-imagery-reuse-basis",
+        "url": "https://science.nasa.gov/earth/faq/",
+        "appliesTo": "Published imagery under science.nasa.gov/earth, including the downloaded topography JPEG; no claim to have obtained raw GEBCO gridded data",
+        "finding": "NASA Earth FAQ permits republication/reuse including commercial purposes except materials marked with copyright. The specific topography page credits NASA imagery and underlying GEBCO data and contains no separately indicated copyright holder for that image. Preserve all source/processing credits.",
+        "scopeCaveat": "This records the published image reuse basis. It does not grant blanket rights to raw third-party grids, assert CC0 for every GEBCO version, or establish a fresh pixel reconstruction."
+      },
+      "rebuildPerformed": false
+    }
+  ],
+  "candidateComparisons": [
+    {
+      "candidate": "ambientCG Ground037 1K JPG",
+      "page": "https://ambientcg.com/view?id=Ground037",
+      "license": "CC0-1.0",
+      "licensePage": "https://docs.ambientcg.com/license/",
+      "download": "https://acg-download.struffelproductions.com/file/ambientCG-Web/download/Ground037_MosY1mCU/Ground037_1K-JPG.zip",
+      "zipSha256": "4e69db2b7251b1736fa70fe6fe4ab80d64bd220117dd5dd4c7caaead51c2574e",
+      "result": "rejected-source-match",
+      "comparison": "All four candidates are 1024x1024 but neither file hashes nor decoded RGB pixels match. Differences are substantial rather than JPEG-only.",
+      "decodedRgbRmsDifference": {
+        "Color": [
+          65.56215878553303,
+          75.7015451429798,
+          56.70271965043851
+        ],
+        "Displacement": [
+          45.58122876322545,
+          45.58122876322545,
+          45.58122876322545
+        ],
+        "NormalGL": [
+          38.8437976913589,
+          42.58824499411871,
+          23.134408655468068
+        ],
+        "Roughness": [
+          109.9416220034815,
+          109.9416220034815,
+          109.9416220034815
+        ]
+      }
+    },
+    {
+      "candidate": "Three.js r176 texture collection",
+      "source": "https://api.github.com/repos/mrdoob/three.js/git/trees/r176?recursive=1",
+      "result": "no matching texture byte lengths or likely terrain paths found; no source attribution assigned"
+    },
+    {
+      "candidate": "3DTextures Rock 039",
+      "page": "https://3dtextures.me/2020/02/03/rock-039/",
+      "result": "unverified; provider page lookup rate-limited; no byte or decoded-pixel comparison completed; no license assigned to retained textures"
+    }
+  ],
+  "rightsChecks": [
+    {
+      "url": "https://www.gebco.net/data_and_products/gridded_bathymetry_data/documents/gebco_08.pdf",
+      "finding": "Legacy GEBCO_08 gridded-data documentation is indexed with version-specific restrictions; its old and candidate relocated PDF URLs did not return a readable current document. The indexed wording must not be treated as an applicable prohibition on NASA-published JPEG imagery without establishing that scope. No such scope relation has been established."
+    },
+    {
+      "url": "https://www.gebco.net/data-products-gridded-bathymetry-data/gebco2026-grid",
+      "finding": "Current GEBCO 2026 documentation permits copying, distribution, adaptation and commercial exploitation with source acknowledgment and conditions. No verified statement has yet applied those new-version terms retroactively to the GEBCO_08 raster."
+    },
+    {
+      "url": "https://commons.wikimedia.org/wiki/File:Earth_dry_elevation.png",
+      "finding": "File page identifies NASA Visible Earth and cmglee and a public-domain NASA license. A primary source page for this particular derivative is available, but it does not itself prove the present China texture pixels came from that file."
+    },
+    {
+      "url": "https://science.nasa.gov/earth/faq/",
+      "finding": "Current NASA Earth imagery policy permits reuse and republication, including commercial purposes, except where copyright is indicated; asks NASA credit. This is a direct reuse-policy basis for the concrete NASA-published image, rather than a bare inference from its hosting domain."
+    },
+    {
+      "url": "https://dap.ceda.ac.uk/bodc/gebco/global/gebco_one_minute_2008/Terms_of_Use_of_The_GEBCO_Grid_and_derived_information_products.html",
+      "sourceDiscovery": "Linked as terms of use by current official GEBCO historical-data page",
+      "finding": "Current official archived terms for GEBCO One Minute Grid 2008 explicitly allow copying, distribution, adaptation and commercial exploitation with acknowledgment, no endorsement and no misrepresentation. One Minute 2008 is not assumed to be identical to GEBCO_08; this record further cautions against assigning a universal prohibition from an inaccessible old PDF."
+    }
+  ],
+  "conclusion": {
+    "clearanceGranted": false,
+    "remainingUniqueTextures": 6,
+    "publicationHoldPreserved": true,
+    "runtimeAssetsChanged": false,
+    "replacementPerformed": false,
+    "nextSteps": [
+      "Recover or reconstruct exact legacy China transforms from the stated source and compare pixels.",
+      "Recover the actual PBR set source; Ground037 is conclusively not it.",
+      "Preserve the photographic JPEG source/processing credits and NASA-published-image reuse-policy basis. Independently rerun the historical generator only if needed to strengthen reproducibility; do not describe it as already reproduced."
+    ],
+    "verifiedDerivedSourceUniqueTextures": 1,
+    "unresolvedUniqueTextures": 6,
+    "clearanceScope": "No whole-package clearance is asserted; six other unique textures remain unresolved."
+  },
+  "calibratedConclusion": {
+    "photographicRelief": "Source found through actual generation commands and retained production bytes; NASA-published-imagery reuse policy recorded. No definite commercial-reuse prohibition established.",
+    "otherSixTextures": "Still unresolved exact source/transform relation.",
+    "noRawGridLicenseConclusion": true,
+    "runtimeAssetsChanged": false,
+    "replacementsPerformed": false
+  },
+  "unresolvedTexturePaths": [
+    "src/assets/textures/map/terrain-diffuse.jpg",
+    "src/assets/textures/map/terrain-height.jpg",
+    "src/assets/textures/map/terrain-normal.jpg",
+    "src/assets/textures/map/terrain-roughness.jpg",
+    "src/assets/textures/map/china/china-height-legacy.png",
+    "src/assets/textures/map/china/china-normal-legacy.png"
+  ]
+}

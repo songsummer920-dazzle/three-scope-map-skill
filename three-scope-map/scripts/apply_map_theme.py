@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
 # Copyright (c) 2026 宋夏天Dazzle
 """Apply one primary color to the shared Earth and 3D map theme entry.
 
@@ -13,6 +13,9 @@ import importlib.util
 import re
 import shutil
 import sys
+import os
+import tempfile
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -57,6 +60,12 @@ def replace_primary(source: str, primary: str) -> tuple[str, bool]:
     return updated, count == 1
 
 
+def replace_fui_primary(source: str, primary: str) -> tuple[str, bool]:
+    pattern = r"(export\s+const\s+FUI_THEME_PRIMARY_OVERRIDE(?:\s*:\s*[^=;\n]+)?\s*=\s*)(?:undefined|['\"]#[0-9a-fA-F]{3,6}['\"])(\s*;)"
+    updated, count = re.subn(pattern, rf"\1'{primary}'\2", source, count=1)
+    return updated, count == 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("color", help="Main theme color, e.g. #2AF7FF")
@@ -90,20 +99,13 @@ def main() -> int:
             "Copy the bundled mapTheme.ts before applying a theme."
         )
 
-    if args.dry_run:
-        print(updated)
-        return 0
-
-    backup = None
-    if not args.no_backup:
-        stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        backup = target.with_suffix(target.suffix + f".{stamp}.bak")
-        shutil.copy2(target, backup)
-
-    target.write_text(updated, encoding="utf-8")
-    print(f"Applied {normalized_primary} to Earth View and 3D map theme: {target}")
-    if backup:
-        print(f"Backup: {backup}")
+    planned = {target: updated}
+    fui_theme = target.with_name("fuiEarthTheme.ts")
+    if fui_theme.exists():
+        fui_updated, fui_changed = replace_fui_primary(fui_theme.read_text(encoding="utf-8"), normalized_primary)
+        if not fui_changed:
+            raise SystemExit("FUI theme has no generated primary entry; use the version-3 template before applying a shared theme.")
+        planned[fui_theme] = fui_updated
 
     if args.label_svg:
         if not args.label_svg.exists():
@@ -113,13 +115,37 @@ def main() -> int:
         label_updated, label_changed = recolorer.recolor_svg(label_source, theme["labelPointer"])
         if not label_changed:
             raise SystemExit("Could not find the bundled label pointer path to recolor.")
+        planned[args.label_svg] = label_updated
+
+    if args.dry_run:
+        if len(planned) == 1:
+            print(updated)
+        else:
+            print(json.dumps({str(path): content for path, content in planned.items()}, ensure_ascii=False, indent=2))
+        return 0
+
+    # Validate every requested entry before touching any source. Each write is
+    # atomic and the usual timestamped backups remain available to the caller.
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    for path in planned:
         if not args.no_backup:
-            stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-            label_backup = args.label_svg.with_suffix(args.label_svg.suffix + f".{stamp}.bak")
-            shutil.copy2(args.label_svg, label_backup)
-            print(f"Label backup: {label_backup}")
-        args.label_svg.write_text(label_updated, encoding="utf-8")
-        print(f"Recolored label pointer to {theme['labelPointer']}: {args.label_svg}")
+            backup = path.with_suffix(path.suffix + f".{stamp}.bak")
+            shutil.copy2(path, backup)
+            print(f"Backup: {backup}")
+    for path, content in planned.items():
+        mode = path.stat().st_mode & 0o777
+        fd, temporary = tempfile.mkstemp(prefix=".theme-", dir=path.parent)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.chmod(temporary, mode)
+            os.replace(temporary, path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+    print(f"Applied {normalized_primary} to the selected template theme ({len(planned)} files).")
     return 0
 
 

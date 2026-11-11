@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "source": {
+    "algorithm": "sha256-path-content-v1",
+    "sha256": "ab09cdc7fc724b16e02d6da026dd4b26b6b8a1f3c8b5541784a3a51c29bd1c86",
+    "files": 295
+  },
+  "baselineSource": {
+    "algorithm": "sha256-path-content-v1",
+    "sha256": "c0c85435cb3a76fe80a5677e2c7bc2604972a706960a23a488cf979220ac32f1",
+    "files": 295
+  },
+  "modifiedSourcePaths": [
+    "LICENSES/asset-sources.json",
+    "README.md",
+    "SKILL.md",
+    "THIRD_PARTY_NOTICES.md",
+    "assets/fui-earth-manifest.json",
+    "assets/template-manifest.json",
+    "assets/templates/fui-earth-vue/LICENSES/asset-sources.json",
+    "assets/templates/fui-earth-vue/THIRD_PARTY_NOTICES.md",
+    "assets/templates/fui-earth-vue/src/assets/textures/map/world/earth-relief-photographic-source.json",
+    "assets/templates/fui-earth-vue/src/components/map/EarthView.vue",
+    "assets/templates/fui-earth-vue/src/components/map/fuiEarthHologram.ts",
+    "assets/templates/fui-earth-vue/src/components/map/fuiEarthTheme.ts",
+    "assets/templates/songsummer-earth-vue/LICENSES/asset-sources.json",
+    "assets/templates/songsummer-earth-vue/THIRD_PARTY_NOTICES.md",
+    "references/fui-earth.md",
+    "references/map-2d-switching.md",
+    "references/performance-pipeline.md",
+    "references/v3-api.md"
+  ],
+  "addedSourcePaths": [],
+  "removedSourcePaths": [],
+  "visualAssetFilesUnchanged": 44,
+  "projects": {
+    "fui": {
+      "templateFiles": 155,
+      "sourceMatchesTemplate": true,
+      "build": "passed",
+      "dependencyInstall": "existing-local-cache"
+    },
+    "classic": {
+      "templateFiles": 76,
+      "sourceMatchesTemplate": true,
+      "build": "passed",
+      "dependencyInstall": "existing-local-cache"
+    }
+  },
+  "referencePreviews": 0,
+  "remotePushOrUploadPerformed": false
+}

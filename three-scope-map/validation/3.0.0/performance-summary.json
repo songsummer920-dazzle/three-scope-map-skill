@@ -1,0 +1,249 @@
+{
+  "status": "passed",
+  "meaning": "All measurement captures completed without runtime/shader errors or hidden-page throttling. No universal performance budget is claimed.",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+    "platform": "MacIntel",
+    "hardwareConcurrency": 8,
+    "devicePixelRatio": 2,
+    "visibility": "visible",
+    "visibilityHistory": [
+      {
+        "state": "visible",
+        "atMs": 162.5
+      }
+    ],
+    "webgl": {
+      "available": true,
+      "source": "existing Earth canvas; read-only parameters",
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+      "vendor": "WebKit",
+      "renderer": "WebKit WebGL",
+      "unmaskedVendor": "Google Inc. (AMD)",
+      "unmaskedRenderer": "ANGLE (AMD, ANGLE Metal Renderer: AMD Radeon Pro 5500M, Unspecified Version)",
+      "drawingBuffer": [
+        1920,
+        1080
+      ],
+      "contextAttributes": {
+        "alpha": true,
+        "antialias": false,
+        "depth": true,
+        "desynchronized": false,
+        "failIfMajorPerformanceCaveat": false,
+        "powerPreference": "high-performance",
+        "premultipliedAlpha": true,
+        "preserveDrawingBuffer": false,
+        "stencil": false,
+        "xrCompatible": false
+      }
+    }
+  },
+  "testedToolchain": {
+    "node": "24.14.0",
+    "npm": "11.9.0"
+  },
+  "samples": [
+    {
+      "name": "cold-1",
+      "presentation": "surface",
+      "quality": "high",
+      "stage": "first-ready-cycle",
+      "firstVisibleMs": 2278.2,
+      "readyMs": 6244,
+      "rafFps": 48.666,
+      "p95IntervalMs": 17.75,
+      "longestIntervalMs": 517,
+      "longTasksMs": 1846,
+      "httpTransferBytes": 17019971,
+      "jsHeapStartMiB": 67.04,
+      "jsHeapEndMiB": 128.19
+    },
+    {
+      "name": "cold-2",
+      "presentation": "surface",
+      "quality": "high",
+      "stage": "first-ready-cycle",
+      "firstVisibleMs": 2707,
+      "readyMs": 6667,
+      "rafFps": 42.186,
+      "p95IntervalMs": 34.08,
+      "longestIntervalMs": 633.3,
+      "longTasksMs": 2431,
+      "httpTransferBytes": 17019971,
+      "jsHeapStartMiB": 287.08,
+      "jsHeapEndMiB": 207.78
+    },
+    {
+      "name": "cold-3",
+      "presentation": "surface",
+      "quality": "high",
+      "stage": "first-ready-cycle",
+      "firstVisibleMs": 2225.5,
+      "readyMs": 6212.8,
+      "rafFps": 50.666,
+      "p95IntervalMs": 17.7,
+      "longestIntervalMs": 501,
+      "longTasksMs": 1471,
+      "httpTransferBytes": 17019971,
+      "jsHeapStartMiB": 168.81,
+      "jsHeapEndMiB": 128.55
+    },
+    {
+      "name": "warm-1",
+      "presentation": "surface",
+      "quality": "high",
+      "stage": "first-ready-cycle",
+      "firstVisibleMs": 3163.8,
+      "readyMs": 7141.5,
+      "rafFps": 47.329,
+      "p95IntervalMs": 33.4,
+      "longestIntervalMs": 551,
+      "longTasksMs": 1686,
+      "httpTransferBytes": 0,
+      "jsHeapStartMiB": 212.47,
+      "jsHeapEndMiB": 224.23
+    },
+    {
+      "name": "warm-2",
+      "presentation": "surface",
+      "quality": "high",
+      "stage": "first-ready-cycle",
+      "firstVisibleMs": 3026,
+      "readyMs": 7011,
+      "rafFps": 48,
+      "p95IntervalMs": 33.17,
+      "longestIntervalMs": 515.7,
+      "longTasksMs": 1863,
+      "httpTransferBytes": 0,
+      "jsHeapStartMiB": 270.86,
+      "jsHeapEndMiB": 238.75
+    },
+    {
+      "name": "warm-3",
+      "presentation": "surface",
+      "quality": "high",
+      "stage": "first-ready-cycle",
+      "firstVisibleMs": 2683.9,
+      "readyMs": 6660.9,
+      "rafFps": 27.764,
+      "p95IntervalMs": 34.3,
+      "longestIntervalMs": 534.1,
+      "longTasksMs": 1623,
+      "httpTransferBytes": 0,
+      "jsHeapStartMiB": 73.07,
+      "jsHeapEndMiB": 155.79
+    },
+    {
+      "name": "low",
+      "presentation": "surface",
+      "quality": "low",
+      "stage": "first-ready-cycle",
+      "firstVisibleMs": 2330.9,
+      "readyMs": 6321.3,
+      "rafFps": 51.064,
+      "p95IntervalMs": 17.6,
+      "longestIntervalMs": 500.1,
+      "longTasksMs": 1516,
+      "httpTransferBytes": 17019971,
+      "jsHeapStartMiB": 85.19,
+      "jsHeapEndMiB": 151.35
+    },
+    {
+      "name": "hologram",
+      "presentation": "hologram",
+      "quality": "high",
+      "stage": "first-ready-cycle",
+      "firstVisibleMs": 1407.3,
+      "readyMs": 5404.9,
+      "rafFps": 17.904,
+      "p95IntervalMs": 133.36,
+      "longestIntervalMs": 1166.5,
+      "longTasksMs": 5081,
+      "httpTransferBytes": 2884666,
+      "jsHeapStartMiB": 143.53,
+      "jsHeapEndMiB": 164.54
+    },
+    {
+      "name": "hologram-steady",
+      "presentation": "hologram",
+      "quality": "high",
+      "stage": "after-destination-prewarm",
+      "firstVisibleMs": 2442,
+      "readyMs": 6443.9,
+      "rafFps": 41.678,
+      "p95IntervalMs": 33.91,
+      "longestIntervalMs": 50,
+      "longTasksMs": 0,
+      "httpTransferBytes": 2885156,
+      "jsHeapStartMiB": 306.43,
+      "jsHeapEndMiB": 126.13
+    },
+    {
+      "name": "entity-steady",
+      "presentation": "surface",
+      "quality": "high",
+      "stage": "after-destination-prewarm",
+      "firstVisibleMs": 2192.8,
+      "readyMs": 6168.6,
+      "rafFps": 59.99,
+      "p95IntervalMs": 18.155,
+      "longestIntervalMs": 18.7,
+      "longTasksMs": 0,
+      "httpTransferBytes": 17020461,
+      "jsHeapStartMiB": 153.32,
+      "jsHeapEndMiB": 155.47
+    }
+  ],
+  "httpCold": {
+    "firstVisible": {
+      "samples": 3,
+      "minMs": 2225.5,
+      "medianMs": 2278.2,
+      "maxMs": 2707
+    },
+    "completeIntro": {
+      "samples": 3,
+      "minMs": 6212.8,
+      "medianMs": 6244,
+      "maxMs": 6667
+    }
+  },
+  "httpWarm": {
+    "firstVisible": {
+      "samples": 3,
+      "minMs": 2683.9,
+      "medianMs": 3026,
+      "maxMs": 3163.8
+    },
+    "completeIntro": {
+      "samples": 3,
+      "minMs": 6660.9,
+      "medianMs": 7011,
+      "maxMs": 7141.5
+    }
+  },
+  "steady": {
+    "entityRafFps": 59.99,
+    "hologramRafFps": 41.678
+  },
+  "compatibility": {
+    "actualPhysicalEnvironment": "One MacIntel/Chromium157/AMD Radeon Pro5500M via ANGLE Metal/WebGL2 environment.",
+    "actualWebglCases": 39,
+    "capabilityFallbacks": "Real draws under forced LDR/direct/no-float branches and explicit low/high quality; these do not simulate another physical GPU.",
+    "unverified": [
+      "Windows and Edge on Windows",
+      "Safari/Firefox engines",
+      "mobile and other physical GPUs"
+    ]
+  },
+  "limits": [
+    "Local loopback asset delivery; no internet network-throttling claim.",
+    "New HTTP namespaces isolate resource caching; browser/driver shader caches were not cleared.",
+    "First-ready sampling includes normal destination prewarm; that work produces observed long frames and is not disabled. Steady samples wait for its normal completed first frame.",
+    "RAF cadence is not GPU present-time. performance.memory is a JavaScript-heap estimate, not process RAM/VRAM or a leak test.",
+    "Default high quality, all visual materials and input textures remain unchanged.",
+    "These measurements are observations, not guaranteed frame-rate or startup-time commitments."
+  ]
+}

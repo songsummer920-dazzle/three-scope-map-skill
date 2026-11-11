@@ -1,6 +1,6 @@
 # Regression Guard
 
-Use this before making iterative fixes, especially when the user says a specific module is wrong. The default action is to change only the named module and its direct dependencies.
+Use this when changing an existing map. Limit the patch to the requested behavior and its direct dependencies.
 
 ## Do Not Cross These Boundaries
 
@@ -8,7 +8,7 @@ Use this before making iterative fixes, especially when the user says a specific
 - Map-only request: do not edit unrelated app modules unless the user asks for whole-page theme/layout changes.
 - Theme-color request: change theme constants/materials, not GeoJSON, point data, or chart data.
 - Texture request: change terrain material/texture files, not labels, hover logic, or scatter data.
-- Animation rollback: remove the animation or custom overlay that caused it; do not delete static styles or map data.
+- Animation-only change: preserve static materials, geometry and geographic data.
 
 ## Patch Discipline
 

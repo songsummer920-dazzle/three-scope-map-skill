@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
 # Copyright (c) 2026 宋夏天Dazzle
 """Verify that the bundled one-to-one template has not drifted from its manifest.
 
@@ -15,16 +15,16 @@ from pathlib import Path
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
-TEMPLATE_ROOT = SKILL_ROOT / "assets/templates/smart-mine-vue"
+TEMPLATE_ROOT = SKILL_ROOT / "assets/templates/songsummer-earth-vue"
 MANIFEST_PATH = SKILL_ROOT / "assets/template-manifest.json"
-IGNORED_NAMES = {"node_modules", "dist", ".DS_Store"}
+IGNORED_NAMES = {"node_modules", "dist", ".DS_Store", "__pycache__", ".vite"}
 
 
 def template_files() -> list[Path]:
     return sorted(
         path
         for path in TEMPLATE_ROOT.rglob("*")
-        if path.is_file() and not any(part in IGNORED_NAMES for part in path.parts)
+        if path.is_file() and not any(part in IGNORED_NAMES or part.startswith('dist-') for part in path.parts)
     )
 
 
@@ -44,13 +44,23 @@ def current_manifest() -> dict[str, str]:
 
 
 def main() -> int:
+    global TEMPLATE_ROOT, MANIFEST_PATH
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--preset",
+        choices=("default", "fui"),
+        default="default",
+        help="Verify the original template or the separately bundled FUI Earth preset.",
+    )
     parser.add_argument(
         "--update",
         action="store_true",
         help="Rewrite the manifest after an intentional maintainer change.",
     )
     args = parser.parse_args()
+    if args.preset == "fui":
+        TEMPLATE_ROOT = SKILL_ROOT / "assets/templates/fui-earth-vue"
+        MANIFEST_PATH = SKILL_ROOT / "assets/fui-earth-manifest.json"
     current = current_manifest()
 
     if args.update:

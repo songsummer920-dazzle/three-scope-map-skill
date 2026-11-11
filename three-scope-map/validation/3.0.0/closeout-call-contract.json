@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "cases": 5,
+  "checked": [
+    "default entity pairing",
+    "2.0 template and independent recolor",
+    "entity with renderer switch",
+    "dot hologram plus honeycomb scan",
+    "hex hologram plus grid scan"
+  ],
+  "businessControls": "requested controls only; preserve geographic navigation",
+  "correctedDocumentation": [
+    "scan and texture are independent for both FUI Earth presentations",
+    "FUI overlay native-material ownership agrees across references"
+  ]
+}

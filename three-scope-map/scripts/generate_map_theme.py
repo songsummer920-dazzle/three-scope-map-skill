@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
 # Copyright (c) 2026 宋夏天Dazzle
 """Generate a B-end 3D province map theme from one main color.
 
@@ -49,17 +49,30 @@ def rgba(hex_color: str, alpha: float) -> str:
     return f"rgba({r},{g},{b},{alpha:.2f})"
 
 
+def role_saturation(source_saturation: float, chromatic_target: float) -> float:
+    """Keep gray/near-gray input muted instead of assigning hue-0 red chroma."""
+    muted_limit = 0.12
+    chromatic_limit = 0.5
+    if source_saturation <= muted_limit:
+        return source_saturation
+    if source_saturation >= chromatic_limit:
+        return max(source_saturation, chromatic_target)
+    progress = (source_saturation - muted_limit) / (chromatic_limit - muted_limit)
+    progress = progress * progress * (3 - 2 * progress)
+    return max(source_saturation, chromatic_target * progress)
+
+
 def generate_theme(hex_color: str) -> dict[str, object]:
     rgb = parse_hex(hex_color)
     r, g, b = (channel / 255 for channel in rgb)
     h, l, s = colorsys.rgb_to_hls(r, g, b)
 
-    primary = hls_to_rgb_hex(h, max(l, 0.62), max(s, 0.82))
-    outline = hls_to_rgb_hex(h, 0.72, max(s, 0.72))
-    hot = hls_to_rgb_hex(h, 0.80, max(s, 0.88))
+    primary = hls_to_rgb_hex(h, max(l, 0.62), role_saturation(s, 0.82))
+    outline = hls_to_rgb_hex(h, 0.72, role_saturation(s, 0.72))
+    hot = hls_to_rgb_hex(h, 0.80, role_saturation(s, 0.88))
     label_text = to_hex(mix(parse_hex(primary), (255, 255, 245), 0.72))
-    top_fill = hls_to_rgb_hex(h, 0.055, min(max(s, 0.42), 0.64))
-    side_mid = hls_to_rgb_hex(h, 0.46, max(s, 0.72))
+    top_fill = hls_to_rgb_hex(h, 0.055, role_saturation(s, 0.52))
+    side_mid = hls_to_rgb_hex(h, 0.46, role_saturation(s, 0.72))
 
     return {
         "primary": primary,

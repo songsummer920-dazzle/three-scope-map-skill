@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "errors": [],
+  "environment": "macOS, Codex in-app Chromium; hidden verification tab",
+  "cases": [
+    {
+      "name": "Entity Earth ready with complete HUD",
+      "status": "passed"
+    },
+    {
+      "name": "Entity Earth click enters national terrain-glass map",
+      "status": "passed"
+    },
+    {
+      "name": "3D switches to geographic 2D+3D overlay with visible basemap",
+      "status": "passed"
+    },
+    {
+      "name": "Overlay switches to 2D on the existing administrative path",
+      "status": "passed"
+    },
+    {
+      "name": "2D switches back to native 3D",
+      "status": "passed"
+    },
+    {
+      "name": "National map returns to the original entity Earth",
+      "status": "passed"
+    },
+    {
+      "name": "Dot hologram selects ribbon/grid scan without changing texture",
+      "status": "passed"
+    },
+    {
+      "name": "Dot hologram selects honeycomb scan without changing texture",
+      "status": "passed"
+    },
+    {
+      "name": "Honeycomb-texture hologram retains independent ribbon/grid scan",
+      "status": "passed"
+    },
+    {
+      "name": "Hologram enters smooth-glass country map and returns to Earth",
+      "status": "passed"
+    }
+  ],
+  "hologramDestination": {
+    "mapCode": "100000",
+    "surface": "hologram-glass",
+    "loadPhase": "ready",
+    "hasFrame": true
+  },
+  "screenshotEncoding": "Browser-captured pixels encoded as PNG without compositing or retouching",
+  "coverageLimits": [
+    "Targeted final-build smoke cases; the previous complete 35-case browser matrix was not rerun.",
+    "No new interactive administrative-drill success is claimed by this smoke report. Its runtime files are unchanged from the prior validated matrix."
+  ]
+}

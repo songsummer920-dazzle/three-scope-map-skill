@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "default": [
+    "3d",
+    "2d",
+    "overlay"
+  ],
+  "hiddenOnlyOnExplicitRequest": true,
+  "explicitStandalone2dOrContourIsRespected": true,
+  "previewStyleColorMaterialEffectControls": "opt-in",
+  "sameRendererCameraNavigationAndVisualAssets": true,
+  "frontmatterValidator": "passed",
+  "bothTemplateManifests": "passed",
+  "independentCalls": 3
+}
