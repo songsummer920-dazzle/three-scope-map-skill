@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 # 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 """Install the reviewed portable skill, preserving a complete external backup on upgrade."""
 
@@ -59,17 +59,11 @@ def is_this_skill(path: Path) -> bool:
 
 
 def load_distribution(source: Path) -> dict[str, bytes]:
-    """Validate the selected release record and obtain exactly its public files."""
+    """Validate public release metadata and obtain exactly its distributable files."""
     if not source.is_dir() or not is_this_skill(source):
         raise ValueError(f"Source is not a {SKILL_NAME} skill: {source}")
     files = release.snapshot(source)
-    try:
-        metadata = json.loads(files["release.json"])
-        return release.distribution_snapshot(
-            files, metadata["version"], metadata["validation"], metadata["status"]
-        )
-    except (KeyError, TypeError, json.JSONDecodeError) as error:
-        raise ValueError("Source requires a valid reviewed release.json") from error
+    return release.install_distribution(files)
 
 
 def write_file_set(destination: Path, files: dict[str, bytes]) -> None:

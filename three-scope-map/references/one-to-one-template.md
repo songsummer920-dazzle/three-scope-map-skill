@@ -2,7 +2,7 @@
 
 Use this reference to integrate or migrate the classic 2.0 administrative map.
 New Earth or administrative-3D projects without a requested style use the complete
-`fui-earth-vue` entity preset and its paired terrain-glass map; FUI, contour and
+`fui-earth-vue` entity preset and its paired terrain-glass map; FUI and
 shared-context overlay integrations use their respective references.
 
 ## Template Contents
@@ -29,7 +29,7 @@ materials and geometry from memory.
    It refuses non-empty destinations and copies the complete template and notices
    without running npm. For an existing app, integrate its files at matching paths
    and preserve the bundled notices. Use Node.js `^20.19.0` or `>=22.12.0` and
-   the declared dependencies; install a complete project with `npm ci`.
+   the declared dependencies; install a complete Vue project with `npm ci`. For native React, pass `--framework react`, run `npm install` first and retain its React lockfile before using `npm ci`.
 3. Mount `ChinaMap.vue` for a map-only integration with view switching and
    navigation, or `EarthChinaMap.vue` for Earth entry. Use the lower-level
    `ZhejiangThreeMap.vue` only for an explicitly custom renderer composition.
@@ -39,7 +39,7 @@ materials and geometry from memory.
    user explicitly requests hidden switching or a single renderer. A plain
    “3D map” request selects the initial view and does not remove the selector.
    Add runtime style/color preview controls only for an explicit requirement,
-   and preserve geographic navigation. Explicit standalone 2D/contour tasks
+   and preserve geographic navigation. Explicit standalone 2D tasks
    do not acquire unrelated renderer modes.
 4. Preserve asset imports and shared helpers. The host fills its parent, with
    renderer sizing through `ResizeObserver`; outer dashboard shells own 16:9 scaling.

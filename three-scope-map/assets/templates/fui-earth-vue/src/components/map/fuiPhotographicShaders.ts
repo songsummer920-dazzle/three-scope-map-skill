@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+// SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 // 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 // Exact photographic optical functions recovered from the preserved production
 // bundle (SHA-256 88290e33ce24e8c5b51ec99c830fe50c542c83387beee5cb0e70abffe9c9331d).

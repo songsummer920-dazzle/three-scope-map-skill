@@ -1,4 +1,4 @@
 interface:
   display_name: "Three Scope Map"
-  short_description: "Build reusable 3D, 2D, contour, FUI Earth, or hybrid maps"
+  short_description: "Build Vue or native React 3D, 2D, FUI Earth maps"
   default_prompt: "Use $three-scope-map to select the right independent renderer, preserve shared drilldown state, and build a validated reusable geographic map."

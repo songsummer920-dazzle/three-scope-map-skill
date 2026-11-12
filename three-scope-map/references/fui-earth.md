@@ -61,7 +61,7 @@ Do not mount a second EarthChinaMap next to FuiEarth. The wrapper already owns i
 - `mapWave?: 'none' | 'hex' | 'grid'`: optional glass-map ground-wave override. `none` disables the pulse; hex/grid retain the existing shared timing. Classic keeps its original base-ring behavior. Leaving this prop unset preserves the legacy presentation's wave choice.
 - `mapView: '3d' | '2d' | 'overlay' = '3d'`: initial destination renderer. Overlay draws geographic 3D administrative volumes inside the MapLibre scene and camera; it is not the separate 3D/2D switch or a second canvas.
 
-Retain the destination's `3D 地图 / 2D 地图 / 2D + 3D` selector by default in normal Earth and administrative-3D integrations. Hide it only when the user explicitly requests hidden switching or a single renderer; a plain “3D map” request selects the initial view without removing the selector. It remains visible in the demo's focused `clean=1` preview and preserves the administrative path, primary color and material. A reactive `mapView` prop can drive the same switch from application controls. Explicit standalone 2D or standalone contour tasks do not acquire unrelated renderers. `?mode=china&view=overlay` opens the demo directly in 2D+3D; keep its existing skin or primary query parameters.
+Retain the destination's `3D 地图 / 2D 地图 / 2D + 3D` selector by default in normal Earth and administrative-3D integrations. Hide it only when the user explicitly requests hidden switching or a single renderer; a plain “3D map” request selects the initial view without removing the selector. It remains visible in the demo's focused `clean=1` preview and preserves the administrative path, primary color and material. A reactive `mapView` prop can drive the same switch from application controls. Explicit standalone 2D tasks do not acquire unrelated renderers. `?mode=china&view=overlay` opens the demo directly in 2D+3D; keep its existing skin or primary query parameters.
 
 The terrain-glass face uses the photographic Earth's China surface/ridge pigment roles at its existing linear-light energy. Theme changes update those material uniforms without rebuilding the geography. Preserve the original-skin and hologram palettes, relief equations, clear coat, extrusion and selection response.
 - `quality: 'high' | 'balanced' | 'low' | 'auto' = 'high'`: a performance budget forwarded through Earth, standalone maps and the shared-context overlay. High/balanced preserve the full optical recipes. Low disables map reflection and glass Bloom/MSAA, limits glass targets to1024/DPR1 and provider DPR to1. Auto uses reported memory/CPU hints rather than an adaptive frame-rate controller; see the budget table below.
@@ -173,7 +173,7 @@ Auto resolves low for reported memory at most4 GB, balanced for at most4 CPU cor
 
 ### 2D + geographic 3D overlay
 
-`mapView="overlay"` places administrative volumes in MapLibre’s own canvas, context, depth buffer and camera. The FUI smooth branch reuses the standalone geographic glass body, coat/backing, outlines, selection lift and reflection, omitting its HUD, compass, ground-wave instrument and stage. It creates no separate canvas, context, OrbitControls or RAF. Classic and terrain-glass overlays use their respective material paths; terrain overlay shading is not the standalone DEM mesh or contour renderer.
+`mapView="overlay"` places administrative volumes in MapLibre’s own canvas, context, depth buffer and camera. The FUI smooth branch reuses the standalone geographic glass body, coat/backing, outlines, selection lift and reflection, omitting its HUD, compass, ground-wave instrument and stage. It creates no separate canvas, context, OrbitControls or RAF. Classic and terrain-glass overlays use their respective material paths; terrain overlay shading does not turn display extrusion into measured elevation.
 
 Keep overlay heights identified as display geometry, preserve raised-surface picking, holes, drilldown, return and attribution, and initialize standalone 3D only when requested. Read [map-3d-overlay.md](map-3d-overlay.md) for exact projection, shared-framebuffer ownership, optional transmission and cleanup; [map-2d-switching.md](map-2d-switching.md) covers provider/navigation integration.
 
@@ -265,7 +265,7 @@ If the FUI view selector is enabled, the active ready 3D/overlay view can warm o
 
 Both map waves retain a12-second cycle: a3.8-second transparent front expands from the center, then rests. Hex and Cartesian-grid variants share timing, palette, navigation, camera and all other materials. The normal view retains labels/toolbars; demo `clean=1` hides optional labels/toolbars for unobstructed material review, keeps the destination view selector and 返回地球 action available, and Escape restores the ordinary preview.
 
-Capture the selected map material, custom-primary and shared-context overlay combinations from their actual renderer. Verify relief and sides, quiet/active waves, selection descent, canvas hit testing, scope changes, material switching, Earth entry/return and container sizing. Use the renderer screenshots declared by the matching validation record for comparisons.
+Capture the selected map material, custom-primary and shared-context overlay combinations from their actual renderer. Verify relief and sides, quiet/active waves, selection descent, canvas hit testing, scope changes, material switching, Earth entry/return and container sizing. Compare captures from the same renderer, source revision and viewport settings.
 
 ## Scan variants
 
@@ -351,7 +351,7 @@ The photographic wrapper keeps its 1020/975 artboard and fits the full 1019.9-un
 
 For a requested new color, use the existing one-primary workflow and this continuous photographic role transform; do not add a named palette or tune a separate material/exposure per color. Confirm mountain contrast, dark ocean, city/coast detail and thin HUD ink in actual WebGL. Build and integrity success do not establish visual fidelity.
 
-Review the live scene and its matching source-bound validation screenshots at consistent viewport/capture settings, using full frames and terrain/China details. Inspect all eight limb sectors for surface/cloud illumination, physical limb, exterior falloff and HUD separation. Check geographic relief, colored inward emission and the shared palette hierarchy independently from build/integrity results.
+Review the live scene and captures from the same source revision at consistent viewport/capture settings, using full frames and terrain/China details. Inspect all eight limb sectors for surface/cloud illumination, physical limb, exterior falloff and HUD separation. Check geographic relief, colored inward emission and the shared palette hierarchy independently from build/integrity results.
 
 ## Verification
 

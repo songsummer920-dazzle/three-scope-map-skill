@@ -1,0 +1,20 @@
+{
+  "fui": {
+    "src/components/map/ChinaMap.vue": "845402daef677c01a867716189d3e3fd3278964b40ba4b5867c200a1187bf121",
+    "src/components/map/EarthChinaMap.vue": "7e68ac0a8d10607cf8071724db00b19535ae69cac19559513f65d942a019f346",
+    "src/components/map/EarthView.vue": "8a38a96183904c4fda84f2f7babed4194e1e0b4cbe3c337307b56432ca256e03",
+    "src/components/map/FuiEarth.vue": "0f639fb9f3fb66e8787d3d20f0a09a8f0944c684b38b629855027a0c76483f5e",
+    "src/components/map/FuiSceneLoader.vue": "ec2dc468df404ffa762b3fa0ffa935feedb978c4a7e261f4728058c0e864b44e",
+    "src/components/map/VectorMap.vue": "8c04594ba7d94fa5865a6bc88daddb820580f1ab4cce288bb4d0097f4794f027",
+    "src/components/map/ZhejiangThreeMap.vue": "01cf0cf28d5bca4625645d1376ad2c257e7ce27f2932f9f07cf68af5f952ec0f",
+    "src/App.vue": "6aa174272ec6fb9606fd166391684afa5d7cbb863f4fe2ab45c22e507e2c07e8"
+  },
+  "classic": {
+    "src/components/map/ChinaMap.vue": "eb99499423b64310e68d84d309015d493b7acd9d30b5ae4cc12a3d69f2c25505",
+    "src/components/map/EarthChinaMap.vue": "4e8ae227d066b2bc3c749e8dc66e613ffdcc786011c461d6e92e433ccdace154",
+    "src/components/map/EarthView.vue": "06e9cd60ab95625580ed17f0cb0288de038043e5cdd81da2265150b41f9bf62d",
+    "src/components/map/VectorMap.vue": "71497c25d9f54b6cbe36db8689cb788cf9edf197f7e92be034adfd9a2cf92013",
+    "src/components/map/ZhejiangThreeMap.vue": "584b89a0c84e30ffbd4fa1cb4c8478ca4ed616c7bdcbc269780f29f5bd162ccd",
+    "src/App.vue": "22f795722ef4e6e514512fb8daf42facd4b58245053bdc28b92bb1b472b063de"
+  }
+}

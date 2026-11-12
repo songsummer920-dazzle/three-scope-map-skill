@@ -1,5 +1,0 @@
-
-> three-scope-map-earth-template@1.0.0 test:theme
-> node scripts/test-map-theme.mjs
-
-Theme runtime regression checks passed

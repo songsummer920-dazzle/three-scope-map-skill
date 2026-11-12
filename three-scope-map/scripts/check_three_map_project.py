@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 # Copyright (c) 2026 宋夏天Dazzle
 """Project readiness checks for the three-scope-map skill.
 
@@ -127,8 +127,9 @@ def package_status(root: Path) -> tuple[list[str], list[str]]:
     deps.update(package.get("dependencies", {}))
     deps.update(package.get("devDependencies", {}))
 
-    missing = [name for name in ("vue", "vite", "three") if name not in deps]
-    present = [name for name in ("vue", "vite", "three", "@types/three") if name in deps]
+    framework = ("react", "react-dom") if "react" in deps else ("vue",)
+    missing = [name for name in (*framework, "vite", "three") if name not in deps]
+    present = [name for name in (*framework, "vite", "three", "@types/three") if name in deps]
     return [f"{name} dependency missing" for name in missing], present
 
 
@@ -177,6 +178,8 @@ def main() -> int:
             "src/components/map/*ThreeMap.vue",
             "src/components/map/ZhejiangThreeMap.vue",
             "src/**/ZhejiangThreeMap.vue",
+            "src/components/map/*ThreeMap.tsx",
+            "src/**/ZhejiangThreeMap.tsx",
         ],
     )
     if map_components:
@@ -186,6 +189,8 @@ def main() -> int:
 
     for relative_path in REQUIRED_EARTH_FILES:
         path = root / relative_path
+        if path.suffix == ".vue" and not path.exists():
+            path = path.with_suffix(".tsx")
         if path.exists():
             passes.append(f"Earth template file found: {relative_path}")
         else:
@@ -205,6 +210,8 @@ def main() -> int:
                 problems.append(f"Effect check missing: {label}")
 
         earth_view = root / "src/components/map/EarthView.vue"
+        if not earth_view.exists():
+            earth_view = earth_view.with_suffix(".tsx")
         earth_sources = [earth_view] if earth_view.exists() else []
         for label, pattern in EARTH_EFFECT_PATTERNS.items():
             if file_contains(earth_sources, pattern):
@@ -237,24 +244,26 @@ def main() -> int:
             )
 
         earth_china_map = root / "src/components/map/EarthChinaMap.vue"
+        if not earth_china_map.exists():
+            earth_china_map = earth_china_map.with_suffix(".tsx")
         earth_china_sources = [earth_china_map] if earth_china_map.exists() else []
         fui_parallel_intro = (
-            (root / "src/components/map/FuiEarth.vue").exists()
+            any((root / f"src/components/map/FuiEarth.{ext}").exists() for ext in ("vue", "tsx"))
             and (root / "src/components/map/fuiEarthTheme.ts").exists()
-            and file_contains(earth_china_sources, r':start-intro="true"')
+            and file_contains(earth_china_sources, r':start-intro="true"|startIntro=\{true\}')
             and file_contains(earth_china_sources, r"chinaMounted\s*=\s*ref\(props\.initialMode\s*===\s*[\'\"]china[\'\"]\)")
             # Both the hidden frame and compile batch must finish before ready.
             # Consuming programs in that frame may precede the KHR completion wait.
             and file_contains(earth_sources, r"(?:await shaderPrime[\s\S]*warmComposer\.render|warmComposer\.render[\s\S]*await shaderPrime)[\s\S]*scenePrepared\s*=\s*true")
             and file_contains(earth_china_sources, r"pendingChinaEntry[\s\S]*onChinaReady")
         )
-        intro_policy_ok = fui_parallel_intro or file_contains(earth_china_sources, r':start-intro="chinaReady"')
+        intro_policy_ok = fui_parallel_intro or file_contains(earth_china_sources, r':start-intro="chinaReady"|startIntro=\{chinaReady\.value\}')
         isolated_preload_ok = (
             file_contains(earth_sources, r"emit\(['\"]scene-ready['\"]\)")
             and file_contains(earth_sources, r"startIntro")
             and intro_policy_ok
             and file_contains(earth_china_sources, r"prepareChinaMap[\s\S]*chinaMounted\.value\s*=\s*true")
-            and file_contains(earth_china_sources, r"defineAsyncComponent\(\(\)\s*=>\s*import\(['\"]\./ChinaMap\.vue['\"]\)\)")
+            and file_contains(earth_china_sources, r"defineAsyncComponent\(\(\)\s*=>\s*import\(['\"]\./ChinaMap(?:\.vue)?['\"]\)\)")
             and file_contains(earth_sources, r"world\.earth-render\.json")
             and not file_contains(earth_sources, r"from\s*['\"][^'\"]*/world\.json['\"]")
             and file_contains(map_components, r"waitForPreloadSlice[\s\S]*compileAsync[\s\S]*initTexture")
@@ -262,7 +271,7 @@ def main() -> int:
         static_handoff_ok = (
             file_contains(map_components, r"settleMapForStaticFrame")
             and file_contains(map_components, r"startMapAnimation[\s\S]*stopMapAnimation")
-            and file_contains(earth_china_sources, r':active="mode\s*===\s*[\'"]china[\'"]"')
+            and file_contains(earth_china_sources, r':active="mode\s*===\s*[\'"]china[\'"]"|active=\{mode\.value\s*===\s*[\'"]china[\'"]\}')
         )
         if static_handoff_ok:
             passes.append("Earth handoff uses a static precompiled destination frame before map animation")
@@ -301,6 +310,8 @@ def main() -> int:
             passes.append("Single authoritative Earth entrance check passed")
 
         vector_map = root / "src/components/map/VectorMap.vue"
+        if not vector_map.exists():
+            vector_map = vector_map.with_suffix(".tsx")
         vector_config = root / "src/components/map/vectorMapConfig.ts"
         vector_provider = root / "src/components/map/vectorMapProvider.ts"
         vector_theme = root / "src/components/map/vectorMapTheme.ts"
@@ -362,7 +373,10 @@ def main() -> int:
 
         # Restrict geometry detection to the SVG itself. Looking past </svg>
         # misclassifies decorative HUDs followed by a map component or binding.
-        if file_contains(source_files, r"setupSvgFallback|map-svg-fallback|<svg\b[^>]*>(?:(?!</svg>)[\s\S]){0,600}(geo|map|boundary)"):
+        if file_contains(source_files, r"setupSvgFallback|map-svg-fallback") or (
+            not file_contains(map_components, r"new\s+THREE\.WebGLRenderer")
+            and file_contains(source_files, r"<svg\b[^>]*>(?:(?!</svg>)[\s\S]){0,600}(geo|map|boundary)")
+        ):
             problems.append("SVG/image fallback map detected; one-to-one delivery must render real Three.js.")
         else:
             passes.append("No SVG fallback map detected")

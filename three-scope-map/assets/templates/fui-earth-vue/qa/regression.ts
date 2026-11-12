@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+// SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 // 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 // Browser integration tests exercise the public component API on real WebGL.
 // This page is an explicit QA build and is absent from the normal app entry.

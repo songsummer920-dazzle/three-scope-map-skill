@@ -7,7 +7,7 @@ Original source / 原始来源：
 https://github.com/songsummer920-dazzle/three-scope-map-skill
 
 This distribution's author-owned code, Skill instructions, templates and
-associated documentation use LicenseRef-Summer-Platform-Restriction-1.0; read
+associated documentation use LicenseRef-Summer-Platform-Restriction-1.1; read
 LICENSE for the complete terms. Personal, internal, educational and ordinary
 commercial projects and client-specific delivery are permitted within LICENSE.
 Reusable Earth/map capability in a paid platform, SaaS, API, Skill, plugin, SDK,
@@ -27,18 +27,25 @@ platforms. Ordinary business SaaS remains permitted under LICENSE's conditions.
 定制开发合同不构成收费平台授权，普通业务SaaS依LICENSE的条件仍允许使用。
 实际能力和收费安排决定适用范围；署名、技术支持或作者沉默不等于平台许可。
 
-Previously granted GPL and other rights for historical copies remain valid.
+Rights previously granted under license 1.0, the GPL or other valid grants
+remain valid for copies obtained under them; license 1.1 does not retroactively
+change those grants.
 This is not an extra restriction appended to the GPL. Historical GPL text is preserved
 verbatim under LICENSES/. The “2.0 style” option in this distribution does not
 change the licenses of previously obtained copies.
-历史已合法授予的GPL等权利继续有效。
+此前按1.0、GPL或其他有效授权取得的副本继续遵循原授权；1.1不追溯变更。
 本授权不是给GPL追加限制；本包的“2.0风格”选项不改变旧副本授权。
 
-Keep LICENSE, NOTICE, applicable third-party notices, source license markers
-and author attribution with redistributed copies/source, and clearly identify
-modified versions. Do not imply official authorship or endorsement. Attribution
-may be in code, README or documentation; a visible application watermark is not
-required unless the application owner independently requests one.
+Retain the original author copyright, attribution, license/SPDX identifiers
+and source notices in corresponding source code, including adapted files that
+retain protected content. Do not remove, conceal, alter or replace those notices.
+Attribution in a README or other documentation is supplementary and cannot
+replace source notices. Identify modifications and retain LICENSE, NOTICE and
+applicable third-party notices when distributing. No visible application
+watermark is required.
+必须保留相应源码中的原作者版权、署名、许可证/SPDX标识及来源，不得删除、
+遮蔽、篡改或以他人署名替代；含受保护内容的拆分、合并或改写版本同样适用。
+README等文档中的署名只能补充，不能代替源码署名。最终界面不强制常驻水印。
 
 Third-party dependencies, maps, photographs and other assets retain their
 original rights and terms. This license does not grant rights to third-party

@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.0 — Vue / React support and documentation
+
+- Keep the loading state during slow first-time basemap preparation instead of
+  cancelling a view switch after five seconds; release readiness callbacks when
+  a switch finishes, times out, or its map host becomes inactive.
+- Keep release archives focused on reusable templates, integration documentation,
+  attribution and license notices.
+- Simplified README startup examples and network configuration guidance.
+
+- Introduced author-owned license 1.1 with mandatory source-code attribution;
+  README or other documentation credits cannot replace notices in source files.
+- Preserved copyright, attribution, license identifiers and origin information
+  through source splitting, merging, relocation and adaptations retaining
+  protected content. Visible application watermarks remain optional.
+- Synchronized current license notices, source headers and integration guidance.
+  Historical license 1.0 and GPL copies retain their original grants.
+- Added native React project generation alongside Vue for the 2.0 classic and
+  3.0 entity/hologram families, sharing the corresponding renderer modules and assets.
+- Removed the independent contour-terrain mode from the supported distribution,
+  project templates, invocation routes and public examples.
+- Standardized the names 3.0 实体地球, 3.0 全息地球, 纹理玻璃 3D 地图 and
+  纯玻璃 3D 地图; retained their visual materials, themes and animations.
+
 ## 3.0.0 — 2026-11-12
 
 - Added `install_skill.py`: back up an existing Skill outside the skills directory,

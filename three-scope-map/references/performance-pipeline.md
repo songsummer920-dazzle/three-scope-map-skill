@@ -10,7 +10,6 @@ Keep these concerns separate:
 - Preprocessor: creates small render-ready GeoJSON files with simplified rings, bbox, center, feature count, and point count metadata.
 - Renderer: consumes normalized GeoJSON and keeps the visual preset unchanged.
 - Interaction: hover highlight, drilldown stack, fly-line source rules, labels, and ripple rules.
-- Contour renderer: loads precomputed DEM bundles through its own adapter and repaints only on data, viewport, resize, or hover changes. It does not share the Three.js or MapLibre render loop.
 
 Do not move material colors, side gradients, chase-light styling, label images, or scatter assets into the data adapter. The adapter must not change visual output.
 
@@ -133,21 +132,3 @@ Do not remove, shorten, or bypass the Earth intro to gain performance. A short w
 - Confirm geometry work yields in short slices and texture uploads are separated. Only classic releases `start-intro` from destination `ready`; FUI follows its separate gate above.
 - Confirm the destination map has no continuous RAF while inactive and that its precompiled static handoff frame is fully opaque.
 - Preserve code-only attribution: `作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天`.
-- For contour mode, keep the grid bounded, preprocess line extraction offline, render only the current level, avoid a continuous idle RAF, and do not start contour decoding during the visible Earth intro.
-
-## 3.0 measured technical baseline
-
-These are historical baseline measurements. Targeted functional validation does not constitute a repeat of the complete performance measurement set; consult the current validation record for execution scope.
-
-Preserve rendering inputs and default high quality when measuring performance. The [3.0 performance summary](../validation/3.0.0/performance-summary.json) records three HTTP-resource cold/reload
-pairs, low/hologram first-ready cycles, and entity plus hologram cycles after
-normal destination prewarm completes. Initial prewarm long frames remain in the
-data. Do not label first-ready and steady measurements as the same workload or
-disable normal destination preparation for a benchmark.
-
-The measured platform is one MacIntel/Chromium157/AMD5500M WebGL2 environment.
-HTTP cache isolation does not clear shader caches. Local loopback startup timings
-are not network-delivery guarantees; RAF cadence is not GPU present-time. Memory
-is the optional Chromium JavaScript-heap estimate, not process RAM/VRAM or a leak
-proof. No Windows/mobile/other-GPU coverage is inferred from forced LDR/direct or
-quality-budget branches. See the current record for exact values and limitations.

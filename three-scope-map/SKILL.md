@@ -1,21 +1,29 @@
 ---
 name: three-scope-map
-description: Build, migrate, theme, drill down, and validate reusable Vue or web maps using the bundled Three.js administrative 3D renderer, MapLibre 2D basemap, standalone Three.js contour terrain, Earth entrance (defaulting to the 3.0 entity/photographic FUI style for new projects), a default 3D/2D/2D+3D view switch, or a MapLibre basemap with a shared-context 3D geographic overlay. Use for geographic map rendering and provider integration, not ordinary dashboard charts.
+description: Build, migrate, theme, drill down, and validate reusable Vue or native React maps using the bundled Three.js administrative 3D renderer, MapLibre 2D basemap, Earth entrance (defaulting to the 3.0 entity/photographic FUI style for new projects), a default 3D/2D/2D+3D view switch, or a MapLibre basemap with a shared-context 3D geographic overlay. Use for geographic map rendering and provider integration, not ordinary dashboard charts.
 ---
 
 # Three Scope Map
+
+## Framework Selection
+
+Support both Vue and native React. Preserve an existing project's framework; never migrate it implicitly. For new projects pass `--framework vue` or `--framework react` to `scripts/create_map_project.py`; omitting it preserves the existing Vue default. Both `--preset fui` and `--preset classic` support both frameworks. React output uses native TSX components, React DOM and the shared renderer/data/assets, with no Vue runtime or iframe.
+
+For React, read [references/react-integration.md](references/react-integration.md). References below name canonical `.vue` files; their native React counterparts have the same component names with `.tsx`, camelCase props and `onEvent` callbacks. The generator combines `assets/react/<preset>/` with the selected family's shared assets. Do not copy that partial React directory alone. Preserve the same style pairings, three-view selector, navigation, attribution, resource cleanup and renderer verification in either framework.
 
 ## Style Selection
 
 Users can select a complete style with these phrases. Apply the matching Earth and 3D destination together; do not ask them to select a separate map material or learn API names.
 
-**New Earth or administrative-3D project with no requested style: use 3.0 entity Earth (实体地球, also called photographic/写实 FUI) with its paired terrain-glass map. Explicit style requests override this default. Preserve an existing project's style unless a replacement is requested.**
+Use these public style names consistently: **3.0 实体地球**, **3.0 全息地球**, **纹理玻璃 3D 地图** (`terrain-glass`) and **纯玻璃 3D 地图** (`smooth-glass`). Technical API values stay unchanged; recognize “写实地球” as a legacy alias for 3.0 实体地球.
+
+**New Earth or administrative-3D project with no requested style: use 3.0 实体地球 (entity FUI Earth) with its paired 纹理玻璃 3D 地图 (`terrain-glass`). Explicit style requests override this default. Preserve an existing project's style unless a replacement is requested.**
 
 | User request | Template and complete pairing |
 | --- | --- |
 | “用 2.0 风格” / “2.0 地球” | `songsummer-earth-vue`: original Earth entrance → original classic 3D map. |
-| “用 3.0 实体地球” / “实体地球” / “用 3.0 写实地球” / “3.0 写实风格” / “用 3.0 风格” | `fui-earth-vue`: `FUI_SCENE_PRESETS.surface` → entity/photographic Earth + terrain-glass 3D map. |
-| “用 3.0 全息地球” / “全息地球” | `fui-earth-vue`: `FUI_SCENE_PRESETS.hologram` → regular-dot hologram + smooth-glass 3D map. An explicit honeycomb globe/蜂窝纹理 request selects `FUI_SCENE_PRESETS['hologram-hex']`, with the same smooth-glass destination; a honeycomb scan request changes only `scanStyle`. |
+| “用 3.0 实体地球” / “实体地球” / “用 3.0 写实地球” / “3.0 写实风格” / “用 3.0 风格” | `fui-earth-vue`: `FUI_SCENE_PRESETS.surface` → 3.0 实体地球 + 纹理玻璃 3D 地图 (`terrain-glass`). |
+| “用 3.0 全息地球” / “全息地球” | `fui-earth-vue`: `FUI_SCENE_PRESETS.hologram` → 3.0 全息地球 (regular dots) + 纯玻璃 3D 地图 (`smooth-glass`). An explicit honeycomb globe/蜂窝纹理 request selects `FUI_SCENE_PRESETS['hologram-hex']`, with the same 纯玻璃 3D 地图 (`smooth-glass`) destination; a honeycomb scan request changes only `scanStyle`. |
 
 - Style selection configures the project. Add runtime style/color controls only when requested; keep geographic back/drilldown and Earth-return controls available.
 - Both templates' `src/App.vue` files are demonstration shells; integrate reusable components into business layouts instead of copying their optional style/color/material/effect toolbar. Earth and administrative-3D integrations **retain the `3D 地图 / 2D 地图 / 2D + 3D` selector by default**, including ordinary business integrations. Hide it only when the user explicitly asks to hide/remove switching or requests a single view such as “只要 2D”; an ordinary “做 3D 地图” request does not hide it. Preserve existing explicit choices and geographic navigation. FUI already enables `show-view-switch` in `EarthChinaMap.vue`; keep it enabled unless that explicit exception applies. Use the selected family's `ChinaMap.vue` host for a map-only integration with the selector, rather than mounting only its raw Three.js renderer.
@@ -24,7 +32,7 @@ Users can select a complete style with these phrases. Apply the matching Earth a
 - “改成蓝色” changes only the shared theme through the existing one-color workflow. Preserve the selected style, material, animation, region and navigation. Do not reopen style selection or replace the renderer for a color-only request.
 - A style change preserves project data, geographic scope, navigation, quality, current 2D/3D/overlay composition and primary color unless the user requests otherwise. An existing map-only project stays map-only and receives the selected style's paired map material; do not add an Earth entrance implicitly. Follow the template-family migration guidance instead of mixing classic and FUI renderer files.
 - Pairing supplies defaults, not a restriction on customization: explicit requests to change the destination material, dot/hex pattern, HUD, wave or 2D+3D composition override the paired default. Do not silently revert such customization during an unrelated edit.
-- Standalone 2D and contour requests retain their own renderer defaults.
+- Standalone 2D requests retain their own renderer defaults.
 
 ### Natural-language effect names
 
@@ -38,10 +46,9 @@ Choose one mode before copying files or validating the project. Apply only that 
 
 - `3d`: regional Three.js map without an Earth entrance, starting in 3D with the default three-view selector. Read the relevant 3D style, scope, drilldown, or migration reference. An explicit single-view request may omit the selector.
 - `earth`: authoritative Earth entrance followed by the validated 3D destination. Apply the one-sentence style pairing above first. New projects default to the photographic FUI preset and `references/fui-earth.md`. Use the original green template and `references/earth-view.md` for an explicit 2.0/classic request or an existing classic project that is not being restyled.
-- `hybrid`: user-controlled switching with one navigation path. Earth and administrative-3D integrations retain `3d`, `2d`, and geographic `overlay` by default; add standalone `contour` only when requested. Read the references for every included renderer. Explicit single-view requests take precedence.
+- `hybrid`: user-controlled switching with one navigation path. Earth and administrative-3D integrations retain `3d`, `2d`, and geographic `overlay` by default. Read the references for every included renderer. Explicit single-view requests take precedence.
 - `overlay`: real 2D basemap and geographic 3D blocks in one MapLibre camera/WebGL context. Read `references/map-3d-overlay.md`; do not stack independently controlled canvases.
 - `2d`: standalone recolorable MapLibre basemap with administrative drilldown. Read `references/map-2d-switching.md`; do not require Three.js effects, Earth assets, terrain textures, or a 3D fallback.
-- `contour`: standalone Three.js DEM terrain with elevation colors, major/minor contour lines, orbit camera, and invisible administrative drilldown indexing. Read `references/contour-map.md`; do not implement it as a material effect inside the administrative 3D map or as a MapLibre overlay.
 
 If the request does not say which renderer to use, preserve the renderer already present in the target project. Do not interpret a conventional map request as a 3D request merely because this skill also supports Three.js.
 
@@ -58,7 +65,7 @@ For a pure emissive globe without a photographic substrate, use `<FuiEarth skin=
 
 Read `references/v3-api.md` for the capability matrix and public API. Preserve existing defaults. Theme color, Earth appearance, map material, bottom wave and renderer composition are separate choices: changing the primary color must not change the material or navigation. Named FUI skins remain presets; `primary-color="#a75fff"` overrides hue per instance. The shared theme script supports both template families. For a pure 2D provider, semantic vector layers follow the theme; raster imagery and explicit source-style mode retain their provider-specific limitations.
 
-Use the complete selected template family. Classic, FUI, contour and overlay have different geometry/light contracts; their common invariants are real geography, attribution, theme semantics, navigation, resource ownership and background-safe verification. References scoped to the classic preset do not override FUI timing or materials. Default `quality="high"` preserves existing output; `balanced`, `low` and `auto` expose explicit performance budgets.
+Use the complete selected template family. Classic, FUI and overlay have different geometry/light contracts; their common invariants are real geography, attribution, theme semantics, navigation, resource ownership and background-safe verification. References scoped to the classic preset do not override FUI timing or materials. Default `quality="high"` preserves existing output; `balanced`, `low` and `auto` expose explicit performance budgets.
 
 ## Core Workflow
 
@@ -71,40 +78,25 @@ Use the complete selected template family. Classic, FUI, contour and overlay hav
 7. Validate texture scope. Do not stretch a province texture across China or a China texture across one province without explicit approval.
 8. Preserve the selected material baseline: classic/terrain faces remain dark and readable; smooth glass retains its colored volume and polished cover. Derive outline, side gradient, glow, labels and HUD colors from the same theme without changing material families.
 9. When fixing a specific map issue, do not touch unrelated charts, panel assets, or business data.
-10. Preserve the non-visual code attribution watermark in generated map code and skill scripts: `作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天`. Keep it in comments or metadata only; do not render it in the UI unless the user explicitly asks for a visible watermark.
+10. Source attribution is mandatory in generated or adapted map code and skill scripts: preserve `作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天`, existing copyright, license/SPDX and origin notices in the corresponding source. Do not delete, conceal, replace or move them solely into a README or other documentation. Keep these notices in source comments or source metadata; UI attribution remains optional.
 11. For publishable drilldown maps, split data loading from rendering. Use a map data adapter for cache/prefetch/network fallback and an offline preprocessing script for large GeoJSON, while keeping the existing renderer preset unchanged.
-12. Preserve `SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0`, the author attribution and original repository URL for this 3.0 distribution’s author-owned code. Both complete templates include `LICENSE`, `NOTICE`, `LICENSES/` and `THIRD_PARTY_NOTICES.md`; preserve these in generated projects, integrations and derivative Skill distributions. Follow LICENSE for ordinary business projects and client delivery. Reusable Earth/map capability in a paid platform, SaaS, API, Skill, plugin/SDK/component/template library or resource offering requires prior written author permission, including free tiers within a paid offering, hosted use without source delivery, bundled fees and arranged third-party fee collection. A custom-development contract does not authorize a restricted platform; ordinary business SaaS remains permitted under LICENSE's conditions. Rewriting or combining code does not alone exempt retained protected content. Historical GPL copies and third-party materials keep their own rights; do not rewrite their notices or describe this restricted 3.0 grant as GPL/OSI open source. The author-owned grant does not include commercial rights to third-party maps, basemap services or textures. Users/deployers must obtain permissions required for their own use, deployment and redistribution. Source records and publicly accessible downloads do not establish permission; keep bundle redistribution clearance separate from user-specific commercial authorization.
-13. Do not ship a blank or substitute renderer. In 3D or Earth mode, the Vue template must render the real Three.js administrative map canvas. In 2D mode, MapLibre must render the configured basemap plus the local administrative overlay. In contour mode, an independent Three.js scene must render a DEM mesh and precomputed contour lines from a real bundle or a visibly disclosed relative-elevation demo bundle.
-14. Before delivery, run `scripts/check_three_map_project.py <target-project> --strict` for modes containing 3D, `scripts/check_vector_map_project.py <target-project> --strict` for modes containing 2D, and `scripts/check_contour_map_project.py <target-project> --strict` for modes containing contour. Treat blockers as work items to fix before claiming success.
+12. Preserve `SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1`, the author attribution and original repository URL for this 3.0 distribution’s author-owned code. Both complete templates include `LICENSE`, `NOTICE`, `LICENSES/` and `THIRD_PARTY_NOTICES.md`; preserve these in generated projects, integrations and derivative Skill distributions. Follow LICENSE for ordinary business projects and client delivery. Reusable Earth/map capability in a paid platform, SaaS, API, Skill, plugin/SDK/component/template library or resource offering requires prior written author permission, including free tiers within a paid offering, hosted use without source delivery, bundled fees and arranged third-party fee collection. A custom-development contract does not authorize a restricted platform; ordinary business SaaS remains permitted under LICENSE's conditions. Rewriting or combining code does not alone exempt retained protected content. Historical GPL copies and third-party materials keep their own rights; do not rewrite their notices or describe this restricted 3.0 grant as GPL/OSI open source. The author-owned grant does not include commercial rights to third-party maps, basemap services or textures. Users/deployers must obtain permissions required for their own use, deployment and redistribution. Source records and publicly accessible downloads do not establish permission; keep bundle redistribution clearance separate from user-specific commercial authorization.
+13. Do not ship a blank or substitute renderer. In 3D or Earth mode, the selected Vue or React template must render the real Three.js administrative map canvas. In 2D mode, MapLibre must render the configured basemap plus the local administrative overlay.
+14. Before delivery, run `scripts/check_three_map_project.py <target-project> --strict` for modes containing 3D, `scripts/check_vector_map_project.py <target-project> --strict` for modes containing 2D. Treat blockers as work items to fix before claiming success.
 15. When the user requests an Earth View entrance, choose the requested preset first, then copy its bundled `EarthView.vue`, `EarthChinaMap.vue`, `ChinaMap.vue`, `mapTheme.ts`, maps, and Earth/China texture assets as one unit. Do not reconstruct Earth View from prose or keep an alternate/legacy Earth implementation. Keep the existing country-scope component as the destination.
-16. For a new default Earth or administrative-3D project, copy the complete `assets/templates/fui-earth-vue/` family and apply `FUI_SCENE_PRESETS.surface`; a map-only host starts at the paired map. For explicit 2.0/classic delivery, use the complete runnable `assets/templates/songsummer-earth-vue/` family instead. Hybrid composition follows the requested renderers and selected appearance, rather than implicitly selecting the classic family. For standalone 2D integration, copy `VectorMap.vue`, `vectorMap*.ts`, `mapNavigation.ts`, `mapDataAdapter.ts`, `maplibreWorker.ts`, the administrative data/types, and the relevant host styles; do not require Earth or terrain assets. For standalone contour integration, copy `ContourMap.vue`, `contourMap*.ts`, `contourTerrain*.ts` (including the worker), `contourDataAdapter.ts`, `mapTheme.ts`, `mapNavigation.ts`, `mapDataAdapter.ts`, administrative data/types, contour bundles, and the Three.js dependency; do not require MapLibre, Earth, or the administrative 3D terrain-texture assets.
-17. For a one-sentence color request, use the selected template’s theme entry through `scripts/apply_map_theme.py <hex> <target-project> --no-backup`. Classic Earth/3D/2D/contour derive from `MAP_THEME_PRIMARY`; FUI adds the generated default override and accepts per-instance `primaryColor`. Its HUD, glass and 2D palette consume the resolved theme ID. Achromatic black/white/gray must remain achromatic, near-gray input must stay muted, and chromatic input must preserve its hue. Do not perform broad search-and-replace on shader, CSS, or material colors.
+16. For a new default Earth or administrative-3D project, copy the complete `assets/templates/fui-earth-vue/` family and apply `FUI_SCENE_PRESETS.surface`; a map-only host starts at the paired map. For explicit 2.0/classic delivery, use the complete runnable `assets/templates/songsummer-earth-vue/` family instead. Hybrid composition follows the requested renderers and selected appearance, rather than implicitly selecting the classic family. For standalone 2D integration, copy `VectorMap.vue`, `vectorMap*.ts`, `mapNavigation.ts`, `mapDataAdapter.ts`, `maplibreWorker.ts`, the administrative data/types, and the relevant host styles; do not require Earth or terrain assets.
+17. For a one-sentence color request, use the selected template’s theme entry through `scripts/apply_map_theme.py <hex> <target-project> --no-backup`. Classic Earth/3D/2D derive from `MAP_THEME_PRIMARY`; FUI adds the generated default override and accepts per-instance `primaryColor`. Its HUD, glass and 2D palette consume the resolved theme ID. Achromatic black/white/gray must remain achromatic, near-gray input must stay muted, and chromatic input must preserve its hue. Do not perform broad search-and-replace on shader, CSS, or material colors.
 18. Preserve the complete Earth intro timeline when optimizing the Earth-to-map handoff. For FUI, follow `references/fui-earth.md`: give Earth first-frame priority, mount the hidden destination after `first-visible`, hold its GPU warm-up until `intro-complete`, and start the complete Earth intro as soon as its own first frame is prepared; do not make `chinaReady` gate Earth visibility. The inactive destination may perform sliced construction and one-shot GPU preparation, never a second continuous render loop. The following serial gate applies only to the original green preset. On a cold start, warm the Earth scene while its canvas is hidden, emit `scene-ready`, build and render one complete inactive destination frame, and release the Earth `start-intro` gate only after `chinaReady`. Keep the neutral starfield/backdrop visible while warming so the page never appears blank. For that original green preset, once Earth becomes visible, no destination geometry, renderer creation, texture upload or shader compilation may begin until the intro finishes.
 19. Treat the Earth and destination map as two coordinated render phases. Never run both full continuous render loops during preload or handoff; one-shot compile/upload/static renders are allowed while Earth owns the active loop.
 20. Batch same-material geographic outlines into `THREE.LineSegments`. Do not create thousands of separate `LineLoop` draw calls for world coastlines or administrative rings; this can stall the visible China-rise phase even when destination preloading is correct.
 21. Keep raw high-resolution GeoJSON as source data, but do not import a multi-megabyte raw world file directly into the Earth first-paint bundle. Classic Earth uses the bundled `world.earth-render.json` render cache; FUI lazily loads the verified binary geographic caches derived from that same source. Keep raw/render GeoJSON for regeneration, not in the FUI first-paint JS. `ChinaMap.vue` remains an async component. Mount it after `scene-ready` for the original green preset; FUI mounts after `first-visible` and releases destination GPU warm-up at `intro-complete`; destination readiness never gates the Earth intro.
-22. Keep the default `3D 地图 / 2D 地图 / 2D + 3D` selector in Earth and administrative-3D integrations; hide it only on an explicit user request. Renderer selection remains user-controlled and never changes automatically at a drilldown level. Share only the administrative navigation path; each renderer owns its camera or viewport. Explicit standalone 2D or contour tasks do not require unrelated renderers or a selector. The 2D and overlay views require a replaceable style URL, raster, MVT, or PMTiles provider and a complete basemap.
+22. Keep the default `3D 地图 / 2D 地图 / 2D + 3D` selector in Earth and administrative-3D integrations; hide it only on an explicit user request. Renderer selection remains user-controlled and never changes automatically at a drilldown level. Share only the administrative navigation path; each renderer owns its camera or viewport. Explicit standalone 2D tasks do not require unrelated renderers or a selector. The 2D and overlay views require a replaceable style URL, raster, MVT, or PMTiles provider and a complete basemap.
 
 ## Installation and Network Boundary
 
 Install or upgrade with `python3 <skill>/scripts/install_skill.py`. It defaults to `~/.codex/skills/three-scope-map`, fully backs up an existing Skill outside the skills directory under `~/.codex/skill-backups/`, then replaces the directory. Do not merge-upgrade with `cp -R` or automatically restore old customized files. The backup retains those files for comparison and intentional migration. Custom locations use `--source`, `--target` and `--backup-dir`.
 
-Both runnable templates require Node.js `^20.19.0` or `>=22.12.0`; run `npm ci` from the generated project when dependency installation is needed. The default 2D/overlay basemap uses online OpenFreeMap styles, tiles, glyphs and sprites. The administrative adapter bundles China and Zhejiang; other administrative drilldown levels load on demand from `geo.datav.aliyun.com`. For offline/internal-network delivery, configure the basemap provider and its supporting resources and supply all required administrative data. Do not describe the default project as fully offline. See [README.md](README.md) for portable installation and project-creation instructions.
-
-## Contour Mode Non-Negotiable Rules
-
-- Contour is a peer renderer to 3D and 2D. Implement it in `ContourMap.vue` with its own configuration, data adapter, diagnostics, lifecycle, and validator. Do not add contour code to `ZhejiangThreeMap.vue`, `mapTerrainMaterial.ts`, `VectorMap.vue`, or `vectorMapConfig.ts`.
-- Production contour maps require DEM-derived data with an explicit CRS, elevation unit, source/license identifier, bbox, interval, and major-line cadence. Never label a decorative height texture, synthetic surface, or unknown grayscale image as metres.
-- A bundled demo may use relative elevation only when both UI and diagnostics identify it as non-metric demo data. When `requireRealDem` is enabled, missing, demo, or non-metric data is a blocker rather than a reason to silently fall back.
-- Use an independent event-driven Three.js scene with an indexed DEM `BufferGeometry`, batched major/minor `LineSegments`, raycasting, a perspective camera, and `OrbitControls`. It must not import MapLibre or modify the administrative 3D renderer.
-- Pure elevation is the default: render the complete DEM bbox without administrative clipping, boundaries, names, hover fill, or hover outline. Administrative geometry may remain an invisible longitude/latitude hit-test index for shared drilldown. Exclude `*_JD` from hit testing.
-- Avoid a screenshot-like DEM rectangle: publish `bundle.json` for the focused contour coverage and, whenever the orbit camera can expose that coverage edge, a larger real `surface.json` DEM bbox for the visible terrain. Fade contour vertices before the focused bbox edge with a shader, feather only the outer overscan surface, and never stroke or extrude either bbox. Do not map every source bbox to the same arbitrary mesh width: keep the focused bbox as the geographic scale reference and place the overscan surface in the same longitude/latitude projection.
-- Preserve focused detail in dual-coverage mode: render the higher-density `bundle.json` grid as the primary terrain mesh above the lower-density overscan surface, and feather their overlap. Never replace the focused mesh with `surface.json`; the overscan layer exists only to carry the camera beyond the focused bbox. Light cartographic smoothing is allowed only when it is applied before contour extraction and recorded in `metadata.processing`.
-- Scope every contour visual adjustment. Country, province, city, and district may use different vertical exaggeration, line opacity, lift, and edge feather through `scopeStyles`. A request to refine a district/county must not change the country bundle, country palette, shared light rig, or global defaults. Regenerate only the requested scope's DEM package.
-- Keep country-scale vertical exaggeration restrained, visibly disclose its ratio for metric terrain, and increase source-grid density before using aggressive elevation scale to reveal detail.
-- Preserve `world -> country -> province -> city -> district/county` drilldown and the shared `{ scope, regionName, code }` path. Renderer switches preserve that path, but contour orbit-camera state remains independent from the administrative 3D camera and 2D bearing/pitch.
-- Keep contour preprocessing out of pointer handlers and frame rendering. Country uses its preprocessed bundle; province/city/district use bounded real terrain patches prepared in a worker after debounced view changes. Keep the previous patch until its replacement is ready, cancel stale requests, and never fall back to synthetic local terrain. Follow the loading, attribution, and scope-specific presentation contract in `references/contour-map.md`. Static contour mode must not run a continuous idle animation loop.
-- Publish `window.__SUMMER_MAP_CONTOUR_DIAGNOSTICS__` and verify source, demo status, elevation unit, disclosed vertical-exaggeration ratio, contour/mesh counts, rotatable capability, first frame, WebGL canvas size, camera state, navigation key, and runtime errors in the browser.
+Both runnable templates require Node.js `^20.19.0` or `>=22.12.0`. Vue templates include lockfiles and use `npm ci`; generated React projects first use `npm install`, retain the resulting React lockfile, then use `npm ci` for subsequent clean installs. The default 2D/overlay basemap uses online OpenFreeMap styles, tiles, glyphs and sprites. The administrative adapter bundles China and Zhejiang; other administrative drilldown levels load on demand from `geo.datav.aliyun.com`. For offline/internal-network delivery, configure the basemap provider and its supporting resources and supply all required administrative data. Do not describe the default project as fully offline. See [README.md](README.md) for portable installation and project-creation instructions.
 
 ## 3D And Earth Non-Negotiable Rules
 
@@ -143,16 +135,18 @@ Use this attribution in generated code comments and script metadata:
 
 Rules:
 
-- Preserve `SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0` near the top of this 3.0 distribution’s author-owned reusable map source files; third-party source retains its own identifier.
+- Preserve `SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1` near the top of this 3.0 distribution’s author-owned reusable map source files; third-party source retains its own identifier.
 - Add it near the top of generated map components, helper files, and map-related scripts.
 - Keep it non-visual by default.
 - Do not add DOM elements, canvas text, sprites, labels, CSS pseudo-elements, or HUD overlays for this attribution unless explicitly requested.
-- Preserve it when refactoring generated map code.
+- Preserve original source attribution, copyright, license/SPDX and origin notices when refactoring, splitting, combining, relocating or rewriting code retaining the project’s protected content. If the original location cannot remain, carry equivalent complete notices into the corresponding source file headers. README or other documentation is supplementary, never a substitute for code attribution. Modifier credits may be added without replacing the original author.
 - Preserve repository-level `LICENSE`, `NOTICE`, `LICENSES/`, `THIRD_PARTY_NOTICES.md`, and `CITATION.cff` when packaging or publishing derivative skills. The no-platform-resale condition belongs to this distribution’s new author-owned grant, never an added condition on a historical GPL copy.
 
 ## References
 
 Read only what the task needs:
+
+- `references/react-integration.md`: Framework selection, native React component APIs, shared source maintenance, StrictMode lifecycle and verification.
 
 - `references/three-map-style.md`: Core 3D map style rules: geometry, material, labels, hover, chase light, fly lines, and artifact debugging.
 - `references/map-scope-switching.md`: Province/country scope switching, China national maps, texture scope, and visual scaling.
@@ -170,7 +164,6 @@ Read only what the task needs:
 - `references/v3-api.md`: Version 3 theme/material/effect/composition API and compatibility matrix.
 - `references/map-3d-overlay.md`: Shared-context MapLibre 2D + 3D overlay, real projection, interaction and cleanup.
 - `references/map-2d-switching.md`: Manual 3D / 2D switching, shared navigation state, MapLibre provider replacement, coordinates, and QA.
-- `references/contour-map.md`: Standalone Three.js contour terrain, DEM bundle contract, orbit interaction, pure-elevation edge treatment, multi-renderer switching, performance, and QA.
 
 ## Scripts
 
@@ -180,12 +173,9 @@ Read only what the task needs:
 - `scripts/apply_map_theme.py <hex> <target-project-or-mapTheme.ts>`: Set the classic shared primary or the paired FUI generated default; keep named presets and per-instance overrides available.
 - `scripts/recolor_label_asset.py <hex> <svg>`: Legacy helper for older local projects that still use an SVG label pointer.
 - `scripts/preprocess_map_data.py`: Create render-ready GeoJSON with simplified rings, bbox, center, and point-count metadata.
-- `scripts/check_three_map_project.py`: Check a target project for Vue/Vite/Three dependencies, copied template files, assets, fixed-size host mistakes, SVG substitutes, and required one-to-one Three.js effects.
+- `scripts/check_three_map_project.py`: Check a target project for Vue or React/Vite/Three dependencies, copied template files, assets, fixed-size host mistakes, SVG substitutes, and required one-to-one Three.js effects.
 - `scripts/check_vector_map_project.py`: Check a standalone or hybrid 2D project for the provider, semantic theme, coordinate, worker, interaction, responsive-control, and diagnostics contracts.
 - `scripts/check_vector_map_diagnostics.py`: Validate a JSON snapshot exported from `window.__SUMMER_MAP_2D_DIAGNOSTICS__` after browser QA.
-- `scripts/preprocess_contour_map.py`: Convert a georeferenced elevation raster or metric Terrarium tiles and an administrative boundary into a standalone contour bundle.
-- `scripts/check_contour_map_project.py`: Check that contour mode is an independent Three.js DEM terrain with orbit interaction, data truthfulness, navigation, and diagnostics contracts.
-- `scripts/check_contour_map_diagnostics.py`: Validate a JSON snapshot exported from `window.__SUMMER_MAP_CONTOUR_DIAGNOSTICS__`.
 - `scripts/verify_template_integrity.py --preset fui`: Verify the FUI template against its separate manifest.
 - `scripts/verify_template_integrity.py`: Verify every bundled template file and binary texture against `assets/template-manifest.json`. Never claim one-to-one fidelity when this check fails.
 - `assets/templates/mapDataAdapter.ts`: Reusable cache/prefetch/network fallback adapter template.
@@ -196,6 +186,11 @@ Read only what the task needs:
 ## Common Commands
 
 ```bash
+# Generate a complete native React project, or retain Vue explicitly
+python3 <skill>/scripts/create_map_project.py <target-project> --preset fui --framework react
+python3 <skill>/scripts/create_map_project.py <target-project> --preset classic --framework react
+python3 <skill>/scripts/create_map_project.py <target-project> --preset fui --framework vue
+
 # Validate existing province data
 python3 <skill>/scripts/resolve_map_data.py --validate src/assets/maps/zhejiang.json --scope province
 
@@ -235,16 +230,6 @@ python3 <skill>/scripts/check_vector_map_project.py <target-project> --strict
 # After browser QA, validate the exported runtime snapshot
 python3 <skill>/scripts/check_vector_map_diagnostics.py /tmp/vector-map-diagnostics.json
 
-# Build a production contour bundle from a grayscale DEM raster whose bbox matches the boundary
-python3 <skill>/scripts/preprocess_contour_map.py --dem zhejiang-dem.png --boundary src/assets/maps/zhejiang.json --scope province --code 330000 --region-name 浙江省 --min-elevation 0 --max-elevation 1929 --interval 100 --major-every 5 --source customer-dem --out public/maps/contours/province/330000
-
-# Build a real metric country bundle from Mapzen Terrain Tiles and keep provider attribution
-python3 <skill>/scripts/preprocess_contour_map.py --terrarium-zoom 5 --boundary src/assets/maps/china.json --bbox 73 18 135 54 --scope country --code 100000 --region-name 中国 --interval 500 --major-every 5 --max-grid 256 --clamp-min-elevation -200 --source 'Mapzen Terrain Tiles Terrarium z5 (GMTED2010 land; ETOPO1 ocean)' --attribution 'Mapzen; GMTED2010 terrain data courtesy of the U.S. Geological Survey; ETOPO1 terrain data courtesy of NOAA' --out public/maps/contours/country/100000
-
-# Check standalone or hybrid contour delivery and its browser snapshot
-python3 <skill>/scripts/check_contour_map_project.py <target-project> --strict
-python3 <skill>/scripts/check_contour_map_diagnostics.py /tmp/contour-map-diagnostics.json --require-real-dem --require-bbox-coverage --require-overscan-surface
-
 # Verify the bundled source/asset baseline has not drifted
 python3 <skill>/scripts/verify_template_integrity.py
 ```
@@ -256,5 +241,5 @@ python3 <skill>/scripts/verify_template_integrity.py
 - Verify the requested scope/data, theme, selected material, interaction, administrative drilldown/back and Earth return where present. Keep data sources, texture scope and displayed elevation units accurate.
 - For Earth, verify the selected family's intro/prewarm gates, asynchronous destination, static handoff frame and exclusive continuous-loop ownership described above.
 - For FUI China, verify the inset remains fixed during map orbit/zoom and that the globe's `*_JD` decoration stays separate from China fill/extrusion.
-- For 2D/overlay, verify provider roads/labels and attribution, camera registration, semantic theme, shared navigation, worker loading, diagnostics and cleanup. For contour, verify real DEM metadata, coverage/overscan, orbit controls, navigation, diagnostics and event-driven rendering.
+- For 2D/overlay, verify provider roads/labels and attribution, camera registration, semantic theme, shared navigation, worker loading, diagnostics and cleanup.
 - Keep paths portable, attribution non-visual, and unrelated app content outside the map integration. Report relevant data, color and verification results without a build-only visual-fidelity claim.

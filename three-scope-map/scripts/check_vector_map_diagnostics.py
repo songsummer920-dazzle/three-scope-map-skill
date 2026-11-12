@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 # Copyright (c) 2026 宋夏天Dazzle
 """Validate a browser snapshot from window.__SUMMER_MAP_2D_DIAGNOSTICS__.
 

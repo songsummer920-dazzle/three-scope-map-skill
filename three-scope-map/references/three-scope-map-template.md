@@ -68,8 +68,10 @@ See `map-drilldown.md` and `map-scope-switching.md` for data resolution and scop
 - Release owned geometries, materials, textures, listeners, observers, workers,
   pending requests and renderer resources on teardown. Preserve resources owned
   by another renderer or host context.
-- Keep author attribution in source comments or metadata; it does not create UI
-  elements unless requested.
+- Mandatory source attribution: retain original author, copyright, license/SPDX
+  and origin notices in corresponding source comments or source metadata, including
+  adapted files retaining protected content. README or other documentation cannot
+  replace them. Visible UI attribution is optional.
 
 For theme roles, terrain configuration and camera-persistence details, read
 `three-map-style.md` and `smart-mine-validated-map.md`. Validate the integrated

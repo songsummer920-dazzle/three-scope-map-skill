@@ -40,6 +40,13 @@ their terms via the upstream locations above; no different license is inferred
 from this list. Dev dependencies and transitive dependencies retain the license
 and copyright information in their packages and the template lockfiles.
 
+Native React projects retain the same applicable runtime terms and additionally
+use React, React DOM and Scheduler under MIT, plus Lucide React under ISC for the
+FUI family. Verbatim notices are bundled in `assets/react/licenses/` and copied
+to generated projects under `LICENSES/third-party/`. React projects generate a
+framework-specific lockfile on their first `npm install`; retain it for later
+`npm ci` installs rather than reusing a Vue lockfile.
+
 ## Photographic and geographic relief sources
 
 `assets/templates/fui-earth-vue/src/assets/textures/map/world/earth-optical-source.json`
@@ -66,6 +73,18 @@ Git blob receipts, fixed source URLs and repository-level MIT license provenance
 are retained in `LICENSES/asset-sources.json`. This establishes the exact upstream
 files; it does not invent separate original-image credits or additional rights.
 
+## Verified terrain material
+
+The four legacy `terrain-diffuse.jpg`, `terrain-height.jpg`, `terrain-normal.jpg`
+and `terrain-roughness.jpg` files in both template families match the official
+Poly Haven **Rocky Terrain** 1K assets byte-for-byte. Author: Amal Kumar.
+Poly Haven distributes these assets under CC0-1.0, including commercial use and
+redistribution. Exact source URLs and SHA-256 receipts are retained in
+`LICENSES/asset-sources.json`. Preserve this source record when copying the material.
+
+Asset: https://polyhaven.com/a/rocky_terrain
+License: https://polyhaven.com/license
+
 ## Administrative geography
 
 - Both `src/assets/maps/world.json` files identify the dataset name
@@ -83,14 +102,14 @@ files; it does not invent separate original-image credits or additional rights.
   Version 1.6+ documentation identifies Tencent API data in GCJ-02, rather than
   establishing a WGS84 source: https://geojson.cn/data/atlas/china. Preserve the
   existing copyright metadata; a free API is not a redistribution grant.
-- Several legacy terrain/relief images still lack a verified original upstream
-  license. Historical build hashes and file names establish continuity, not
-  permission. Exact source receipts and unresolved rights are recorded in
-  `LICENSES/asset-sources.json` and the selected release validation evidence.
+- The legacy China height and normal PNG maps still lack a verified original
+  upstream license. Historical build hashes establish continuity, not permission.
+  Exact source receipts and remaining unresolved rights are recorded in
+  `LICENSES/asset-sources.json`.
   User-specific commercial authorization is separate from permission to include
   assets in a distributed bundle. Both must follow the applicable upstream terms;
-  unresolved bundle rights remain identified in the current asset review. The
-  author-owned platform restriction grants no additional third-party rights.
+  unresolved bundle rights remain identified in `LICENSES/asset-sources.json`.
+  The author-owned platform restriction grants no additional third-party rights.
 
 ## Historical licensing
 
@@ -99,3 +118,8 @@ valid GPL grants for earlier copies remain valid. Its inclusion does not dual-li
 self-authored material under GPL. Third-party GPL-covered material, if separately
 identified or added by a downstream user, continues to require its own applicable
 GPL terms and cannot be relicensed by this custom author-owned grant.
+
+Author-owned license 1.0 is archived unchanged in `LICENSES/LicenseRef-Summer-Platform-Restriction-1.0.txt`
+for earlier copies. The current author-owned grant is license 1.1 in `LICENSE`;
+the archival copy does not grant an additional license choice for copies supplied
+under 1.1. Rights already validly obtained under earlier grants remain unaffected.

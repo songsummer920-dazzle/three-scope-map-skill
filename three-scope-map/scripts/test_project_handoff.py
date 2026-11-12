@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 # 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 """Exercise installation and project handoff using isolated temporary skills only."""
 
@@ -79,8 +79,10 @@ class HandoffTests(unittest.TestCase):
                                       for name in ("unit", "build", "integrity", "webgl")},
                            "evidence": [{"path": name, "kind": kind, "sha256": hashlib.sha256(data).hexdigest()}
                                         for name, kind, data in evidence]}
+        files=release.snapshot(self.source)
         self.write("release.json", json.dumps({"version": self.version, "status": "release",
-                                                "validation": self.validation}).encode())
+                    "templateFiles": release.template_counts(files),
+                    "source": release.source_fingerprint(files)}).encode())
 
     def old_install(self):
         self.write("SKILL.md", b"---\nname: three-scope-map\n---\nOld skill\n", self.target)
@@ -93,7 +95,7 @@ class HandoffTests(unittest.TestCase):
         return installer.install_skill(self.source, self.target, self.backups)
 
     def expected_distribution(self):
-        return release.distribution_snapshot(release.snapshot(self.source), self.version, self.validation, "release")
+        return release.install_distribution(release.snapshot(self.source))
 
     def test_new_install_has_exact_reviewed_public_files_and_no_generated_outputs(self):
         for name in ("node_modules/cache.js", ".git/config", "dist/app.js", "dist-qa/qa.js",
@@ -105,6 +107,23 @@ class HandoffTests(unittest.TestCase):
         self.assertIsNone(result["backup"])
         self.assertFalse(self.backups.exists())
         self.assertEqual(result["target"], str(self.target))
+
+    def test_public_metadata_installs_without_internal_validation_records(self):
+        shutil.rmtree(self.source/"validation")
+        result=self.install()
+        self.assertTrue((self.target/"release.json").is_file())
+        self.assertNotIn("validation",json.loads((self.target/"release.json").read_text()))
+        self.assertFalse((self.target/"validation").exists())
+        self.assertEqual(result["version"],self.version)
+
+    def test_install_rejects_embedded_internal_evidence_metadata(self):
+        before=self.old_install()
+        p=self.source/"release.json";metadata=json.loads(p.read_text())
+        metadata["validation"]=self.validation;p.write_text(json.dumps(metadata))
+        with self.assertRaisesRegex(ValueError,"public release metadata"):
+            self.install()
+        self.assertEqual(self.tree(self.target),before)
+        self.assertFalse(self.backups.exists())
 
     def test_upgrade_replaces_old_files_and_keeps_complete_external_backup(self):
         old_files = self.old_install()

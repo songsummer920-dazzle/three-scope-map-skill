@@ -1,0 +1,78 @@
+/*
+ * SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
+ * Copyright (c) 2026 宋夏天Dazzle
+ * 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+ * Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
+ */
+
+.earth-fit-stage[data-v-react-earthchinamap] { position:absolute; inset:0;
+}
+.earth-china-map[data-v-react-earthchinamap] {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+}
+.china-map-stage[data-v-react-earthchinamap] {
+  clip-path: none;
+  mask-image: none;
+  border-radius: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateZ(0) scale(0.78);
+  transform-origin: 50% 50%;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  contain: layout paint;
+  pointer-events: none;
+  transition:
+    opacity 420ms ease,
+    transform 620ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 620ms;
+}
+.china-map-stage.is-handoff[data-v-react-earthchinamap]:not(.uses-native-entrance) {
+  visibility: visible;
+  animation: china-cloud-reveal-react-earthchinamap 1.44s cubic-bezier(0.22, 0.72, 0.18, 1) both;
+}
+.china-map-stage[data-v-react-earthchinamap]:not(.is-active) .map-host {
+  filter: none;
+}
+.china-map-stage[data-v-react-earthchinamap]:not(.is-active) .map-label-layer,
+.china-map-stage[data-v-react-earthchinamap]:not(.is-active) .map-drill-control,
+.china-map-stage[data-v-react-earthchinamap]:not(.is-active) .south-sea-inset {
+  display: none;
+}
+.china-map-stage.is-active[data-v-react-earthchinamap] {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  pointer-events: auto;
+  animation: none;
+  transition-delay: 0s;
+}
+
+/* Textured maps use the same native entrance as a direct China route.
+   Prewarming keeps the final static frame hidden until activation. */
+.china-map-stage.uses-native-entrance[data-v-react-earthchinamap] { transform:none; transition:none;
+}
+@keyframes china-cloud-reveal-react-earthchinamap {
+0% {
+    opacity: 0.06;
+    transform: translateZ(0) scale(0.78);
+}
+28% {
+    opacity: 0.24;
+    transform: translateZ(0) scale(0.83);
+}
+66% {
+    opacity: 0.78;
+    transform: translateZ(0) scale(0.94);
+}
+100% {
+    opacity: 1;
+    transform: translateZ(0) scale(1);
+}
+}

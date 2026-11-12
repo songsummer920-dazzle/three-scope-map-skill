@@ -2,13 +2,14 @@
 
 Version 3 separates composition, appearance, primary color, map material and effects. Preserve old callers and named-preset defaults. Never infer that a new hue requests a new material.
 
+Both template families support Vue and native React. Preserve the target project's framework; generate with `--framework vue|react` (default `vue`). React uses TSX and camelCase callback props while sharing the geographic renderer modules, assets and capability matrix below. See [react-integration.md](react-integration.md) for integration and lifecycle contracts.
+
 | Capability | Classic template | FUI template |
 | --- | --- | --- |
 | Administrative 3D and hierarchical drilldown | Yes | Yes |
 | Earth entrance | Original 2.0 appearance | Entity/photographic FUI, regular dots, regular hex |
 | 2D basemap | MapLibre/provider adapter | Same provider contract |
 | 2D + 3D overlay | Shared-context MapLibre layer | Native smooth glass on MapLibre; existing classic/terrain overlay paths |
-| Standalone contour terrain | Yes, independent DEM scene | Use the classic contour renderer explicitly |
 | One-command primary color | `apply_map_theme.py` | Same command writes the paired FUI default |
 | Per-instance FUI color | — | `primaryColor` or a normalized HEX theme ID |
 
@@ -18,21 +19,21 @@ Create a complete new project with
 `python3 <skill>/scripts/create_map_project.py <project> --preset fui` (default)
 or `--preset classic` for 2.0. The destination must be new or empty. The script
 copies the full selected family and its bundled license/notices without invoking
-npm; use Node.js `^20.19.0` or `>=22.12.0`, then `npm ci` in the project.
+npm; use Node.js `^20.19.0` or `>=22.12.0`. Vue templates use `npm ci`; native React output first uses `npm install` and retains the resulting React lockfile before subsequent `npm ci` installs.
 
-For a new Earth or administrative-3D project without an explicit style, default to the 3.0 entity/photographic FUI pairing: `FUI_SCENE_PRESETS.surface` (entity Earth → terrain-glass map). “实体地球” and the existing “写实地球” wording are aliases for the same `surface` value, not new enum members or renderer modes. A map-only request uses the paired map without adding Earth. Explicit 2.0, hologram or other style requests override the default; existing projects retain their style unless a replacement is requested. This skill-level selection does not change legacy component prop defaults.
+For a new Earth or administrative-3D project without an explicit style, default to the 3.0 entity/photographic FUI pairing: `FUI_SCENE_PRESETS.surface` (3.0 实体地球 → 纹理玻璃 3D 地图 (`terrain-glass`)). “实体地球” and the existing “写实地球” wording are aliases for the same `surface` value, not new enum members or renderer modes. A map-only request uses the paired map without adding Earth. Explicit 2.0, hologram or other style requests override the default; existing projects retain their style unless a replacement is requested. This skill-level selection does not change legacy component prop defaults.
 
 Treat these natural-language requests as complete appearance selections, with the matching 3D destination chosen automatically:
 
 | User request | Template family | Complete appearance and destination |
 | --- | --- | --- |
 | `用2.0风格` | `assets/templates/songsummer-earth-vue/` (classic) | Original 2.0 Earth and its matching classic administrative 3D map. |
-| `用3.0实体地球` / `实体地球` / `用3.0写实地球` / `用3.0风格` | `assets/templates/fui-earth-vue/` (FUI) | `FUI_SCENE_PRESETS.surface`: entity/photographic `surface` Earth → `terrain-glass` 3D map. |
-| `用3.0全息地球` | `assets/templates/fui-earth-vue/` (FUI) | `FUI_SCENE_PRESETS.hologram`: regular fine-dot `hologram` Earth → `smooth-glass` 3D map. |
+| `用3.0实体地球` / `实体地球` / `用3.0写实地球` / `用3.0风格` | `assets/templates/fui-earth-vue/` (FUI) | `FUI_SCENE_PRESETS.surface`: 3.0 实体地球 (`surface`) → 纹理玻璃 3D 地图 (`terrain-glass`). |
+| `用3.0全息地球` | `assets/templates/fui-earth-vue/` (FUI) | `FUI_SCENE_PRESETS.hologram`: 3.0 全息地球 (regular fine dots, `hologram`) → 纯玻璃 3D 地图 (`smooth-glass`). |
 
 For FUI integrations, import the selected complete recipe from `fuiMapPresentation.ts` and use it with `v-bind`; it declares `earthPresentation`, `mapStyle`, `mapWave` and `mapView` together. The 2.0 request selects the classic template family; setting `mapStyle="classic"` inside FUI does not select that family. Use `FUI_SCENE_PRESETS['hologram-hex']` only when the user explicitly requests a honeycomb/hexagonal globe. A plain 3.0 hologram request selects fine dots.
 
-Apply the selection directly to project configuration. Do not proactively show template pictures, ask the user to select a template, or add template/color/material/effect controls; add those preview controls only when explicitly requested. Both templates' `src/App.vue` files are demonstration shells; integrate the reusable components into the business layout instead. Normal Earth and administrative-3D integrations retain the `3D 地图 / 2D 地图 / 2D + 3D` view selector by default, including business layouts. In FUI, keep the destination's `show-view-switch` enabled; hide the selector only for an explicit request to hide switching, remove the selector, or retain a single renderer. A plain request for a “3D map” selects its initial view and does not request removal of the selector. Explicit standalone 2D or standalone contour tasks do not acquire unrelated renderers. Preserve geographic navigation and the selected material's style code.
+Apply the selection directly to project configuration. Do not proactively show template pictures, ask the user to select a template, or add template/color/material/effect controls; add those preview controls only when explicitly requested. Both templates' `src/App.vue` files are demonstration shells; integrate the reusable components into the business layout instead. Normal Earth and administrative-3D integrations retain the `3D 地图 / 2D 地图 / 2D + 3D` view selector by default, including business layouts. In FUI, keep the destination's `show-view-switch` enabled; hide the selector only for an explicit request to hide switching, remove the selector, or retain a single renderer. A plain request for a “3D map” selects its initial view and does not request removal of the selector. Explicit standalone 2D tasks do not acquire unrelated renderers. Preserve geographic navigation and the selected material's style code.
 
 Primary color is independent of appearance: a color-only request changes the theme without selecting another recipe, asking a template question, or adding controls. In an existing project, preserve current data, geographic scope, administrative navigation, business layout and unrelated settings. A selected recipe supplies matching appearance defaults; keep the user's explicit overrides for color, map material, pattern, effect, renderer or quality, and allow later explicit customizations without switching unrelated options. The latest explicit request takes precedence for the options it names; old generated prop defaults are not user customizations. These integration rules do not change legacy omitted-prop or named-preset defaults; `earthPresentation` alone still controls the globe, not its destination material.
 
@@ -116,27 +117,10 @@ Test original preset output, chromatic and neutral colors, repeated hot changes,
 
 Build and test a complete template family, then update its intentional integrity manifest. Package all reviewed distribution source and assets, including intentionally new files; do not infer the release from currently tracked Git files. Installed source/assets must match the reviewed source and both template manifests.
 
-`package_skill_release.py` requires a version-matched schema-2 validation record, passed unit/build/integrity/WebGL checks with their commands, and a fingerprint of all shipped source/assets except `release.json` and `validation/`. Changing a template, helper, document or cache invalidates the old record even after updating its integrity manifest. Record the actual tested platform and completed cases; a forced GPU-budget branch is not evidence of testing another physical GPU.
+Publication metadata, citation version, release date and tag-specific license URL
+must identify the exact distributed version. A release label does not establish
+third-party rights clearance. The author-owned code license does not grant rights
+to third-party data, services or textures; see the bundled third-party notices.
 
-Store a captured PNG and an error-free structured browser report in `validation/<version>/`, each with its SHA-256 in the record. The user archive contains only that record's declared evidence and `validation/<version>/record.json`; older RC directories and undeclared temporary evidence stay in the development tree. Keep complete historical/machine-local evidence in a separate developer artifact outside the user installation. Produce portable evidence copies with machine paths replaced by stable labels such as `<project>` before hashing them. A formal release rejects machine-local home/temp paths in text evidence; packaging never silently rewrites reviewed bytes. Missing/tampered evidence, failed browser reports and conflicting portable records remain blockers.
-
-`snapshot()` defines distribution source consistently: generated dependency/build/cache outputs, backup/editor-temporary files and `.impeccable` development preferences are excluded. It includes both complete template families, their QA sources and all license files. `distribution_snapshot(files, version, validation, status)` returns the exact public byte set, including generated release metadata and only the selected evidence. Audit/extract the ZIP against this set, rather than requiring its evidence history to equal the full development tree. Its non-validation source fingerprint must equal the validated source fingerprint.
-
-After the reviewed source and manifests are final, obtain its binding with `python3 <skill>/scripts/package_skill_release.py --source-fingerprint`. Add that object as the validation record's `source`; package with `--version <version> --validation <record.json> --output <directory-outside-skill>`. `--status candidate|release` is explicit when needed; omission selects `candidate` for a prerelease version and `release` for a stable version. `--version 3.0.0 --status release` produces formal release metadata, while a prerelease version cannot be promoted with `--status release`. Record the actual tested hardware/browser support and remaining limits; a release label does not establish universal device performance. Do not reuse a previous record after editing source.
-
-A local `status: release` package identifies stable version formatting, not public
-publication or third-party rights clearance. Inspect the current validation
-record's `publication` object. The 3.0.0 source release is dated 2026-11-12;
-`pending-third-party-rights-review` means the listed bundle redistribution rights
-remain unresolved. Public source access does not establish those rights or grant
-additional permission for a third-party marketplace or restricted platform offering.
-
-The author-owned code license does not grant commercial rights to third-party
-data, services or textures. Each user or deployer must obtain permissions needed
-for their own use and distribution; source records are not license grants.
-Those user-specific permissions do not by themselves clear the bundle's separate
-redistribution review or the author's restricted-platform license requirements.
-
-The 3.0.0 citation metadata records the source-release date 2026-11-12, the public
-author and repository URL, and the license URL for tag `v3.0.0`. For later releases,
-record their actual release dates and tag-specific license URLs.
+License 1.1 requires author/copyright/license/origin notices in corresponding
+source code; README attribution is supplementary and cannot replace them.

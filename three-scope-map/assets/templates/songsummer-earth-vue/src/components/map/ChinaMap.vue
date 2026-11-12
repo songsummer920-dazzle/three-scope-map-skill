@@ -1,5 +1,5 @@
 <!--
-  SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+  SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
   Copyright (c) 2026 宋夏天Dazzle
   作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
   Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
@@ -31,14 +31,6 @@
       @ready="onVectorReady"
       @navigation-change="onVectorNavigationChange"
     />
-    <ContourMap
-      v-if="contourMounted"
-      ref="contourMapRef"
-      :active="props.active && viewMode === 'contour'"
-      :navigation="navigationPath"
-      @ready="onContourReady"
-      @navigation-change="onContourNavigationChange"
-    />
 
     <div
       v-if="switchMaskMounted"
@@ -64,13 +56,6 @@
         @click="switchView('2d')"
       >{{ switching && pendingMode === '2d' ? '2D 加载中' : '2D 地图' }}</button>
       <button type="button" :aria-pressed="viewMode==='overlay'" :class="{active:viewMode==='overlay'}" :disabled="switching" @click="switchView('overlay')">{{switching&&pendingMode==='overlay'?'叠加加载中':'2D + 3D'}}</button>
-      <button
-        type="button"
-        :aria-pressed="viewMode === 'contour'"
-        :class="{ active: viewMode === 'contour' }"
-        :disabled="switching"
-        @click="switchView('contour')"
-      >{{ switching && pendingMode === 'contour' ? '等高线加载中' : '等高线地图' }}</button>
     </div>
   </div>
 </template>
@@ -79,7 +64,6 @@
 import { defineAsyncComponent, onBeforeUnmount, onMounted, nextTick, ref, watch } from 'vue';
 import ZhejiangThreeMap from './ZhejiangThreeMap.vue';
 const VectorMap=defineAsyncComponent(()=>import('./VectorMap.vue'));
-const ContourMap=defineAsyncComponent(()=>import('./ContourMap.vue'));
 import { mapThemeStyle } from './mapTheme';
 import {
   initialMapNavigationPath,
@@ -89,7 +73,7 @@ import {
 
 const props = withDefaults(defineProps<{
   active?: boolean;
-  initialView?:'3d'|'2d'|'overlay'|'contour';
+  initialView?:'3d'|'2d'|'overlay';
   overlaySurface?:'classic'|'terrain-glass'|'smooth-glass';
   preloadViews?:boolean;
 }>(), {
@@ -103,14 +87,11 @@ const emit = defineEmits<{
   ready: [];
 }>();
 
-type MapViewMode = '3d' | '2d' | 'overlay' | 'contour';
+type MapViewMode = '3d' | '2d' | 'overlay';
 type ThreeMapExpose = {
   syncNavigation: (path: MapNavigationPath) => Promise<void>;
 };
 type VectorMapExpose = {
-  prepareForReveal: () => Promise<void>;
-};
-type ContourMapExpose = {
   prepareForReveal: () => Promise<void>;
 };
 
@@ -119,8 +100,6 @@ const threeMounted=ref(props.initialView==='3d');
 const threeReady=ref(false);
 const vectorMounted = ref(props.initialView==='2d'||props.initialView==='overlay');
 const vectorReady = ref(false);
-const contourMounted = ref(props.initialView==='contour');
-const contourReady = ref(false);
 const switching = ref(false);
 const switchError=ref('');
 const pendingMode = ref<MapViewMode>();
@@ -129,14 +108,12 @@ const switchMaskCovered = ref(false);
 const navigationPath = ref<MapNavigationPath>([...initialMapNavigationPath]);
 const threeMapRef = ref<ThreeMapExpose>();
 const vectorMapRef = ref<VectorMapExpose>();
-const contourMapRef = ref<ContourMapExpose>();
 let vectorPreloadHandle: number | undefined;
 let vectorPreloadKind: 'idle' | 'timeout' | undefined;
 let vectorReadyWaiters: Array<(ready: boolean) => void> = [];
 let threeReadyWaiters:Array<(ready:boolean)=>void>=[];
 function onThreeReady(){threeReady.value=true;threeReadyWaiters.forEach(resolve=>resolve(true));threeReadyWaiters=[];if(viewMode.value==='3d')emit('ready');}
 function waitForThreeReady(){if(threeReady.value)return Promise.resolve(true);return new Promise<boolean>(resolve=>{const timer=setTimeout(()=>resolve(false),15000);threeReadyWaiters.push(value=>{clearTimeout(timer);resolve(value);});});}
-let contourReadyWaiters: Array<(ready: boolean) => void> = [];
 const switchMaskCoverDuration = 80;
 const switchMaskRevealDuration = 120;
 
@@ -180,15 +157,7 @@ function onVectorReady() {
   vectorReadyWaiters = [];
 }
 
-function onContourReady() {
-  if(viewMode.value==='contour')emit('ready');
-  if (contourReady.value) return;
-  contourReady.value = true;
-  contourReadyWaiters.forEach((resolve) => resolve(true));
-  contourReadyWaiters = [];
-}
-
-function waitForVectorReady(timeout = 5000) {
+function waitForVectorReady(timeout = 30000) {
   if (vectorReady.value) return Promise.resolve(true);
   return new Promise<boolean>((resolve) => {
     let settled = false;
@@ -196,25 +165,11 @@ function waitForVectorReady(timeout = 5000) {
       if (settled) return;
       settled = true;
       window.clearTimeout(timer);
+      vectorReadyWaiters = vectorReadyWaiters.filter((waiter) => waiter !== finish);
       resolve(ready);
     };
     const timer = window.setTimeout(() => finish(false), timeout);
     vectorReadyWaiters.push(finish);
-  });
-}
-
-function waitForContourReady(timeout = 5000) {
-  if (contourReady.value) return Promise.resolve(true);
-  return new Promise<boolean>((resolve) => {
-    let settled = false;
-    const finish = (ready: boolean) => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(timer);
-      resolve(ready);
-    };
-    const timer = window.setTimeout(() => finish(false), timeout);
-    contourReadyWaiters.push(finish);
   });
 }
 
@@ -229,10 +184,6 @@ function onThreeNavigationChange(path: MapNavigationPath) {
 
 function onVectorNavigationChange(path: MapNavigationPath) {
   if (viewMode.value === '2d'||viewMode.value==='overlay') updateNavigation(path);
-}
-
-function onContourNavigationChange(path: MapNavigationPath) {
-  if (viewMode.value === 'contour') updateNavigation(path);
 }
 
 function waitForPaint() {
@@ -255,7 +206,6 @@ async function runMaskedSwitch(mode: MapViewMode) {
   const coverStartedAt = performance.now();
 
   if (mode === '2d'||mode==='overlay') await vectorMapRef.value?.prepareForReveal();
-  else if (mode === 'contour') await contourMapRef.value?.prepareForReveal();
   else await threeMapRef.value?.syncNavigation(navigationPath.value);
 
   const remainingCoverTime = switchMaskCoverDuration - (performance.now() - coverStartedAt);
@@ -270,7 +220,7 @@ async function runMaskedSwitch(mode: MapViewMode) {
 }
 
 async function switchView(mode: MapViewMode) {
-  if (mode === viewMode.value || switching.value) return;
+  if (mode === viewMode.value || switching.value || !props.active) return;
   switching.value = true;
   switchError.value='';
   pendingMode.value = mode;
@@ -278,12 +228,10 @@ async function switchView(mode: MapViewMode) {
     if (mode === '2d'||mode==='overlay') {
       cancelVectorPreload();
       vectorMounted.value = true;
-      if(!await waitForVectorReady()){switchError.value='底图暂未就绪，请稍后重试';return;}
-    } else if (mode === 'contour') {
-      contourMounted.value = true;
-      if(!await waitForContourReady()){switchError.value='等高线地图暂未就绪，请稍后重试';return;}
+      if(!await waitForVectorReady()){if(props.active)switchError.value='底图暂未就绪，请稍后重试';return;}
+      if(!props.active)return;
     }else if(mode==='3d'){
-      threeMounted.value=true;await nextTick();if(!await waitForThreeReady())return;
+      threeMounted.value=true;await nextTick();if(!await waitForThreeReady()||!props.active)return;
     }
     await runMaskedSwitch(mode);
   } finally {
@@ -292,9 +240,17 @@ async function switchView(mode: MapViewMode) {
   }
 }
 
+function cancelReadyWaiters() {
+  threeReadyWaiters.splice(0).forEach((resolve) => resolve(false));
+  vectorReadyWaiters.splice(0).forEach((resolve) => resolve(false));
+}
+
 watch(() => props.active, (active) => {
   if (active) scheduleVectorPreload();
-  else cancelVectorPreload();
+  else {
+    cancelVectorPreload();
+    cancelReadyWaiters();
+  }
 });
 
 onMounted(scheduleVectorPreload);
@@ -302,12 +258,8 @@ watch(()=>props.initialView,view=>{if(view!==viewMode.value)void switchView(view
 defineExpose({switchView,getView:()=>viewMode.value});
 
 onBeforeUnmount(() => {
-  threeReadyWaiters.forEach(resolve=>resolve(false));threeReadyWaiters=[];
+  cancelReadyWaiters();
   cancelVectorPreload();
-  vectorReadyWaiters.forEach((resolve) => resolve(false));
-  vectorReadyWaiters = [];
-  contourReadyWaiters.forEach((resolve) => resolve(false));
-  contourReadyWaiters = [];
 });
 </script>
 

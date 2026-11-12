@@ -1,0 +1,18 @@
+/*
+ * SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
+ * Copyright (c) 2026 宋夏天Dazzle
+ * 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+ * Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
+ */
+
+.scene-loader[data-v-react-fuisceneloader]{position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;color:var(--fui-instrument-color,#8ac8ed);pointer-events:none;background:transparent;font:12px/1.5 ui-sans-serif,system-ui;letter-spacing:.16em}
+.scene-loader__instrument[data-v-react-fuisceneloader]{position:relative;width:78px;height:78px;animation:loader-arrive-react-fuisceneloader .4s ease-out both}
+.scene-loader__instrument i[data-v-react-fuisceneloader]{position:absolute;inset:0;border:1px solid currentColor;border-radius:50%;opacity:.3}
+.scene-loader__instrument i[data-v-react-fuisceneloader]:first-child{border-color:currentColor transparent transparent currentColor;opacity:.9;animation:loader-orbit-react-fuisceneloader 2s linear infinite}
+.scene-loader__instrument i[data-v-react-fuisceneloader]:nth-child(2){inset:9px;border-style:dashed;animation:loader-orbit-react-fuisceneloader 8s linear reverse infinite}
+.scene-loader__instrument b[data-v-react-fuisceneloader]{position:absolute;inset:30px;border:1px solid currentColor;transform:rotate(45deg);opacity:.8}
+.scene-loader[data-error=true][data-v-react-fuisceneloader]{color:#b7c2cc;letter-spacing:.04em}
+.scene-loader[data-error=true][data-v-react-fuisceneloader]{pointer-events:auto}.scene-loader button[data-v-react-fuisceneloader]{padding:9px 18px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;letter-spacing:.04em;cursor:pointer}.scene-loader button[data-v-react-fuisceneloader]:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+@keyframes loader-orbit-react-fuisceneloader{to{transform:rotate(360deg)}}
+@keyframes loader-arrive-react-fuisceneloader{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.scene-loader__instrument[data-v-react-fuisceneloader],.scene-loader__instrument i[data-v-react-fuisceneloader]{animation:none}}

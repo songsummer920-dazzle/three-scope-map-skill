@@ -1,0 +1,96 @@
+/*
+ * SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
+ * Copyright (c) 2026 宋夏天Dazzle
+ * 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+ * Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
+ */
+
+.hybrid-map[data-v-react-chinamap] {
+  position: absolute;
+  inset: 0;
+}
+.map-switch-error[data-v-react-chinamap]{position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:16;color:#b7c5ce;font:12px/1.5 system-ui}
+.map-switch-loader[data-v-react-chinamap]{--fui-instrument-color:var(--map-accent-soft,#8ac8ed);background:rgb(3 8 13 / .55)}
+.map-switch-loader[data-v-react-chinamap] .scene-loader__instrument{animation:none}
+.map-switch-spinner[data-v-react-chinamap]{display:inline-block;width:9px;height:9px;margin-left:7px;border:1px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-1px;animation:map-switch-spin-react-chinamap .75s linear infinite}
+@keyframes map-switch-spin-react-chinamap{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.map-switch-spinner[data-v-react-chinamap]{animation:none}}
+.dashboard-map-back[data-v-react-chinamap] {
+  position: absolute;
+  left: 26px;
+  top: 28px;
+  z-index: 15;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 13px 0 10px;
+  border: 1px solid var(--map-drill-border, rgba(100, 120, 135, 0.52));
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(20, 34, 46, 0.9), rgba(8, 17, 25, 0.9));
+  color: var(--map-drill-text-alpha, rgba(218, 227, 233, 0.82));
+  font: 13px/1 'Rajdhani', 'DIN Alternate', 'Arial Narrow', sans-serif;
+  letter-spacing: 0.08em;
+  box-shadow:
+    inset 0 0 12px var(--map-drill-box-inner, rgba(100, 120, 135, 0.12)),
+    0 0 14px var(--map-drill-box-outer, rgba(100, 120, 135, 0.12));
+  cursor: pointer;
+  backdrop-filter: blur(7px);
+  transition: border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+.dashboard-map-back span[data-v-react-chinamap] {
+  margin-top: -1px;
+  color: var(--map-accent-soft, #a9b6c0);
+  font: 22px/1 monospace;
+}
+.dashboard-map-back[data-v-react-chinamap]:hover:not(:disabled) {
+  border-color: var(--map-accent-soft, #a9b6c0);
+  color: #f3f7fa;
+  box-shadow:
+    inset 0 0 16px var(--map-drill-box-inner, rgba(100, 120, 135, 0.18)),
+    0 0 18px var(--map-drill-box-outer, rgba(100, 120, 135, 0.16));
+}
+.dashboard-map-back[data-v-react-chinamap]:disabled {
+  cursor: wait;
+  opacity: 0.48;
+}
+.map-view-switch[data-v-react-chinamap] {
+  position: absolute;
+  left: 50%;
+  top: 126px;
+  z-index: 14;
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--map-drill-border, rgba(53, 216, 255, 0.5));
+  border-radius: 3px;
+  background: rgba(1, 8, 13, 0.78);
+  box-shadow: 0 0 18px var(--map-drill-box-outer, rgba(53, 216, 255, 0.18));
+  backdrop-filter: blur(8px);
+  transform: translateX(-50%);
+}
+.map-view-switch button[data-v-react-chinamap] {
+  min-width: 78px;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--map-drill-text-alpha, rgba(220, 246, 252, 0.74));
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+.map-view-switch button[data-v-react-chinamap]:hover:not(:disabled) {
+  color: var(--map-drill-text, #effcff);
+}
+.map-view-switch button.active[data-v-react-chinamap] {
+  color: #f7fdff;
+  background: color-mix(in srgb, var(--map-accent, #35d8ff) 28%, rgba(3, 18, 26, 0.92));
+  box-shadow: inset 0 0 14px var(--map-drill-box-inner, rgba(53, 216, 255, 0.22));
+}
+.map-view-switch button[data-v-react-chinamap]:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}

@@ -1,5 +1,5 @@
-Summer Platform Restriction License 1.0
-License identifier: LicenseRef-Summer-Platform-Restriction-1.0
+Summer Platform Restriction License 1.1
+License identifier: LicenseRef-Summer-Platform-Restriction-1.1
 Copyright (c) 2026 宋夏天Dazzle
 Applies to the author's own material in the Three Scope Map 3.0.0 distribution.
 中文正文为准；English explanation follows.
@@ -17,8 +17,8 @@ Applies to the author's own material in the Three Scope Map 3.0.0 distribution.
 普通商业项目及客户定制开发、交付的允许，不包括为客户建设、交付、运营或维护第四条所述受限收费平台或可复用产品。按客户要求开发、单独签约、一次性交付或收取开发服务费，均不构成对该受限用途的许可。
 
 三、署名与分发条件
-分发本作品、修改版或包含本作品的项目源码时，应保留本LICENSE、NOTICE、适用的第三方声明、原作者署名、源代码中的许可证标识和版权注释；应明确标注修改内容或修改版身份，不得冒充原作者或官方发布。
-署名可以放在代码、README、项目文档、关于页面或发布说明中。本授权不要求在最终应用界面强制添加水印或常驻署名。
+使用、复制、修改、集成、交付或分发本作品，以及仍包含本作品受保护内容的改编版本时，必须在相应源码中保留原作者版权声明、作者署名、许可证/SPDX标识和来源说明；不得删除、遮蔽、篡改或以其他署名替代。拆分、合并、迁移、改名、换语言或人工/AI辅助改写文件，不免除相应源码的保留义务；原有位置无法保留时，应在承载该受保护内容的源码文件头部保留等效完整声明。可以另行标注修改者及修改内容，不得冒充原作者或官方发布。
+必须保留的作者署名为“作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天”，原仓库来源为下列地址。README、项目文档、关于页面或发布说明中的署名仅作补充，不得替代源码中的声明。分发时还须保留本LICENSE、NOTICE和适用的第三方声明。本授权不要求在最终应用界面常驻署名或水印。
 原始来源：https://github.com/songsummer920-dazzle/three-scope-map-skill
 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天。
 本授权不授予作者姓名、商标或标识的商业背书权。
@@ -34,7 +34,7 @@ Applies to the author's own material in the Three Scope Map 3.0.0 distribution.
 本条仅限制使用作者享有版权的本作品，不限制未使用其受保护内容的独立实现，不将软件著作权保护扩大到思想、处理过程、操作方法或数学概念，也不影响依法不能排除的权利、历史有效授权及第三方材料各自的授权。
 
 五、历史版本与已有授权
-本授权是本3.0.0分发版本自有版权内容的新授权，不是对GNU GPL追加限制，也不撤回、缩减或改变任何此前已经有效授予的GPL或其他授权。
+本授权仅适用于本3.0.0分发版本中明确按1.1提供的作者自有内容。此前已按本许可证1.0、GNU GPL或其他有效授权取得的副本，继续遵循其取得时的授权；本授权不撤回、缩减或追溯加强那些已经合法授予的权利，也不是对GNU GPL追加限制。
 此前已经合法取得的历史副本，仍可依其取得时的有效授权使用。任何人对同一内容已经合法取得的GPL权利，不会因本版本采用新授权而被追溯取消。
 本版本中的“2.0风格”是外观/模板选项名称，不表示作者撤回了旧版本的GPL授权。历史GPL原文保留在LICENSES/GPL-3.0-or-later.txt，仅用于说明历史及明确标识的GPL材料；该副本不表示本3.0.0作者自有内容同时提供GPL选项。
 
@@ -94,14 +94,27 @@ protected content, and do not extend software copyright to ideas, processes,
 methods or mathematical concepts. Statutory rights that cannot be excluded,
 valid historical grants and separate third-party rights are unaffected.
 
-Retain LICENSE, NOTICE, applicable third-party notices, author attribution and
-source license/copyright markers when distributing this work or its source.
-Identify modified versions and do not claim official status or endorsement.
-Attribution may be in code or documentation; no permanent application watermark
-is required. Obtain separate written permission for restricted platform resale.
+When using, copying, modifying, integrating, delivering or distributing this
+work or adaptations retaining its protected content, retain the original author
+copyright, attribution, license/SPDX identifiers and source notices in the
+corresponding source code. Do not remove, conceal, alter or replace those notices
+with another attribution. Splitting, combining, relocating, renaming, translating
+or human/AI-assisted rewriting does not remove this obligation. If their original
+location cannot be retained, preserve equivalent complete notices at the top of
+the source files carrying the retained or adapted protected content. Additional
+modifier credits are permitted; identify modifications and do not claim official
+authorship, status or endorsement.
+The required author attribution is “作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天”,
+with the original repository identified above. Attribution in a README,
+documentation, about page or release notes is supplementary and must not replace
+source notices. Retain LICENSE, NOTICE and applicable third-party notices when
+distributing. No permanent application watermark or visible attribution is
+required. Obtain separate written permission for restricted platform resale.
 
-This license does not revoke or narrow any GPL or other rights validly granted
-for historical copies. The included historical GPL text does not offer an alternative GPL
+Version 1.1 applies only to author-owned copies expressly supplied under it.
+Copies previously obtained under version 1.0, the GNU GPL or another valid grant
+remain subject to that grant; version 1.1 does not retroactively revoke, narrow
+or strengthen obligations under rights already validly granted. The included historical GPL text does not offer an alternative GPL
 license for this new distribution's author-owned material. The “2.0 style” name
 is an appearance option, not a revocation of the original 2.0 GPL grant.
 

@@ -1,0 +1,167 @@
+/*
+ * SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
+ * Copyright (c) 2026 宋夏天Dazzle
+ * 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+ * Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
+ */
+
+.vector-map-stage[data-v-react-vectormap] {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.vector-map-stage.is-active[data-v-react-vectormap] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.vector-map-stage[data-v-react-vectormap]::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  content: '';
+  background:
+    radial-gradient(
+      ellipse 58% 56% at 50% 48%,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 50%,
+      rgba(1, 6, 9, 0.1) 64%,
+      rgba(1, 6, 9, 0.32) 82%,
+      rgba(0, 3, 6, 0.68) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(0, 4, 7, 0.3) 0%,
+      rgba(0, 4, 7, 0.08) 12%,
+      rgba(0, 4, 7, 0) 26%,
+      rgba(0, 4, 7, 0) 74%,
+      rgba(0, 4, 7, 0.08) 88%,
+      rgba(0, 4, 7, 0.3) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0, 3, 6, 0.14) 0%,
+      rgba(0, 3, 6, 0) 24%,
+      rgba(0, 3, 6, 0) 68%,
+      rgba(0, 3, 6, 0.38) 100%
+    );
+}
+.vector-map-host[data-v-react-vectormap] {
+  position: absolute;
+  inset: 0;
+  background: #02070b;
+}
+.vector-map-drill-control[data-v-react-vectormap] {
+  position: absolute;
+  left: 50%;
+  top: 176px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+  color: var(--map-drill-text-alpha);
+  font-size: 14px;
+  line-height: 1;
+  text-shadow: 0 0 10px var(--map-drill-glow);
+  pointer-events: auto;
+}
+.vector-map-drill-control button[data-v-react-vectormap] {
+  height: 26px;
+  padding: 0 12px;
+  border: 1px solid var(--map-drill-border);
+  border-radius: 2px;
+  background: var(--map-drill-background);
+  color: var(--map-drill-text);
+  font: inherit;
+  cursor: pointer;
+  box-shadow: inset 0 0 14px var(--map-drill-box-inner), 0 0 12px var(--map-drill-box-outer);
+}
+.vector-map-drill-control button[data-v-react-vectormap]:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.vector-map-status[data-v-react-vectormap] {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 6;
+  padding: 10px 16px;
+  border: 1px solid var(--map-drill-border);
+  background: rgba(2, 10, 15, 0.86);
+  color: var(--map-drill-text);
+  font-size: 13px;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px var(--map-drill-box-outer);
+}
+.vector-map-status.is-error[data-v-react-vectormap] {
+  color: #ffb3a8;
+  border-color: rgba(255, 120, 104, 0.58);
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-bottom-right {
+  right: var(--vector-map-control-right);
+  bottom: var(--vector-map-control-bottom);
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-top-right {
+  top: var(--vector-map-control-top);
+  right: var(--vector-map-control-right);
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-group {
+  overflow: hidden;
+  border: 1px solid var(--map-drill-border);
+  border-radius: 2px;
+  background: rgba(2, 10, 15, 0.82);
+  box-shadow: 0 0 14px var(--map-drill-box-outer);
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-group button {
+  filter: invert(1) hue-rotate(165deg) saturate(0.55);
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-top-right .maplibregl-ctrl-group {
+  overflow: visible;
+  width: 44px;
+  height: 44px;
+  border-color: rgba(126, 224, 237, 0.62);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(12, 42, 50, 0.94) 0%, rgba(2, 11, 16, 0.94) 72%);
+  box-shadow:
+    inset 0 0 16px rgba(94, 224, 238, 0.14),
+    0 0 16px rgba(67, 213, 231, 0.18);
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-top-right button.maplibregl-ctrl-compass {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  filter: none;
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-top-right button.maplibregl-ctrl-compass::after {
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  z-index: 2;
+  color: rgba(180, 239, 245, 0.9);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  content: 'N';
+  transform: translateX(-50%);
+  text-shadow: 0 0 7px rgba(90, 224, 238, 0.64);
+  pointer-events: none;
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-top-right .maplibregl-ctrl-compass-arrow {
+  background-size: 36px 36px;
+  filter: invert(1) hue-rotate(165deg) saturate(0.62) brightness(1.35);
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-attrib {
+  color: rgba(205, 230, 236, 0.72);
+  background: rgba(2, 8, 12, 0.8);
+}
+.vector-map-stage[data-v-react-vectormap] .maplibregl-ctrl-attrib a {
+  color: var(--map-accent-soft);
+}

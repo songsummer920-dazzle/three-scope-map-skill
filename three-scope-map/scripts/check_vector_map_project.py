@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 # Copyright (c) 2026 宋夏天Dazzle
 """Static readiness checks for a standalone or hybrid MapLibre 2D map.
 
@@ -27,7 +27,7 @@ def contains(path: Path, pattern: str) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Check a Vue project for the reusable MapLibre provider/theme/diagnostics contract.",
+        description="Check a Vue or React project for the reusable MapLibre provider/theme/diagnostics contract.",
     )
     parser.add_argument("project", nargs="?", default=".", help="Target project directory.")
     parser.add_argument("--strict", action="store_true", help="Exit with code 1 on blockers.")
@@ -44,6 +44,8 @@ def main() -> int:
         "worker": map_root / "maplibreWorker.ts",
         "navigation": map_root / "mapNavigation.ts",
     }
+    if not files["component"].exists():
+        files["component"] = files["component"].with_suffix(".tsx")
     passes: list[str] = []
     blockers: list[str] = []
 
@@ -56,11 +58,12 @@ def main() -> int:
     except (OSError, json.JSONDecodeError):
         package = {}
     dependencies = {**package.get("dependencies", {}), **package.get("devDependencies", {})}
-    missing_dependencies = [name for name in ("vue", "vite", "maplibre-gl", "pmtiles") if name not in dependencies]
+    framework = ("react", "react-dom") if "react" in dependencies else ("vue",)
+    missing_dependencies = [name for name in (*framework, "vite", "maplibre-gl", "pmtiles") if name not in dependencies]
     if missing_dependencies:
         blockers.append(f"Dependencies missing: {', '.join(missing_dependencies)}")
     else:
-        passes.append("Vue, Vite, MapLibre, and PMTiles dependencies found")
+        passes.append(f"{'/'.join(framework)}, Vite, MapLibre, and PMTiles dependencies found")
 
     for label, path in files.items():
         if path.exists():
@@ -87,7 +90,7 @@ def main() -> int:
     source_text = "\n".join(
         read_text(path)
         for path in (root / "src").rglob("*")
-        if path.is_file() and path.suffix in {".vue", ".ts", ".js", ".css"}
+        if path.is_file() and path.suffix in {".vue", ".ts", ".tsx", ".js", ".jsx", ".css"}
     ) if (root / "src").exists() else ""
     for label, pattern in {
         "absolute local path": r"/(Users|home)/[^/\s]+/|/var/folders/",

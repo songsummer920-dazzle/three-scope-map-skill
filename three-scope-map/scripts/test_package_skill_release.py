@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 # 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 """Exercise release packaging against isolated fake skills, never the real tree."""
 from pathlib import Path
@@ -7,6 +7,8 @@ import hashlib
 import base64
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -20,6 +22,7 @@ class ReleasePackagingTests(unittest.TestCase):
         self.work = Path(self.temporary.name)
         self.root = self.work / 'three-scope-map'
         self.output = self.work / 'artifacts'
+        self.evidence_root = self.work / 'private-evidence'
         self.version = '3.0.0-rc.1'
         self.templates = {
             'songsummer-earth-vue': {'src/map.ts': b'export const classic = true;\n', 'qa/classic-regression.ts': b'// QA source is publishable\n'},
@@ -39,8 +42,8 @@ class ReleasePackagingTests(unittest.TestCase):
         self.write_manifests()
         self.evidence_path=f'validation/{self.version}/map.png'
         self.report_path=f'validation/{self.version}/browser.json'
-        self.write(self.evidence_path,base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1ZkAAAAASUVORK5CYII='))
-        self.write(self.report_path,b'{"status":"passed","cases":1,"errors":[]}\n')
+        self.write_evidence(self.evidence_path,base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1ZkAAAAASUVORK5CYII='))
+        self.write_evidence(self.report_path,b'{"status":"passed","cases":[{"status":"passed"}],"errors":[]}\n')
         self.seal_validation()
 
     def tearDown(self):
@@ -49,6 +52,12 @@ class ReleasePackagingTests(unittest.TestCase):
     def write(self, name, data):
         path = self.root / name
         path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        return path
+
+    def write_evidence(self, name, data):
+        path=self.evidence_root/name
+        path.parent.mkdir(parents=True,exist_ok=True)
         path.write_bytes(data)
         return path
 
@@ -64,21 +73,21 @@ class ReleasePackagingTests(unittest.TestCase):
             'source':release.source_fingerprint(release.snapshot(self.root)),
             'checks':{name:{'status':'passed','command':'isolated test fixture',**({'cases':1} if name=='webgl' else {})}
                       for name in ['unit','build','integrity','webgl']},
-            'evidence':[{'path':name,'kind':kind,'sha256':hashlib.sha256((self.root/name).read_bytes()).hexdigest()}
+            'evidence':[{'path':name,'kind':kind,'sha256':hashlib.sha256((self.evidence_root/name).read_bytes()).hexdigest()}
                         for name,kind in [(self.evidence_path,'screenshot'),(self.report_path,'browser-report')]]}
 
     def package(self, output=None, validation=None, version=None, status=None):
         return release.package(self.root, output or self.output, version or self.version,
-                               self.validation if validation is None else validation,status)
+                               self.validation if validation is None else validation,status,self.evidence_root)
 
     def use_stable_version(self):
-        screenshot=(self.root/self.evidence_path).read_bytes()
-        report=(self.root/self.report_path).read_bytes()
+        screenshot=(self.evidence_root/self.evidence_path).read_bytes()
+        report=(self.evidence_root/self.report_path).read_bytes()
         self.version='3.0.0'
         self.evidence_path=f'validation/{self.version}/map.png'
         self.report_path=f'validation/{self.version}/browser.json'
-        self.write(self.evidence_path,screenshot)
-        self.write(self.report_path,report)
+        self.write_evidence(self.evidence_path,screenshot)
+        self.write_evidence(self.report_path,report)
         self.seal_validation()
 
     def test_build_dependency_cache_and_backup_outputs_are_excluded(self):
@@ -122,7 +131,7 @@ class ReleasePackagingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Invalid release status'):
             self.package(status='published')
 
-    def test_only_declared_current_evidence_is_shipped_without_deleting_history(self):
+    def test_all_internal_evidence_is_excluded_without_deleting_local_history(self):
         excluded=['validation/2.0.0/record.json','validation/3.0.0-rc.0/old.log',
                   f'validation/{self.version}/unreviewed.png',f'validation/{self.version}/temporary.log']
         for name in excluded:self.write(name,b'kept developer history\n')
@@ -132,15 +141,15 @@ class ReleasePackagingTests(unittest.TestCase):
         for name in excluded:
             self.assertNotIn(self.root.name+'/'+name,names)
             self.assertEqual((self.root/name).read_bytes(),b'kept developer history\n')
-        expected={self.root.name+'/'+entry['path'] for entry in self.validation['evidence']}
-        expected.add(f'{self.root.name}/validation/{self.version}/record.json')
-        self.assertEqual({p for p in names if '/validation/' in p},expected)
+        self.assertFalse(any('/validation/' in name for name in names))
+        for entry in self.validation['evidence']:
+            self.assertTrue((self.evidence_root/entry['path']).is_file())
 
     def test_distribution_snapshot_is_exactly_the_public_archive_and_source_binding(self):
         self.write('validation/old/private.log',b'/Users/developer/work/history\n')
         self.write('LICENSES/component-license.txt',b'Included third-party grant\n')
         self.seal_validation()
-        expected=release.distribution_snapshot(release.snapshot(self.root),self.version,self.validation)
+        expected=release.distribution_snapshot(release.snapshot(self.root),self.version,self.validation,evidence_files=release.load_evidence(self.evidence_root,self.validation))
         result=self.package()
         self.assertEqual(release.source_fingerprint(expected),self.validation['source'])
         with zipfile.ZipFile(result['archive']) as archive:
@@ -148,20 +157,17 @@ class ReleasePackagingTests(unittest.TestCase):
         self.assertEqual(actual,expected)
         self.assertEqual(actual['LICENSES/component-license.txt'],b'Included third-party grant\n')
 
-    def test_release_rejects_hashed_machine_paths_and_accepts_portable_evidence(self):
+    def test_private_evidence_with_machine_paths_is_verified_but_never_distributed(self):
         self.use_stable_version()
-        for machine_path in ['/Users/developer/project','/home/developer/project',
-                             '/private/var/folders/aa/private-build',r'C:\Users\developer\project']:
-            with self.subTest(machine_path=machine_path):
-                self.write(self.report_path,(json.dumps({'status':'passed','errors':[],'source':machine_path})+'\n').encode())
-                self.seal_validation()
-                with self.assertRaisesRegex(ValueError,'machine-local path'):
-                    self.package()
-                self.assertFalse(self.output.exists())
-        self.write(self.report_path,b'{"status":"passed","errors":[],"source":"<project>/src"}\n')
+        private_path='/Users/developer/private/project'
+        self.write_evidence(self.report_path,(json.dumps({'status':'passed','errors':[], 'cases':[{'status':'passed'}], 'source':private_path})+'\n').encode())
         self.seal_validation()
         result=self.package()
-        self.assertEqual(result['status'],'release')
+        with zipfile.ZipFile(result['archive']) as archive:
+            self.assertFalse(any('/validation/' in name for name in archive.namelist()))
+            self.assertFalse(any(private_path.encode() in archive.read(name) for name in archive.namelist()))
+            self.assertNotIn('validation',json.loads(archive.read(self.root.name+'/release.json')))
+        self.assertIn(private_path,(self.evidence_root/self.report_path).read_text())
 
     def test_new_template_source_requires_a_manifest_update_then_is_included(self):
         name = 'src/new-reviewed-feature.ts'
@@ -235,10 +241,10 @@ class ReleasePackagingTests(unittest.TestCase):
             metadata = json.loads(archive.read(self.root.name + '/release.json'))
             self.assertEqual(metadata['version'], self.version)
             self.assertEqual(metadata['status'], 'candidate')
-            self.assertEqual(metadata['validation'], self.validation)
-            record=f'{self.root.name}/validation/{self.version}/record.json'
-            self.assertEqual(json.loads(archive.read(record)),self.validation)
-            self.assertIn(self.root.name+'/'+self.evidence_path,archive.namelist())
+            self.assertEqual(set(metadata),{'version','status','templateFiles','source'})
+            self.assertEqual(metadata['source'],self.validation['source'])
+            self.assertNotIn(self.root.name+'/'+self.evidence_path,archive.namelist())
+            self.assertFalse(any('/validation/' in name for name in archive.namelist()))
 
     def test_legacy_passed_record_and_wrong_candidate_are_rejected(self):
         with self.assertRaisesRegex(ValueError,'schema/version'):
@@ -261,32 +267,96 @@ class ReleasePackagingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'source fingerprint'):
             self.package()
 
-    def test_missing_or_changed_portable_evidence_blocks_packaging(self):
+    def test_missing_or_changed_external_evidence_blocks_packaging(self):
         for delete in [False,True]:
-            original=(self.root/self.evidence_path).read_bytes()
-            if delete:(self.root/self.evidence_path).unlink()
-            else:self.write(self.evidence_path,b'changed PNG')
+            original=(self.evidence_root/self.evidence_path).read_bytes()
+            if delete:(self.evidence_root/self.evidence_path).unlink()
+            else:self.write_evidence(self.evidence_path,b'changed PNG')
             try:
                 with self.assertRaisesRegex(ValueError,'Missing or changed validation evidence'):
                     self.package()
                 self.assertFalse(self.output.exists())
-            finally:self.write(self.evidence_path,original)
+            finally:self.write_evidence(self.evidence_path,original)
 
     def test_unsafe_evidence_failed_browser_and_missing_checks_are_rejected(self):
         unsafe={**self.validation,'evidence':[{'path':'../outside.png','kind':'screenshot','sha256':'0'*64}]}
         with self.assertRaisesRegex(ValueError,'Unsafe validation evidence'):
             self.package(validation=unsafe)
+        for count in [True,0,-1,'1']:
+            invalid_count={**self.validation,'checks':{**self.validation['checks'],'webgl':{'status':'passed','command':'fixture','cases':count}}}
+            with self.assertRaisesRegex(ValueError,'actual completed cases'):
+                self.package(validation=invalid_count)
         incomplete={**self.validation,'checks':{**self.validation['checks'],'webgl':{'status':'pending','command':'fixture'}}}
         with self.assertRaisesRegex(ValueError,'Missing passed validation check'):
             self.package(validation=incomplete)
-        self.write(self.report_path,b'{"status":"passed","errors":["shader error"]}')
+        self.write_evidence(self.report_path,b'{"status":"passed","errors":["shader error"]}')
         self.seal_validation()
         with self.assertRaisesRegex(ValueError,'passed, error-free'):
             self.package()
 
-    def test_conflicting_portable_record_cannot_be_silently_replaced(self):
-        self.write(f'validation/{self.version}/record.json',b'{"status":"passed","stale":true}')
-        with self.assertRaisesRegex(ValueError,'differs from the supplied'):
+    def test_internal_records_cannot_override_external_review_or_enter_the_archive(self):
+        name=f'validation/{self.version}/record.json'
+        stale=b'{"status":"failed","stale":true}'
+        self.write(name,stale)
+        result=self.package()
+        self.assertEqual((self.root/name).read_bytes(),stale)
+        with zipfile.ZipFile(result['archive']) as archive:
+            self.assertNotIn(self.root.name+'/'+name,archive.namelist())
+
+    def test_external_evidence_is_required_and_must_not_be_inside_the_skill(self):
+        with self.assertRaisesRegex(ValueError,'external evidence root'):
+            release.package(self.root,self.output,self.version,self.validation)
+        with self.assertRaisesRegex(ValueError,'outside the skill tree'):
+            release.package(self.root,self.output,self.version,self.validation,evidence_root=self.root)
+        with self.assertRaisesRegex(ValueError,'External validation evidence'):
+            release.distribution_snapshot(release.snapshot(self.root),self.version,self.validation)
+        internal=self.write('validation/current.png',b'private screenshot')
+        parent_relative=internal.relative_to(self.work).as_posix()
+        disguised={**self.validation,'evidence':[{'path':parent_relative,'kind':'screenshot','sha256':hashlib.sha256(internal.read_bytes()).hexdigest()}]}
+        with self.assertRaisesRegex(ValueError,'outside the skill tree'):
+            release.package(self.root,self.output,self.version,disguised,evidence_root=self.work)
+        self.assertFalse(self.output.exists())
+
+    def test_internal_reports_and_screenshots_are_excluded_but_runtime_images_remain(self):
+        private=['validation/unexpected.png','screenshots/map.png','logs/debug.json',
+                 'release-browser-current.json','browser-current-private.json','browser-classic-entry.json',
+                 'browser-smoke.png','capture.har','reports/current.json',
+                 'assets/templates/fui-earth-vue/qa/screenshot.png']
+        for name in private:self.write(name,b'private debug payload')
+        runtime='src/assets/texture.png'
+        self.templates['fui-earth-vue'][runtime]=b'valid runtime texture bytes'
+        self.write('assets/templates/fui-earth-vue/'+runtime,self.templates['fui-earth-vue'][runtime])
+        self.write('assets/readme/preview.gif',b'valid documented preview')
+        self.write_manifests();self.seal_validation()
+        result=self.package()
+        with zipfile.ZipFile(result['archive']) as archive:
+            names=set(archive.namelist())
+            for name in private:self.assertNotIn(self.root.name+'/'+name,names)
+            self.assertIn(self.root.name+'/assets/templates/fui-earth-vue/'+runtime,names)
+            self.assertIn(self.root.name+'/assets/readme/preview.gif',names)
+
+    def test_failed_or_incomplete_browser_cases_cannot_be_hidden_by_passed_summary(self):
+        cases=[{'status':state} for state in ['failed','pending','inconclusive']]
+        cases += [{'status':'passed','errors':['renderer error']}, {'status':'passed','error':'renderer error'}]
+        for case in cases:
+            self.write_evidence(self.report_path,json.dumps({'status':'passed','errors':[],'cases':[case]}).encode())
+            self.seal_validation()
+            with self.assertRaisesRegex(ValueError,'failed or incomplete case'):
+                self.package()
+            self.assertFalse(self.output.exists())
+
+    def test_browser_case_shape_cannot_hide_missing_or_failed_results(self):
+        shapes=[{}, {'failed':{'status':'failed'}}, 1, True, [], [None], ['passed'], [{}], [{'status':None}]]
+        for cases in shapes:
+            self.write_evidence(self.report_path,json.dumps({'status':'passed','errors':[],'cases':cases}).encode())
+            self.seal_validation()
+            with self.subTest(cases=cases):
+                with self.assertRaisesRegex(ValueError,'completed passed cases|failed or incomplete case'):
+                    self.package()
+                self.assertFalse(self.output.exists())
+        self.write_evidence(self.report_path,b'{"status":"passed","errors":[]}')
+        self.seal_validation()
+        with self.assertRaisesRegex(ValueError,'completed passed cases'):
             self.package()
 
     def test_failed_or_missing_validation_status_is_rejected_before_output(self):
@@ -320,6 +390,23 @@ class ReleasePackagingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'symlink'):
             self.package()
         self.assertFalse(self.output.exists())
+
+    def test_cli_uses_external_record_parent_and_rejects_an_internal_record(self):
+        record=self.evidence_root/'review.json'
+        record.write_text(json.dumps(self.validation))
+        script=Path(release.__file__)
+        args=[sys.executable,str(script),'--skill',str(self.root),'--output',str(self.output),
+              '--version',self.version,'--validation',str(record)]
+        result=subprocess.run(args,capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+        with zipfile.ZipFile(json.loads(result.stdout)['archive']) as archive:
+            self.assertFalse(any('/validation/' in name for name in archive.namelist()))
+            self.assertNotIn('validation',json.loads(archive.read(self.root.name+'/release.json')))
+        inside=self.write('validation/review.json',record.read_bytes())
+        args[-1]=str(inside)
+        rejected=subprocess.run(args,capture_output=True,text=True)
+        self.assertNotEqual(rejected.returncode,0)
+        self.assertIn('outside the skill tree',rejected.stderr)
 
     def test_output_cannot_contaminate_its_own_release_snapshot(self):
         for output in [self.root, self.root / 'release-output', self.root / 'dist-release']:

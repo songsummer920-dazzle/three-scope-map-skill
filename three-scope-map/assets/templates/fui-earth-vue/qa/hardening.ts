@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+// SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 // 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 // Isolated real-WebGL integration entry. No native input or product test hooks.
 import {createApp,defineComponent,h,onMounted,ref,nextTick} from 'vue';

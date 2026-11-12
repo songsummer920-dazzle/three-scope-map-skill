@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+# SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 # Copyright (c) 2026 宋夏天Dazzle
 """Verify that the bundled one-to-one template has not drifted from its manifest.
 
@@ -48,7 +48,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--preset",
-        choices=("default", "fui"),
+        choices=("default", "fui", "react"),
         default="default",
         help="Verify the original template or the separately bundled FUI Earth preset.",
     )
@@ -61,6 +61,9 @@ def main() -> int:
     if args.preset == "fui":
         TEMPLATE_ROOT = SKILL_ROOT / "assets/templates/fui-earth-vue"
         MANIFEST_PATH = SKILL_ROOT / "assets/fui-earth-manifest.json"
+    elif args.preset == "react":
+        TEMPLATE_ROOT = SKILL_ROOT / "assets/react"
+        MANIFEST_PATH = SKILL_ROOT / "assets/react-manifest.json"
     current = current_manifest()
 
     if args.update:

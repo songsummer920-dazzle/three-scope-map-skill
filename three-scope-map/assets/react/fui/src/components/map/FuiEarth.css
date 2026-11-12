@@ -1,0 +1,61 @@
+/*
+ * SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
+ * Copyright (c) 2026 宋夏天Dazzle
+ * 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
+ * Source: https://github.com/songsummer920-dazzle/three-scope-map-skill
+ */
+
+.fui-earth-host[data-v-react-fuiearth] { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--fui-background, #111b26); color: #b8c8d7; font-family: 'Rajdhani', 'DIN Alternate', 'Arial Narrow', sans-serif;
+}
+.center-stage[data-v-react-fuiearth] {  position:absolute; left:50%; top:50%; transform-origin:center; z-index:1; width:1020px; height:975px; overflow:visible; background:transparent; pointer-events:none;
+}
+.space-field[data-v-react-fuiearth] { position:absolute; inset:0; width:100%; height:100%; pointer-events:none;
+}
+.earth-renderer[data-v-react-fuiearth] { position:absolute!important; inset:0!important; z-index:1!important;
+}
+/* The renderer uses the complete host; its camera aligns to the HUD frame. */
+.orbital-rings[data-v-react-fuiearth],.globe-reticle[data-v-react-fuiearth]{transition:opacity .3s ease,visibility 0s linear 0s}
+.center-stage.is-earth-hud-hidden .globe-reticle[data-v-react-fuiearth]{opacity:0!important;visibility:hidden;transition:opacity .26s ease,visibility 0s linear .26s}
+.orbital-rings[data-v-react-fuiearth] { position:absolute; z-index:3; left:50%; top:0; width:920px; height:920px; transform:translateX(-50%); pointer-events:none; border-radius:50%; border:1px solid rgb(var(--fui-hud-rgb, 117 157 187) / .31); box-shadow:inset 0 0 70px rgb(var(--fui-hud-rgb, 117 157 187) / .07),0 0 0 20px rgb(var(--fui-hud-rgb, 117 157 187) / .035),0 0 0 48px rgb(var(--fui-hud-rgb, 117 157 187) / .018);
+}
+.orbital-rings[data-v-react-fuiearth]::before,.orbital-rings[data-v-react-fuiearth]::after{content:'';position:absolute;z-index:2;left:50%;top:-24px;width:1px;height:calc(100% + 48px);background:linear-gradient(transparent 0,rgb(var(--fui-hud-rgb, 117 157 187) / .24) 8%,rgb(var(--fui-hud-rgb, 117 157 187) / .46) 17%,rgb(var(--fui-hud-rgb, 117 157 187) / .13) 42%,rgb(var(--fui-hud-rgb, 117 157 187) / .28) 50%,rgb(var(--fui-hud-rgb, 117 157 187) / .13) 58%,rgb(var(--fui-hud-rgb, 117 157 187) / .42) 83%,transparent 100%);box-shadow:12px 0 0 rgb(var(--fui-hud-rgb, 117 157 187) / .025),-12px 0 0 rgb(var(--fui-hud-rgb, 117 157 187) / .025)}.orbital-rings[data-v-react-fuiearth]::after{transform:rotate(90deg)}
+.orbital-rings>i[data-v-react-fuiearth] { position:absolute;border-radius:50%;border:1px solid rgb(var(--fui-hud-rgb, 117 157 187) / .16);box-shadow:inset 0 0 16px rgb(var(--fui-hud-rgb, 117 157 187) / .025),0 0 9px rgb(var(--fui-hud-rgb, 117 157 187) / .018);
+}
+.orbital-rings>i[data-v-react-fuiearth]:nth-child(2),.orbital-rings>i[data-v-react-fuiearth]:nth-child(5){border-style:dashed;border-color:rgb(var(--fui-hud-rgb, 117 157 187) / .23)}
+.orbital-rings>i[data-v-react-fuiearth]:nth-child(3),.orbital-rings>i[data-v-react-fuiearth]:nth-child(7){border-style:dotted;border-color:rgb(var(--fui-hud-rgb, 117 157 187) / .21)}
+.orbit-segments[data-v-react-fuiearth],.orbit-ticks[data-v-react-fuiearth]{position:absolute;z-index:3;border-radius:50%;opacity:.72}
+.orbit-segments[data-v-react-fuiearth]{background:repeating-conic-gradient(from 3deg,rgb(var(--fui-hud-rgb, 117 157 187) / .55) 0 .7deg,transparent .7deg 5.8deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1.5px));animation:hud-orbit-drift-react-fuiearth 48s linear infinite}
+.orbit-segments--outer[data-v-react-fuiearth]{inset:-8px}.orbit-segments--middle[data-v-react-fuiearth]{inset:46px;opacity:.48;animation-duration:68s;animation-direction:reverse}
+.orbit-ticks[data-v-react-fuiearth]{inset:25px;background:repeating-conic-gradient(from 1deg,rgb(var(--fui-hud-rgb, 117 157 187) / .42) 0 .34deg,transparent .34deg 2.2deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 9px),#000 calc(100% - 8px));mask:radial-gradient(farthest-side,transparent calc(100% - 9px),#000 calc(100% - 8px));opacity:.56}
+.axis-cross[data-v-react-fuiearth]{position:absolute;z-index:5;left:50%;top:50%;width:30px;height:30px;transform:translate(-50%,-50%);border:1px solid rgb(var(--fui-hud-rgb, 117 157 187) / .42);border-radius:50%;box-shadow:0 0 12px rgb(var(--fui-hud-rgb, 117 157 187) / .16)}
+.axis-cross[data-v-react-fuiearth]::before,.axis-cross[data-v-react-fuiearth]::after{content:'';position:absolute;left:50%;top:50%;width:56px;height:1px;transform:translate(-50%,-50%);background:linear-gradient(90deg,transparent,rgb(var(--fui-hud-rgb, 117 157 187) / .58) 28%,transparent 29% 71%,rgb(var(--fui-hud-rgb, 117 157 187) / .58) 72%,transparent)}.axis-cross[data-v-react-fuiearth]::after{transform:translate(-50%,-50%) rotate(90deg)}
+.axis-cross b[data-v-react-fuiearth]{position:absolute;left:50%;top:50%;width:4px;height:4px;transform:translate(-50%,-50%);border:1px solid rgb(var(--fui-hud-rgb, 117 157 187) / .78);border-radius:50%;box-shadow:0 0 7px rgb(var(--fui-hud-rgb, 117 157 187) / .55)}
+.axis-bracket[data-v-react-fuiearth]{position:absolute;z-index:5;width:22px;height:8px;border-top:2px solid rgb(var(--fui-hud-rgb, 117 157 187) / .52);border-left:5px solid transparent;border-right:5px solid transparent;filter:drop-shadow(0 0 3px rgb(var(--fui-hud-rgb, 117 157 187) / .24))}
+.axis-bracket--north[data-v-react-fuiearth]{left:50%;top:-4px;transform:translateX(-50%)}.axis-bracket--south[data-v-react-fuiearth]{left:50%;bottom:-4px;transform:translateX(-50%) rotate(180deg)}.axis-bracket--east[data-v-react-fuiearth]{right:-11px;top:50%;transform:translateY(-50%) rotate(90deg)}.axis-bracket--west[data-v-react-fuiearth]{left:-11px;top:50%;transform:translateY(-50%) rotate(-90deg)}
+.reference-hud[data-v-react-fuiearth] { position:absolute; z-index:3; left:0; top:0; width:1020px; height:975px; overflow:visible; pointer-events:none; color:var(--fui-instrument-color, var(--earth-accent));
+}
+.reference-hud[data-v-react-fuiearth] { transition:opacity .20s ease;
+}
+.center-stage.is-earth-hud-hidden>.reference-hud[data-v-react-fuiearth],
+.center-stage.is-earth-hud-hidden>.orbital-rings[data-v-react-fuiearth] { opacity:0; visibility:hidden; transition:opacity .20s ease,visibility 0s linear .20s;
+}
+.center-stage.is-earth-hud-hidden .reference-hud-earth[data-v-react-fuiearth] { opacity:0;
+}
+.center-stage.without-hud .reference-hud[data-v-react-fuiearth] { display:none;
+}
+/* The geographic renderer has no HUD-shaped mask: zoom may cross the instrument. */
+@keyframes hud-orbit-drift-react-fuiearth{to{transform:rotate(360deg)}}
+.globe-reticle[data-v-react-fuiearth] { position:absolute;z-index:5;color:var(--earth-accent);font-size:17px;text-shadow:0 0 8px rgb(var(--fui-hud-rgb, 117 157 187) / .7)}.globe-reticle--left[data-v-react-fuiearth]{left:199px;top:469px}.globe-reticle--right[data-v-react-fuiearth]{right:198px;top:464px}
+.center-stage.without-hud .orbital-rings[data-v-react-fuiearth] { display: none;
+}
+.globe-reticle[data-v-react-fuiearth] { pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+.orbit-segments[data-v-react-fuiearth] { animation: none;
+}
+}
+
+
+.hologram-hud-arcs[data-v-react-fuiearth]{transform-origin:510px 460px;animation:hologram-hud-orbit-react-fuiearth 100s linear infinite;filter:drop-shadow(0 0 2px currentColor)}
+@keyframes hologram-hud-orbit-react-fuiearth{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.hologram-hud-arcs[data-v-react-fuiearth]{animation:none}}

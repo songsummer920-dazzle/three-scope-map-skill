@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.0
+// SPDX-License-Identifier: LicenseRef-Summer-Platform-Restriction-1.1
 // 作者全平台ID：宋夏天Dazzle；公众号：送你整个夏天
 // An isolated real-WebGL QA entry. It never sends native input or changes
 // the normal app entry. Visibility simulation is confined to this harness.
